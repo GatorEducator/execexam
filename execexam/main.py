@@ -31,8 +31,6 @@ def run() -> None:
     pytest.main(
         [
             "-q",
-            # "-s",
-            # "-rN",
             "--json-report-file=none",
             "-p",
             "no:logging",
