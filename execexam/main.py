@@ -38,6 +38,10 @@ def run(
     # note that this approach avoids the need to write
     # a custom pytest plugin for the executable examination
     plugin = JSONReport()
+    # display basic diagnostic information about command-line
+    # arguments using an emoji and the rich console
+    console.print(f"📦 Project directory: {project}")
+    console.print(f"🧪 Test file or test directory: {tests}")
     # run pytest for either:
     # - a single test file that was specified in tests
     # - a directory of test files that was specified in tests
