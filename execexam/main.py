@@ -37,7 +37,8 @@ def run() -> None:
             "-p",
             "no:warnings",
             "--tb=no",
-            os.path.join(tests_dir, "test_question_one.py"),
+            # os.path.join(tests_dir, "test_question_one.py"),
+            os.path.join(tests_dir),
         ],
         plugins=[plugin],
     )
