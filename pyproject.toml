@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "execexam"
+version = "0.1.0"
+description = ""
+authors = ["Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
+readme = "README.md"
+
+[tool.poetry.scripts]
+execexam = "execexam.main:cli"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^8.1.1"
+typer = "^0.9.0"
+pytest-json-report = "^1.5.0"
+rich = "^13.7.1"
+coverage = "^7.4.3"
+pytest-cov = "^4.1.0"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+]
+
+[tool.ruff]
+line-length = 79
+ignore = [
+    "E501", # do not check line length
+]
+select = [
+    "E",    # pycodestyle errors
+    "I",    # isort
+    "F",    # Pyflakes
+    "PL",   # pylint
+    "Q",    # flake8-quotes
+    "RUF",  # ruff-specific
+    "W",    # pycodestyle warnings
+    "T201"  # flake8-print
+]
+
+[tool.isort]
+include_trailing_comma = true
+force_single_line = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
