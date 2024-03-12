@@ -1,4 +1,4 @@
-"""Command-line interface for execexam."""
+"""Run an executable examination."""
 
 import os
 import subprocess
@@ -22,10 +22,12 @@ console = Console()
 @cli.command()
 def run(
     project: Path = typer.Argument(
-        ..., help="Project directory for an executable examination"
+        ...,
+        help="Project directory containing questions and tests",
     ),
     tests: Path = typer.Argument(
-        ..., help="Test file or test directory for an executable examination"
+        ...,
+        help="Test file or test directory",
     ),
 ) -> None:
     """Run an executable exam."""
