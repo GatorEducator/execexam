@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any, Dict
 
 import pytest
 import typer
@@ -17,6 +18,24 @@ cli = typer.Typer(no_args_is_help=True)
 
 # create a default console
 console = Console()
+
+
+def extract_details(details: Dict[Any, Any]) -> str:
+    """Extract the details of a dictionary and return it as a string."""
+    output = []
+    for key, value in details.items():
+        output.append(f"{key.capitalize()}: {value}")
+    return ", ".join(output)
+
+
+def extract_test_run_details(details: dict[Any, Any]) -> str:
+    """Extract the details of a test run."""
+    # Format of the data in the dictionary:
+    # 'summary': Counter({'passed': 2, 'total': 2, 'collected': 2})
+    summary_details = details["summary"]
+    # convert the dictionary of summary to a string
+    summary_details_str = extract_details(summary_details)
+    return summary_details_str
 
 
 @cli.command()
@@ -61,6 +80,9 @@ def run(
         ],
         plugins=[plugin],
     )
+    # extract information about the test run from plugin.report
+    test_run_details = extract_test_run_details(plugin.report)
+    console.print(test_run_details)
     # pretty print the JSON report using rich
     console.print(plugin.report, highlight=True)
     # define the command
