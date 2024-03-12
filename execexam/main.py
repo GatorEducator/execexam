@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 import typer
@@ -19,12 +20,19 @@ console = Console()
 
 
 @cli.command()
-def run() -> None:
+def run(
+    project: Path = typer.Argument(
+        ..., help="Project directory for an executable examination"
+    ),
+    tests: Path = typer.Argument(
+        ..., help="Test file or test directory for an executable examination"
+    ),
+) -> None:
     """Run an executable exam."""
-    project_directory = "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-midterm-examination-solution/exam"
-    sys.path.append(project_directory)
+    # tests = "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-midterm-examination-solution/exam"
+    sys.path.append(str(project))
     # construct the path to the tests/ directory
-    tests_dir = os.path.join(project_directory, "tests")
+    # tests_dir = os.path.join(tests, "tests")
     # create the plugin
     plugin = JSONReport()
     # run pytest for the test_question_one.py file
@@ -38,7 +46,7 @@ def run() -> None:
             "no:warnings",
             "--tb=no",
             # os.path.join(tests_dir, "test_question_one.py"),
-            os.path.join(tests_dir),
+            os.path.join(tests),
         ],
         plugins=[plugin],
     )
