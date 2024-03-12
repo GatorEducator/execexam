@@ -29,6 +29,7 @@ def run(
         ...,
         help="Test file or test directory",
     ),
+    verbose: bool = typer.Option(False, help="Display verbose output"),
 ) -> None:
     """Run an executable exam."""
     # add the project directory to the system path
