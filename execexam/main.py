@@ -70,12 +70,12 @@ def run(
     # - a directory of test files that was specified in tests
     # note that this relies on pytest correctly discovering
     # all of the test files and running their test cases
-
-    # Redirect stdout and stderr to /dev/null
+    # redirect stdout and stderr to /dev/null
     null_file = open(os.devnull, 'w')
     sys.stdout = null_file
     sys.stderr = null_file
-
+    # run pytest in a fashion that will not
+    # produce any output to the console
     pytest.main(
         [
             "-q",
@@ -91,7 +91,9 @@ def run(
         ],
         plugins=[plugin],
     )
-    # Restore stdout and stderr
+    # restore stdout and stderr; this will allow
+    # the execexam program to continue to produce
+    # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
     # extract information about the test run from plugin.report
