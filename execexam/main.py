@@ -27,13 +27,14 @@ def run() -> None:
     tests_dir = os.path.join(project_directory, "tests")
     # create the plugin
     plugin = JSONReport()
-    # Run pytest for the test_question_one.py file
+    # run pytest for the test_question_one.py file
     pytest.main(
         [
             "-q",
-            "-p",
             "--json-report-file=none",
+            "-p",
             "no:logging",
+            "-p",
             "no:warnings",
             "--tb=no",
             os.path.join(tests_dir, "test_question_one.py"),
@@ -49,7 +50,7 @@ def run() -> None:
         command, shell=True, check=True, text=True, capture_output=True
     )
     # print the output
-    print(process.stdout)
+    # print(process.stdout)
     # use rich to display this soure code in a formatted box
     source_code_syntax = Syntax(
         process.stdout,
