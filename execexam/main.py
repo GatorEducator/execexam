@@ -23,6 +23,8 @@ console = Console()
 def extract_details(details: Dict[Any, Any]) -> str:
     """Extract the details of a dictionary and return it as a string."""
     output = []
+    emoji = ":sparkles:"
+    output.append(emoji)
     for key, value in details.items():
         output.append(f"{key.capitalize()}: {value}")
     return ", ".join(output)
@@ -62,14 +64,23 @@ def run(
     # arguments using an emoji and the rich console
     console.print(f"📦 Project directory: {project}")
     console.print(f"🧪 Test file or test directory: {tests}")
+    console.print(":snake: Pytest output")
     # run pytest for either:
     # - a single test file that was specified in tests
     # - a directory of test files that was specified in tests
     # note that this relies on pytest correctly discovering
     # all of the test files and running their test cases
+
+    # Redirect stdout and stderr to /dev/null
+    null_file = open(os.devnull, 'w')
+    sys.stdout = null_file
+    sys.stderr = null_file
+
     pytest.main(
         [
             "-q",
+            "-ra",
+            "-s",
             "--json-report-file=none",
             "-p",
             "no:logging",
@@ -80,8 +91,11 @@ def run(
         ],
         plugins=[plugin],
     )
+    # Restore stdout and stderr
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
     # extract information about the test run from plugin.report
-    test_run_details = extract_test_run_details(plugin.report)
+    test_run_details = extract_test_run_details(plugin.report)  # type: ignore
     console.print(test_run_details)
     # pretty print the JSON report using rich
     console.print(plugin.report, highlight=True)
