@@ -31,13 +31,18 @@ def run(
     ),
 ) -> None:
     """Run an executable exam."""
-    # tests = "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-midterm-examination-solution/exam"
+    # add the project directory to the system path
     sys.path.append(str(project))
-    # construct the path to the tests/ directory
-    # tests_dir = os.path.join(tests, "tests")
-    # create the plugin
+    # create the plugin that will collect all data
+    # about the test runs and report it as a JSON object;
+    # note that this approach avoids the need to write
+    # a custom pytest plugin for the executable examination
     plugin = JSONReport()
-    # run pytest for the test_question_one.py file
+    # run pytest for either:
+    # - a single test file that was specified in tests
+    # - a directory of test files that was specified in tests
+    # note that this relies on pytest correctly discovering
+    # all of the test files and running their test cases
     pytest.main(
         [
             "-q",
@@ -47,7 +52,6 @@ def run(
             "-p",
             "no:warnings",
             "--tb=no",
-            # os.path.join(tests_dir, "test_question_one.py"),
             os.path.join(tests),
         ],
         plugins=[plugin],
@@ -61,7 +65,6 @@ def run(
         command, shell=True, check=True, text=True, capture_output=True
     )
     # print the output
-    # print(process.stdout)
     # use rich to display this soure code in a formatted box
     source_code_syntax = Syntax(
         process.stdout,
