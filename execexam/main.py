@@ -12,12 +12,25 @@ from pytest_jsonreport.plugin import JSONReport
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
+from rich.text import Text
 
 # create a Typer object to support the command-line interface
 cli = typer.Typer(no_args_is_help=True)
 
 # create a default console
 console = Console()
+
+# create the skip list for data not needed
+skip = ["keywords", "setup", "teardown"]
+
+
+def path_to_string(path_name: Path, levels: int = 4) -> str:
+    """Convert the path to an elided version of the path as a string."""
+    parts = path_name.parts
+    if len(parts) > levels:
+        return Path("<...>", *parts[-levels:]).as_posix()
+    else:
+        return path_name.as_posix()
 
 
 def extract_details(details: Dict[Any, Any]) -> str:
@@ -30,7 +43,7 @@ def extract_details(details: Dict[Any, Any]) -> str:
     return ", ".join(output)
 
 
-def extract_test_run_details(details: dict[Any, Any]) -> str:
+def extract_test_run_details(details: Dict[Any, Any]) -> str:
     """Extract the details of a test run."""
     # Format of the data in the dictionary:
     # 'summary': Counter({'passed': 2, 'total': 2, 'collected': 2})
@@ -38,6 +51,35 @@ def extract_test_run_details(details: dict[Any, Any]) -> str:
     # convert the dictionary of summary to a string
     summary_details_str = extract_details(summary_details)
     return summary_details_str
+
+
+def extract_failing_test_details(details: dict[Any, Any]) -> str:
+    """Extract the details of a failing test."""
+    tests = details["tests"]
+    failing_details_str = "\n"
+    for test in tests:
+        if test["outcome"] == "failed":
+            # convert the dictionary of failing details to a string
+            # and add it to the failing_details_str
+            failing_details = test
+            # get the nodeid of the failing test
+            failing_test_nodeid = failing_details["nodeid"]
+            failing_details_str += f"  Name: {failing_test_nodeid}\n"
+            # get the call information of the failing test
+            failing_test_call = failing_details["call"]
+            # get the crash information of the failing test's call
+            failing_test_crash = failing_test_call["crash"]
+            # get all needed information about the test crash call
+            failing_test_path = path_to_string(
+                Path(failing_test_crash["path"]), 4
+            )
+            failing_test_lineno = failing_test_crash["lineno"]
+            failing_test_message = failing_test_crash["message"]
+            # assemble all of the failing test details into the string
+            failing_details_str += f"  Path: {failing_test_path}\n"
+            failing_details_str += f"  Line number: {failing_test_lineno}\n"
+            failing_details_str += f"  Message: {failing_test_message}\n"
+    return failing_details_str
 
 
 @cli.command()
@@ -62,16 +104,27 @@ def run(
     plugin = JSONReport()
     # display basic diagnostic information about command-line
     # arguments using an emoji and the rich console
-    console.print(f"📦 Project directory: {project}")
-    console.print(f"🧪 Test file or test directory: {tests}")
-    console.print(":snake: Pytest output")
+    diagnostics = f"📦 Project directory: {project}\n"
+    diagnostics += f"🧪 Test file or test directory: {tests}\n"
+    console.print()
+    console.print(
+        Panel(
+            Text(diagnostics, overflow="fold"),
+            expand=True,
+            title=":sparkles: Parameter Information",
+        )
+    )
+    # console.print(f"📦 Project directory: {project}")
+    # console.print(f"🧪 Test file or test directory: {tests}\n")
+    console.print()
+    console.print(":snake: Test output")
     # run pytest for either:
     # - a single test file that was specified in tests
     # - a directory of test files that was specified in tests
     # note that this relies on pytest correctly discovering
     # all of the test files and running their test cases
     # redirect stdout and stderr to /dev/null
-    null_file = open(os.devnull, 'w')
+    null_file = open(os.devnull, "w")
     sys.stdout = null_file
     sys.stderr = null_file
     # run pytest in a fashion that will not
@@ -97,8 +150,20 @@ def run(
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
     # extract information about the test run from plugin.report
+    # --> display details about the test runs
     test_run_details = extract_test_run_details(plugin.report)  # type: ignore
     console.print(test_run_details)
+    # --> display details about the failing tests
+    failing_test_details = extract_failing_test_details(plugin.report)  # type: ignore
+    console.print()
+    console.print(
+        Panel(
+            Text(failing_test_details, overflow="fold"),
+            expand=True,
+            title=":cry: Failing test details",
+        )
+    )
+    # console.print(failing_test_details)
     # pretty print the JSON report using rich
     console.print(plugin.report, highlight=True)
     # define the command
