@@ -37,6 +37,7 @@ def path_to_string(path_name: Path, levels: int = 4) -> str:
 def extract_details(details: Dict[Any, Any]) -> str:
     """Extract the details of a dictionary and return it as a string."""
     output = []
+    # iterate through the dictionary and add each key-value pair
     for key, value in details.items():
         output.append(f"{key}: {value}")
     return ", ".join(output)
@@ -54,7 +55,11 @@ def extract_test_run_details(details: Dict[Any, Any]) -> str:
 
 def extract_failing_test_details(details: dict[Any, Any]) -> str:
     """Extract the details of a failing test."""
+    # extract the tests from the details
     tests = details["tests"]
+    # create an empty string that starts with a newline;
+    # the goal of the for loop is to incrementally build
+    # of a string that contains all deteails about failing tests
     failing_details_str = "\n"
     for test in tests:
         if test["outcome"] == "failed":
@@ -78,6 +83,7 @@ def extract_failing_test_details(details: dict[Any, Any]) -> str:
             failing_details_str += f"  Path: {failing_test_path}\n"
             failing_details_str += f"  Line number: {failing_test_lineno}\n"
             failing_details_str += f"  Message: {failing_test_message}\n"
+    # return the string that contains all of the failing test details
     return failing_details_str
 
 
@@ -146,11 +152,9 @@ def run(
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
-    # print(captured_output.getvalue())
     # extract information about the test run from plugin.report
     # --> display details about the test runs
     test_run_details = extract_test_run_details(plugin.report)  # type: ignore
-    # console.print(test_run_details)
     console.print()
     console.print(
         Panel(
@@ -172,7 +176,6 @@ def run(
             title=":cry: Failing test details",
         )
     )
-    # console.print(failing_test_details)
     # pretty print the JSON report using rich
     console.print(plugin.report, highlight=True)
     # define the command
