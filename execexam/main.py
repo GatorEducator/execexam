@@ -87,6 +87,13 @@ def extract_failing_test_details(details: dict[Any, Any]) -> str:
     return failing_details_str
 
 
+def is_failing_test_details_empty(details: str) -> bool:
+    """Determine if the string contains a newline as a hallmark of no failing tests."""
+    if details == "\n":
+        return True
+    return False
+
+
 @cli.command()
 def run(
     project: Path = typer.Argument(
@@ -100,6 +107,7 @@ def run(
     verbose: bool = typer.Option(False, help="Display verbose output"),
 ) -> None:
     """Run an executable exam."""
+    return_code = 0
     # add the project directory to the system path
     sys.path.append(str(project))
     # create the plugin that will collect all data
@@ -166,16 +174,18 @@ def run(
             title=":snake: Test output",
         )
     )
-    # --> display details about the failing tests
+    # --> display details about the failing tests, if they exist
     failing_test_details = extract_failing_test_details(plugin.report)  # type: ignore
-    console.print()
-    console.print(
-        Panel(
-            Text(failing_test_details, overflow="fold"),
-            expand=True,
-            title=":cry: Failing test details",
+    if not is_failing_test_details_empty(failing_test_details):
+        console.print()
+        console.print(
+            Panel(
+                Text(failing_test_details, overflow="fold"),
+                expand=True,
+                title=":cry: Failing test details",
+            )
         )
-    )
+        return_code = 1
     # pretty print the JSON report using rich
     console.print(plugin.report, highlight=True)
     # define the command
@@ -198,3 +208,6 @@ def run(
             title="Source code file",
         )
     )
+    # return the code for the overall success of the program
+    # to communicate to the operating system the examination's status
+    sys.exit(return_code)
