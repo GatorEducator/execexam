@@ -37,10 +37,8 @@ def path_to_string(path_name: Path, levels: int = 4) -> str:
 def extract_details(details: Dict[Any, Any]) -> str:
     """Extract the details of a dictionary and return it as a string."""
     output = []
-    emoji = ":sparkles:"
-    output.append(emoji)
     for key, value in details.items():
-        output.append(f"{key.capitalize()}: {value}")
+        output.append(f"{key}: {value}")
     return ", ".join(output)
 
 
@@ -115,8 +113,8 @@ def run(
             title=":sparkles: Parameter Information",
         )
     )
-    console.print()
-    console.print(":snake: Test output")
+    # console.print()
+    # console.print(":snake: Test output")
     # run pytest for either:
     # - a single test file that was specified in tests
     # - a directory of test files that was specified in tests
@@ -148,11 +146,22 @@ def run(
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
-    print(captured_output.getvalue())
+    # print(captured_output.getvalue())
     # extract information about the test run from plugin.report
     # --> display details about the test runs
     test_run_details = extract_test_run_details(plugin.report)  # type: ignore
-    console.print(test_run_details)
+    # console.print(test_run_details)
+    console.print()
+    console.print(
+        Panel(
+            Text(
+                "\n" + captured_output.getvalue() + test_run_details + "\n",
+                overflow="fold",
+            ),
+            expand=True,
+            title=":snake: Test output",
+        )
+    )
     # --> display details about the failing tests
     failing_test_details = extract_failing_test_details(plugin.report)  # type: ignore
     console.print()
