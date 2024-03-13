@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, Union
 
 import pytest
 import typer
@@ -39,8 +39,8 @@ def extract_details(details: Dict[Any, Any]) -> str:
     output = []
     # iterate through the dictionary and add each key-value pair
     for key, value in details.items():
-        output.append(f"{key}: {value}")
-    return ", ".join(output)
+        output.append(f"{value} {key}")
+    return "Details: " + ", ".join(output)
 
 
 def extract_test_run_details(details: Dict[Any, Any]) -> str:
@@ -53,7 +53,9 @@ def extract_test_run_details(details: Dict[Any, Any]) -> str:
     return summary_details_str
 
 
-def extract_failing_test_details(details: dict[Any, Any]) -> str:
+def extract_failing_test_details(
+    details: dict[Any, Any]
+) -> Tuple[str, Union[Path, None]]:
     """Extract the details of a failing test."""
     # extract the tests from the details
     tests = details["tests"]
@@ -61,6 +63,9 @@ def extract_failing_test_details(details: dict[Any, Any]) -> str:
     # the goal of the for loop is to incrementally build
     # of a string that contains all deteails about failing tests
     failing_details_str = "\n"
+    # create an initial path for the file containing the failing test
+    failing_test_path = None
+    # incrementally build up results for all of the failing tests
     for test in tests:
         if test["outcome"] == "failed":
             # convert the dictionary of failing details to a string
@@ -74,17 +79,16 @@ def extract_failing_test_details(details: dict[Any, Any]) -> str:
             # get the crash information of the failing test's call
             failing_test_crash = failing_test_call["crash"]
             # get all needed information about the test crash call
-            failing_test_path = path_to_string(
-                Path(failing_test_crash["path"]), 4
-            )
+            failing_test_path = Path(failing_test_crash["path"])
+            failing_test_path_str = path_to_string(failing_test_path, 4)
             failing_test_lineno = failing_test_crash["lineno"]
             failing_test_message = failing_test_crash["message"]
             # assemble all of the failing test details into the string
-            failing_details_str += f"  Path: {failing_test_path}\n"
+            failing_details_str += f"  Path: {failing_test_path_str}\n"
             failing_details_str += f"  Line number: {failing_test_lineno}\n"
             failing_details_str += f"  Message: {failing_test_message}\n"
     # return the string that contains all of the failing test details
-    return failing_details_str
+    return (failing_details_str, failing_test_path)
 
 
 def is_failing_test_details_empty(details: str) -> bool:
@@ -117,8 +121,8 @@ def run(
     plugin = JSONReport()
     # display basic diagnostic information about command-line
     # arguments using an emoji and the rich console
-    diagnostics = f"\n📦 Project directory: {project}\n"
-    diagnostics += f"🧪 Test file or test directory: {tests}\n"
+    diagnostics = f"\nProject directory: {project}\n"
+    diagnostics += f"Test file or test directory: {tests}\n"
     console.print()
     console.print(
         Panel(
@@ -127,8 +131,6 @@ def run(
             title=":sparkles: Parameter Information",
         )
     )
-    # console.print()
-    # console.print(":snake: Test output")
     # run pytest for either:
     # - a single test file that was specified in tests
     # - a directory of test files that was specified in tests
@@ -174,8 +176,12 @@ def run(
             title=":snake: Test output",
         )
     )
-    # --> display details about the failing tests, if they exist
-    failing_test_details = extract_failing_test_details(plugin.report)  # type: ignore
+    # --> display details about the failing tests,
+    # if they exist. Note that there can be:
+    # - zero failing tests
+    # - one failing test
+    # - multiple failing tests
+    (failing_test_details, failing_test_path) = extract_failing_test_details(plugin.report)  # type: ignore
     if not is_failing_test_details_empty(failing_test_details):
         console.print()
         console.print(
@@ -186,28 +192,30 @@ def run(
             )
         )
         return_code = 1
+        # define the command: TODO: add the name of the test!
+        # TODO: must be done for all of the failing test cases!
+        command = f"symbex test_find_minimum_value -f {failing_test_path}"
+        # run the command and collect its output
+        process = subprocess.run(
+            command, shell=True, check=True, text=True, capture_output=True
+        )
+        # print the output
+        # use rich to display this soure code in a formatted box
+        source_code_syntax = Syntax(
+            "\n" + process.stdout,
+            "python",
+            theme="ansi_dark",
+        )
+        console.print()
+        console.print(
+            Panel(
+                source_code_syntax,
+                expand=False,
+                title=":package: Failing test code",
+            )
+        )
     # pretty print the JSON report using rich
     console.print(plugin.report, highlight=True)
-    # define the command
-    command = "symbex test_find_minimum_value -f /home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-midterm-examination-solution/exam/tests/test_question_one.py"
-    # run the command and collect its output
-    process = subprocess.run(
-        command, shell=True, check=True, text=True, capture_output=True
-    )
-    # print the output
-    # use rich to display this soure code in a formatted box
-    source_code_syntax = Syntax(
-        process.stdout,
-        "python",
-        theme="ansi_dark",
-    )
-    console.print(
-        Panel(
-            source_code_syntax,
-            expand=False,
-            title="Source code file",
-        )
-    )
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
     sys.exit(return_code)
