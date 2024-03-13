@@ -1,5 +1,6 @@
 """Run an executable examination."""
 
+import io
 import os
 import subprocess
 import sys
@@ -104,7 +105,7 @@ def run(
     plugin = JSONReport()
     # display basic diagnostic information about command-line
     # arguments using an emoji and the rich console
-    diagnostics = f"📦 Project directory: {project}\n"
+    diagnostics = f"\n📦 Project directory: {project}\n"
     diagnostics += f"🧪 Test file or test directory: {tests}\n"
     console.print()
     console.print(
@@ -125,7 +126,8 @@ def run(
     # all of the test files and running their test cases
     # redirect stdout and stderr to /dev/null
     null_file = open(os.devnull, "w")
-    sys.stdout = null_file
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
     sys.stderr = null_file
     # run pytest in a fashion that will not
     # produce any output to the console
@@ -149,6 +151,7 @@ def run(
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
+    print(captured_output.getvalue())
     # extract information about the test run from plugin.report
     # --> display details about the test runs
     test_run_details = extract_test_run_details(plugin.report)  # type: ignore
