@@ -34,6 +34,20 @@ def path_to_string(path_name: Path, levels: int = 4) -> str:
         return path_name.as_posix()
 
 
+def create_spaced_marks(marks: List[str]) -> str:
+    """Create a string with spaced marks."""
+    found_marks_str = ""
+    found_marks = False
+    for mark in marks:
+        if not found_marks:
+            found_marks_str = f"{mark}"
+            found_marks = True
+            continue
+        if found_marks:
+            found_marks_str += f" and {mark}"
+    return found_marks_str
+
+
 def extract_details(details: Dict[Any, Any]) -> str:
     """Extract the details of a dictionary and return it as a string."""
     output = []
@@ -114,6 +128,9 @@ def run(
         ...,
         help="Test file or test directory",
     ),
+    mark: str = typer.Option(
+        None, help="Only run tests with the specified mark(s)"
+    ),
     verbose: bool = typer.Option(False, help="Display verbose output"),
 ) -> None:
     """Run an executable exam."""
@@ -148,21 +165,42 @@ def run(
     sys.stderr = captured_output
     # run pytest in a fashion that will not
     # produce any output to the console
-    pytest.main(
-        [
+    # found_marks_str = create_spaced_marks(mark) if mark else ""
+    found_marks_str = mark
+    if found_marks_str:
+        pytest.main(
+            [
+                "-q",
+                "-ra",
+                "-s",
+                "-p",
+                "no:logging",
+                "-p",
+                "no:warnings",
+                "--tb=no",
+                "--json-report-file=none",
+                "-m",
+                found_marks_str,
+                os.path.join(tests),
+            ],
+            plugins=[plugin],
+        )
+    else:
+        pytest.main(
+            [
             "-q",
             "-ra",
             "-s",
-            "--json-report-file=none",
             "-p",
             "no:logging",
             "-p",
             "no:warnings",
             "--tb=no",
+            "--json-report-file=none",
             os.path.join(tests),
-        ],
-        plugins=[plugin],
-    )
+            ],
+            plugins=[plugin],
+        )
     # restore stdout and stderr; this will allow
     # the execexam program to continue to produce
     # output in the console
@@ -187,9 +225,10 @@ def run(
     # - zero failing tests
     # - one failing test
     # - multiple failing tests
-    (failing_test_details, failing_test_path_dicts) = extract_failing_test_details(
-        plugin.report
-    )  # type: ignore
+    (
+        failing_test_details,
+        failing_test_path_dicts,
+    ) = extract_failing_test_details(plugin.report)  # type: ignore
     # there was at least one failing test case
     if not is_failing_test_details_empty(failing_test_details):
         # there were test failures and thus the return code is non-zero
@@ -217,7 +256,11 @@ def run(
                 command = f"symbex {test_name} -f {failing_test_path}"
                 # run the symbex command and collect its output
                 process = subprocess.run(
-                    command, shell=True, check=True, text=True, capture_output=True
+                    command,
+                    shell=True,
+                    check=True,
+                    text=True,
+                    capture_output=True,
                 )
                 # delete an extra blank line from the end of the file
                 # if there are two blank lines in a row
@@ -237,7 +280,7 @@ def run(
                     )
                 )
     # pretty print the JSON report using rich
-    console.print(plugin.report, highlight=True)
+    # console.print(plugin.report, highlight=True)
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
     sys.exit(return_code)
