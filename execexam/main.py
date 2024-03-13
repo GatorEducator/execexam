@@ -115,8 +115,6 @@ def run(
             title=":sparkles: Parameter Information",
         )
     )
-    # console.print(f"📦 Project directory: {project}")
-    # console.print(f"🧪 Test file or test directory: {tests}\n")
     console.print()
     console.print(":snake: Test output")
     # run pytest for either:
@@ -125,10 +123,9 @@ def run(
     # note that this relies on pytest correctly discovering
     # all of the test files and running their test cases
     # redirect stdout and stderr to /dev/null
-    null_file = open(os.devnull, "w")
     captured_output = io.StringIO()
     sys.stdout = captured_output
-    sys.stderr = null_file
+    sys.stderr = captured_output
     # run pytest in a fashion that will not
     # produce any output to the console
     pytest.main(
