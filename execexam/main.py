@@ -150,7 +150,7 @@ def run(
     console.print(
         Panel(
             Text(diagnostics, overflow="fold"),
-            expand=True,
+            expand=False,
             title=":sparkles: Parameter Information",
         )
     )
@@ -216,7 +216,7 @@ def run(
                 "\n" + captured_output.getvalue() + test_run_details + "\n",
                 overflow="fold",
             ),
-            expand=True,
+            expand=False,
             title=":snake: Test output",
         )
     )
@@ -242,7 +242,7 @@ def run(
             console.print(
                 Panel(
                     Text(failing_test_details, overflow="fold"),
-                    expand=True,
+                    expand=False,
                     title=":cry: Failing test details",
                 )
             )
