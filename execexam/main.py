@@ -280,7 +280,6 @@ def run(
                     )
                 )
     # pretty print the JSON report using rich
-    # console.print(plugin.report, highlight=True)
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
     sys.exit(return_code)
