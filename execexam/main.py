@@ -151,7 +151,7 @@ def run(
         Panel(
             Text(diagnostics, overflow="fold"),
             expand=False,
-            title=":sparkles: Parameter Information",
+            title="Parameter Information",
         )
     )
     # run pytest for either:
@@ -217,7 +217,7 @@ def run(
                 overflow="fold",
             ),
             expand=False,
-            title=":snake: Test output",
+            title="Test output",
         )
     )
     # --> display details about the failing tests,
@@ -243,7 +243,7 @@ def run(
                 Panel(
                     Text(failing_test_details, overflow="fold"),
                     expand=False,
-                    title=":cry: Failing test details",
+                    title="Failing test details",
                 )
             )
             # display the source code for the failing test cases
@@ -276,7 +276,7 @@ def run(
                     Panel(
                         source_code_syntax,
                         expand=False,
-                        title=":package: Failing test code",
+                        title="Failing test code",
                     )
                 )
     # pretty print the JSON report using rich
