@@ -15,6 +15,8 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.text import Text
 
+from . import pytest_plugin  # import the plugin
+
 # create a Typer object to support the command-line interface
 cli = typer.Typer(no_args_is_help=True)
 
@@ -73,6 +75,7 @@ def extract_failing_test_details(
     """Extract the details of a failing test."""
     # extract the tests from the details
     tests = details["tests"]
+    console.print(tests)
     # create an empty string that starts with a newline;
     # the goal of the for loop is to incrementally build
     # of a string that contains all deteails about failing tests
@@ -165,7 +168,6 @@ def run(
     sys.stderr = captured_output
     # run pytest in a fashion that will not
     # produce any output to the console
-    # found_marks_str = create_spaced_marks(mark) if mark else ""
     found_marks_str = mark
     if found_marks_str:
         pytest.main(
@@ -179,11 +181,12 @@ def run(
                 "no:warnings",
                 "--tb=no",
                 "--json-report-file=none",
+                "--maxfail=10",
                 "-m",
                 found_marks_str,
                 os.path.join(tests),
             ],
-            plugins=[plugin],
+            plugins=[plugin, pytest_plugin],
         )
     else:
         pytest.main(
@@ -196,10 +199,11 @@ def run(
             "-p",
             "no:warnings",
             "--tb=no",
+            "--maxfail=10",
             "--json-report-file=none",
             os.path.join(tests),
             ],
-            plugins=[plugin],
+            plugins=[plugin, pytest_plugin],
         )
     # restore stdout and stderr; this will allow
     # the execexam program to continue to produce
@@ -253,6 +257,9 @@ def run(
                 # build the command for running symbex; this tool can
                 # perform static analysis of Python source code and
                 # extract the code of a function inside of a file
+                console.print(failing_test_path_dict)
+                console.print(f"Test Name: {test_name}")
+                console.print(f"Failing Test Path: {failing_test_path}")
                 command = f"symbex {test_name} -f {failing_test_path}"
                 # run the symbex command and collect its output
                 process = subprocess.run(
