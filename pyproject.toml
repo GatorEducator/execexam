@@ -17,10 +17,14 @@ rich = "^13.7.1"
 coverage = "^7.4.3"
 pytest-cov = "^4.1.0"
 
+[tool.poetry.plugins.pytest11]
+"execexam" = "execexam.pytest_plugin"
+
 [tool.pytest.ini_options]
 filterwarnings = [
     "error",
 ]
+enable_assertion_pass_hook = true
 
 [tool.ruff]
 line-length = 79
