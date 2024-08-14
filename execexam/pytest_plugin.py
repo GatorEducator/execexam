@@ -1,9 +1,15 @@
 """This module contains the pytest plugin for the execexam package."""
 
+from typing import Any
+
+# create the report dictionary
+report: dict[str, Any] = {}
+
 
 def pytest_runtest_protocol(item, nextitem):
-    """Prints out when a test case is run."""
-    print(f"NICE! Running test: {item.nodeid}")
+    """Track when a test case is run."""
+    global report
+    report["nodeid"] = item.nodeid
 
 
 def pytest_assertrepr_compare(config, op, left, right):
