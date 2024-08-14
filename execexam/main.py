@@ -210,7 +210,13 @@ def run(
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
+    # extract the data that was created by the internal
+    # execexam pytest plugin for further diagnostic display
+    execexam_report = pytest_plugin.report
+    console.print("Internal execexam report:")
+    console.print(execexam_report)
     # extract information about the test run from plugin.report
+    # that was created by the JSON report plugin
     # --> display details about the test runs
     test_run_details = extract_test_run_details(plugin.report)  # type: ignore
     console.print()
