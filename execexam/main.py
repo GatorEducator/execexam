@@ -11,6 +11,7 @@ import pytest
 import typer
 from pytest_jsonreport.plugin import JSONReport
 from rich.console import Console
+from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.text import Text
@@ -55,7 +56,36 @@ def extract_test_run_details(details: Dict[Any, Any]) -> str:
     return summary_details_str
 
 
-# def append_test_assertions_details()
+def extract_test_assertion_details(test_details: Dict[Any, Any]) -> str:
+    """Extract the details of a dictionary and return it as a string."""
+    output = []
+    # iterate through the dictionary and add each key-value pair
+    for key, value in test_details.items():
+        output.append(f"  {key}: {value}\n")
+    return "".join(output)
+
+
+def extract_test_assertion_details_list(details: List[Dict[Any, Any]]) -> str:
+    """Extract the details of a list of dictionaries and return it as a string."""
+    output = []
+    # iterate through the list of dictionaries and add each dictionary
+    for current_dict in details:
+        output.append(extract_test_assertion_details(current_dict))
+    return "".join(output)
+
+
+def extract_test_assertions_details(test_reports: List[dict[str, Any]]):
+    """Extract the details of test assertions."""
+    test_report_string = ""
+    for test_report in test_reports:
+        # get the name of the test
+        test_name = test_report["nodeid"]
+        # extract only the name of the test file and the test name,
+        # basically all of the content after the final slash
+        display_test_name = test_name.rsplit("/", 1)[-1]
+        test_report_string += f"\n{display_test_name}\n"
+        test_report_string += extract_test_assertion_details_list(test_report["assertions"])
+    return test_report_string
 
 
 def extract_failing_test_details(
@@ -205,15 +235,22 @@ def run(
     execexam_report = pytest_plugin.reports
     console.print("Internal execexam report:")
     console.print(execexam_report)
+    # extract the details about the test assertions
+    # that come from the pytest plugin that execexam uses
+    exec_exam_test_assertion_details = extract_test_assertions_details(
+        execexam_report
+    )
     # extract information about the test run from plugin.report
     # that was created by the JSON report plugin
     # --> display details about the test runs
-    test_run_details = extract_test_run_details(plugin.report)  # type: ignore
+    _ = extract_test_run_details(plugin.report)  # type: ignore
     console.print()
     console.print(
         Panel(
             Text(
-                "\n" + captured_output.getvalue() + test_run_details + "\n",
+                "\n"
+                + captured_output.getvalue()
+                + exec_exam_test_assertion_details,
                 overflow="fold",
             ),
             expand=False,
