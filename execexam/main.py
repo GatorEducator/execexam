@@ -36,20 +36,6 @@ def path_to_string(path_name: Path, levels: int = 4) -> str:
         return path_name.as_posix()
 
 
-def create_spaced_marks(marks: List[str]) -> str:
-    """Create a string with spaced marks."""
-    found_marks_str = ""
-    found_marks = False
-    for mark in marks:
-        if not found_marks:
-            found_marks_str = f"{mark}"
-            found_marks = True
-            continue
-        if found_marks:
-            found_marks_str += f" and {mark}"
-    return found_marks_str
-
-
 def extract_details(details: Dict[Any, Any]) -> str:
     """Extract the details of a dictionary and return it as a string."""
     output = []
@@ -69,12 +55,16 @@ def extract_test_run_details(details: Dict[Any, Any]) -> str:
     return summary_details_str
 
 
+# def append_test_assertions_details()
+
+
 def extract_failing_test_details(
-    details: dict[Any, Any]
+    details: dict[Any, Any],
 ) -> Tuple[str, List[Dict[str, Path]]]:
     """Extract the details of a failing test."""
     # extract the tests from the details
     tests = details["tests"]
+    console.print("Coming from here")
     console.print(tests)
     # create an empty string that starts with a newline;
     # the goal of the for loop is to incrementally build
@@ -191,17 +181,17 @@ def run(
     else:
         pytest.main(
             [
-            "-q",
-            "-ra",
-            "-s",
-            "-p",
-            "no:logging",
-            "-p",
-            "no:warnings",
-            "--tb=no",
-            "--maxfail=10",
-            "--json-report-file=none",
-            os.path.join(tests),
+                "-q",
+                "-ra",
+                "-s",
+                "-p",
+                "no:logging",
+                "-p",
+                "no:warnings",
+                "--tb=no",
+                "--maxfail=10",
+                "--json-report-file=none",
+                os.path.join(tests),
             ],
             plugins=[plugin, pytest_plugin],
         )
