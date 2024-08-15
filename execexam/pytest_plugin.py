@@ -55,7 +55,7 @@ def pytest_exception_interact(node, call, report):
             # set it to a default value of "AssertionError"
             if orig == "":
                 orig = "AssertionError"
-            # extract the part inside the parentheses that 
+            # extract the part inside the parentheses that
             # corresponds to the exact assertion that failed
             expl = assertion_output.split("(")[1].split(")")[0]
             # create an empty dictionary for the data about
@@ -82,28 +82,9 @@ def pytest_exception_interact(node, call, report):
                 # there is an existing list of assertion dictionaries
                 # for this test case and thus we must add a new dictionary
                 # to the list that already exists with assertion information
-                current_test_report["assertions"].append(current_assertion_dict)
-
-        # print(
-        #     f"NICE pytest_exception_interact! AssertionError in {node.nodeid}: **{call.excinfo.value}**"
-        # )
-        # print(
-        #     f"NICE pytest_exception_interact! AssertionError extrac **{dir(call.excinfo.value)}**"
-        # )
-        # # repr = call.excinfo.getrepr(showlocals=True, style="short")
-        # # print(
-        # #     f"HIYA AssertionError occurred at line {repr.reprtraceback.reprentries[-1].lines} in {node.nodeid}: {call.excinfo.value}"
-        # # )
-        # # print(f"NICE, here is the type data for node: {dir(node)}")
-        # # print(
-        # #     f"NICE, showing details about the report --> lineno: {report.location[1]}"
-        # # )
-        # # print(f"NICE, here is the type data for call: {dir(call.excinfo)}")
-        # # print(f"NICE, here is the call traceback: {call.excinfo.traceback}")
-        # # last_traceback_entry = call.excinfo.traceback[-1]
-        # # print(
-        # #     f"COOL, AssertionError occurred at line {last_traceback_entry.lineno} in {node.nodeid}: {call.excinfo.value}"
-        # # )
+                current_test_report["assertions"].append(
+                    current_assertion_dict
+                )
 
 
 def pytest_assertion_pass(item, lineno, orig, expl):
