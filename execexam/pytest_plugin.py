@@ -15,12 +15,12 @@ def pytest_runtest_protocol(item, nextitem):
     reports.append({"nodeid": item.nodeid})
 
 
-def pytest_assertrepr_compare(config, op, left, right):
-    """Prints out the values of the left and right sides of an assertion."""
-    print(
-        f"NICE pytest_assertrepr_compare! Assertion is {op} with {left} and {right}"
-    )
-    return [f"{left} {op} {right}"]
+# def pytest_assertrepr_compare(config, op, left, right):
+#     """Prints out the values of the left and right sides of an assertion."""
+#     print(
+#         f"NICE pytest_assertrepr_compare! Assertion is {op} with {left} and {right}"
+#     )
+#     return [f"{left} {op} {right}"]
 
 
 def pytest_exception_interact(node, call, report):
