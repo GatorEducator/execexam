@@ -67,9 +67,9 @@ def pytest_assertion_pass(item, lineno, orig, expl):
             # create an empty dictionary for the data about
             # this assertion and then add the needed fields
             current_assertion_dict = {}
-            current_assertion_dict["lineno"] = lineno
-            current_assertion_dict["orig"] = orig
-            current_assertion_dict["expl"] = expl
+            current_assertion_dict["Line"] = lineno
+            current_assertion_dict["Code"] = orig
+            current_assertion_dict["Exact"] = expl
             # create a new list and add the dictionary with
             # the details about this assertion to the new list
             assertions_dictionary_list = [current_assertion_dict]
@@ -79,9 +79,9 @@ def pytest_assertion_pass(item, lineno, orig, expl):
           # create an empty dictionary for the data about
             # this assertion and then add the needed fields
             current_assertion_dict = {}
-            current_assertion_dict["lineno"] = lineno
-            current_assertion_dict["orig"] = orig
-            current_assertion_dict["expl"] = expl
+            current_assertion_dict["Line"] = lineno
+            current_assertion_dict["Code"] = orig
+            current_assertion_dict["Exact"] = expl
             # there is an existing list of assertion dictionaries
             # for this test case and thus we must add a new one to it
             current_test_report["assertions"].append(current_assertion_dict)
