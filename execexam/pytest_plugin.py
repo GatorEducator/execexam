@@ -58,9 +58,12 @@ def pytest_exception_interact(node, call, report):
             # extract the part inside the parentheses that 
             # corresponds to the exact assertion that failed
             expl = assertion_output.split("(")[1].split(")")[0]
-            # there is no data about assertions for this test
+            # create an empty dictionary for the data about
+            # the assertions for this failing test
             current_assertion_dict = {}
+            # indicate that the assertion failed
             current_assertion_dict["Status"] = "Failed"
+            # there is no data about assertions for this test
             if current_test_report.get("assertions") is None:
                 # add the needed fields about the assertion
                 current_assertion_dict["Line"] = lineno
@@ -77,28 +80,30 @@ def pytest_exception_interact(node, call, report):
                 current_assertion_dict["Exact"] = expl
                 current_assertion_dict["Message"] = orig
                 # there is an existing list of assertion dictionaries
-                # for this test case and thus we must add a new one to it
+                # for this test case and thus we must add a new dictionary
+                # to the list that already exists with assertion information
                 current_test_report["assertions"].append(current_assertion_dict)
-        print(
-            f"NICE pytest_exception_interact! AssertionError in {node.nodeid}: **{call.excinfo.value}**"
-        )
-        print(
-            f"NICE pytest_exception_interact! AssertionError extrac **{dir(call.excinfo.value)}**"
-        )
-        # repr = call.excinfo.getrepr(showlocals=True, style="short")
+
         # print(
-        #     f"HIYA AssertionError occurred at line {repr.reprtraceback.reprentries[-1].lines} in {node.nodeid}: {call.excinfo.value}"
+        #     f"NICE pytest_exception_interact! AssertionError in {node.nodeid}: **{call.excinfo.value}**"
         # )
-        # print(f"NICE, here is the type data for node: {dir(node)}")
         # print(
-        #     f"NICE, showing details about the report --> lineno: {report.location[1]}"
+        #     f"NICE pytest_exception_interact! AssertionError extrac **{dir(call.excinfo.value)}**"
         # )
-        # print(f"NICE, here is the type data for call: {dir(call.excinfo)}")
-        # print(f"NICE, here is the call traceback: {call.excinfo.traceback}")
-        # last_traceback_entry = call.excinfo.traceback[-1]
-        # print(
-        #     f"COOL, AssertionError occurred at line {last_traceback_entry.lineno} in {node.nodeid}: {call.excinfo.value}"
-        # )
+        # # repr = call.excinfo.getrepr(showlocals=True, style="short")
+        # # print(
+        # #     f"HIYA AssertionError occurred at line {repr.reprtraceback.reprentries[-1].lines} in {node.nodeid}: {call.excinfo.value}"
+        # # )
+        # # print(f"NICE, here is the type data for node: {dir(node)}")
+        # # print(
+        # #     f"NICE, showing details about the report --> lineno: {report.location[1]}"
+        # # )
+        # # print(f"NICE, here is the type data for call: {dir(call.excinfo)}")
+        # # print(f"NICE, here is the call traceback: {call.excinfo.traceback}")
+        # # last_traceback_entry = call.excinfo.traceback[-1]
+        # # print(
+        # #     f"COOL, AssertionError occurred at line {last_traceback_entry.lineno} in {node.nodeid}: {call.excinfo.value}"
+        # # )
 
 
 def pytest_assertion_pass(item, lineno, orig, expl):
@@ -119,6 +124,7 @@ def pytest_assertion_pass(item, lineno, orig, expl):
         # create a dictionary to store details
         # about the passing assertion for this test
         current_assertion_dict = {}
+        # indicate that the assertion passed
         current_assertion_dict["Status"] = "Passed"
         # there is no data about assertions for this test
         if current_test_report.get("assertions") is None:
