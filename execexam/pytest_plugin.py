@@ -44,23 +44,18 @@ def pytest_exception_interact(node, call, report):
             last_traceback_entry = call.excinfo.traceback[-1]
             lineno = last_traceback_entry.lineno + 1
             # --> extract the error message and the exact
-            # assertion from data that looks like this:
-            # "Minimum negative value in matrix assert (-4 == 1)"
-            # extract the part before 'assert'
+            # assertion from a string representation
             # convert the exception to a string so
-            # that its contents can be parsed (note that
-            # this is brittle and should be improved)
+            # that its contents can be parsed
             assertion_output = str(call.excinfo.value)
-            print("Assertion Output: **", assertion_output + "**")
+            # extract the error message before the "assert" keyword
             orig = assertion_output.split("assert")[0].strip()
-            # orig = assertion_output.split("assert")
             # there is no message and thus we must
             # set it to a default value of "AssertionError"
             if orig == "":
                 orig = "AssertionError"
-            # extract the part inside the parentheses that
+            # extract any details after the "assert" keyword that
             # corresponds to the exact assertion that failed
-            # expl = assertion_output.split("(")[1].split(")")[0]
             expl = assertion_output.split("assert")[1].strip()
             # create an empty dictionary for the data about
             # the assertions for this failing test
