@@ -7,6 +7,20 @@ from typing import Any, List
 reports: List[dict[str, Any]] = []
 
 
+def extract_single_line(text: str) -> str:
+    """Extract a single line from a string."""
+    # split the text into lines
+    lines = text.splitlines()
+    # extract the first line from the text
+    # and add an ellipsis to indicate that
+    # the text has been truncated if there
+    # were other lines beyod the first one
+    output =  lines[0]
+    if len(lines) > 1:
+        output += " ..."
+    return output
+
+
 def pytest_runtest_protocol(item, nextitem):  # type: ignore
     """Track when a test case is run."""
     global reports  # noqa: PLW0602
@@ -66,7 +80,7 @@ def pytest_exception_interact(node, call, report):
             if current_test_report.get("assertions") is None:
                 # add the needed fields about the assertion
                 current_assertion_dict["Line"] = lineno
-                current_assertion_dict["Exact"] = expl
+                current_assertion_dict["Exact"] = extract_single_line(expl)
                 current_assertion_dict["Message"] = orig
                 # create a new list and add the dictionary with
                 # the details about this assertion to the new list
@@ -76,7 +90,7 @@ def pytest_exception_interact(node, call, report):
             else:
                 # add the needed fields about the assertion
                 current_assertion_dict["Line"] = lineno
-                current_assertion_dict["Exact"] = expl
+                current_assertion_dict["Exact"] = extract_single_line(expl)
                 current_assertion_dict["Message"] = orig
                 # there is an existing list of assertion dictionaries
                 # for this test case and thus we must add a new dictionary
@@ -104,6 +118,7 @@ def pytest_assertion_pass(item, lineno, orig, expl):
         # create a dictionary to store details
         # about the passing assertion for this test
         current_assertion_dict = {}
+        print("Exact value: **", expl, "**")
         # indicate that the assertion passed
         current_assertion_dict["Status"] = "Passed"
         # there is no data about assertions for this test
@@ -111,18 +126,19 @@ def pytest_assertion_pass(item, lineno, orig, expl):
             # create an empty dictionary for the data about
             current_assertion_dict["Line"] = lineno
             current_assertion_dict["Code"] = orig
-            current_assertion_dict["Exact"] = expl
+            current_assertion_dict["Exact"] = extract_single_line(expl)
             # create a new list and add the dictionary with
             # the details about this assertion to the new list
             assertions_dictionary_list = [current_assertion_dict]
             current_test_report["assertions"] = assertions_dictionary_list
         # there is already data about assertions for this test
         else:
+            print("Exact value: **", expl, "**")
             # create an empty dictionary for the data about
             # this assertion and then add the needed fields
             current_assertion_dict["Line"] = lineno
             current_assertion_dict["Code"] = orig
-            current_assertion_dict["Exact"] = expl
+            current_assertion_dict["Exact"] = extract_single_line(expl)
             # there is an existing list of assertion dictionaries
             # for this test case and thus we must add a new one to it
             current_test_report["assertions"].append(current_assertion_dict)
