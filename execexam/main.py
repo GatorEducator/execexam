@@ -212,7 +212,7 @@ def run(
     sys.stderr = sys.__stderr__
     # extract the data that was created by the internal
     # execexam pytest plugin for further diagnostic display
-    execexam_report = pytest_plugin.report
+    execexam_report = pytest_plugin.reports
     console.print("Internal execexam report:")
     console.print(execexam_report)
     # extract information about the test run from plugin.report
