@@ -1,15 +1,18 @@
 """This module contains the pytest plugin for the execexam package."""
 
-from typing import Any
+from typing import Any, List
 
-# create the report dictionary
-report: dict[str, Any] = {}
+# create the report list of
+# dictionaries that are organized by nodeid
+reports: List[dict[str, Any]] = []
 
 
 def pytest_runtest_protocol(item, nextitem):
     """Track when a test case is run."""
-    global report
-    report["nodeid"] = item.nodeid
+    global reports
+    # create a new dictionary for the report
+    # and add it to the report list
+    reports.append({"nodeid": item.nodeid})
 
 
 def pytest_assertrepr_compare(config, op, left, right):
@@ -46,6 +49,42 @@ def pytest_exception_interact(node, call, report):
 
 def pytest_assertion_pass(item, lineno, orig, expl):
     """Prints that an assertion was run and the message that went along with the assertion."""
+    global reports
+    # create an empty dictionary for the test report
+    current_test_report = {}
+    # find the test report for this specific test that
+    # has a passing assertion
+    for current_report in reports:
+        # found the test report for this specific test
+        # based on what matches according to the nodeid
+        if current_report["nodeid"] == item.nodeid:
+            current_test_report = current_report
+    # one of the test reports was found
+    # and thus we can store information about this assertion
+    if current_test_report is not {}:
+        # there is no data about assertions for this test
+        if current_test_report.get("assertions") is None:
+            # create an empty dictionary for the data about
+            # this assertion and then add the needed fields
+            current_assertion_dict = {}
+            current_assertion_dict["lineno"] = lineno
+            current_assertion_dict["orig"] = orig
+            current_assertion_dict["expl"] = expl
+            # create a new list and add the dictionary with
+            # the details about this assertion to the new list
+            assertions_dictionary_list = [current_assertion_dict]
+            current_test_report["assertions"] = assertions_dictionary_list
+        # there is already data about assertions for this test
+        else:
+          # create an empty dictionary for the data about
+            # this assertion and then add the needed fields
+            current_assertion_dict = {}
+            current_assertion_dict["lineno"] = lineno
+            current_assertion_dict["orig"] = orig
+            current_assertion_dict["expl"] = expl
+            # there is an existing list of assertion dictionaries
+            # for this test case and thus we must add a new one to it
+            current_test_report["assertions"].append(current_assertion_dict)
     print(
         f"NICE pytest_assertion_pass! Assertion passed in {item.nodeid} at line {lineno} for {orig}: {expl}"
     )
