@@ -51,28 +51,31 @@ def pytest_exception_interact(node, call, report):
             # extract the part before 'assert'
             assertion_output = str(call.excinfo.value)
             orig = assertion_output.split("assert")[0].strip()
-            # extract the part inside the parentheses
+            # there is no message and thus we must
+            # set it to a default value of "AssertionError"
+            if orig == "":
+                orig = "AssertionError"
+            # extract the part inside the parentheses that 
+            # corresponds to the exact assertion that failed
             expl = assertion_output.split("(")[1].split(")")[0]
             # there is no data about assertions for this test
+            current_assertion_dict = {}
+            current_assertion_dict["Status"] = "Failed"
             if current_test_report.get("assertions") is None:
-                # create an empty dictionary for the data about
-                # this assertion and then add the needed fields
-                current_assertion_dict = {}
+                # add the needed fields about the assertion
                 current_assertion_dict["Line"] = lineno
                 current_assertion_dict["Exact"] = expl
-                current_assertion_dict["Error"] = orig
+                current_assertion_dict["Message"] = orig
                 # create a new list and add the dictionary with
                 # the details about this assertion to the new list
                 assertions_dictionary_list = [current_assertion_dict]
                 current_test_report["assertions"] = assertions_dictionary_list
             # there is already data about assertions for this test
             else:
-                # create an empty dictionary for the data about
-                # this assertion and then add the needed fields
-                current_assertion_dict = {}
+                # add the needed fields about the assertion
                 current_assertion_dict["Line"] = lineno
                 current_assertion_dict["Exact"] = expl
-                current_assertion_dict["Error"] = orig
+                current_assertion_dict["Message"] = orig
                 # there is an existing list of assertion dictionaries
                 # for this test case and thus we must add a new one to it
                 current_test_report["assertions"].append(current_assertion_dict)
@@ -113,11 +116,13 @@ def pytest_assertion_pass(item, lineno, orig, expl):
     # one of the test reports was found
     # and thus we can store information about this assertion
     if current_test_report is not {}:
+        # create a dictionary to store details
+        # about the passing assertion for this test
+        current_assertion_dict = {}
+        current_assertion_dict["Status"] = "Passed"
         # there is no data about assertions for this test
         if current_test_report.get("assertions") is None:
             # create an empty dictionary for the data about
-            # this assertion and then add the needed fields
-            current_assertion_dict = {}
             current_assertion_dict["Line"] = lineno
             current_assertion_dict["Code"] = orig
             current_assertion_dict["Exact"] = expl
@@ -129,7 +134,6 @@ def pytest_assertion_pass(item, lineno, orig, expl):
         else:
             # create an empty dictionary for the data about
             # this assertion and then add the needed fields
-            current_assertion_dict = {}
             current_assertion_dict["Line"] = lineno
             current_assertion_dict["Code"] = orig
             current_assertion_dict["Exact"] = expl
