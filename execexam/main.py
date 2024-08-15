@@ -165,6 +165,7 @@ def filter_test_output(keep_line_label: str, output: str) -> str:
         # if the line contains the label, add it to the filtered output
         if keep_line_label in line:
             filtered_output += line + "\n"
+    # return the filtered output
     return filtered_output
 
 
@@ -276,17 +277,21 @@ def run(
     # that was created by the JSON report plugin
     # --> display details about the test runs
     _ = extract_test_run_details(plugin.report)  # type: ignore
+    # filter the test output and decide if an 
+    # extra newline is or is not needed
+    filtered_test_output = filter_test_output("FAILED", captured_output.getvalue())
+    if filtered_test_output != "":
+        filtered_test_output = "\n" + filtered_test_output
     console.print()
     console.print(
         Panel(
             Text(
-                "\n"
-                + filter_test_output("FAILED", captured_output.getvalue())
+                filtered_test_output
                 + exec_exam_test_assertion_details,
                 overflow="fold",
             ),
             expand=False,
-            title="Test Output",
+            title="Test Overview",
         )
     )
     # --> display details about the failing tests,
