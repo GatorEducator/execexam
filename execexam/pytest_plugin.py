@@ -53,8 +53,6 @@ def pytest_exception_interact(node, call, report):
             orig = assertion_output.split("assert")[0].strip()
             # extract the part inside the parentheses
             expl = assertion_output.split("(")[1].split(")")[0]
-            # orig = "working on it orig"
-            # expl = "working on it expl"
             # there is no data about assertions for this test
             if current_test_report.get("assertions") is None:
                 # create an empty dictionary for the data about
