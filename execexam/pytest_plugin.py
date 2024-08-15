@@ -49,6 +49,9 @@ def pytest_exception_interact(node, call, report):
             # assertion from data that looks like this:
             # "Minimum negative value in matrix assert (-4 == 1)"
             # extract the part before 'assert'
+            # convert the exception to a string so
+            # that its contents can be parsed (note that
+            # this is brittle and should be improved)
             assertion_output = str(call.excinfo.value)
             orig = assertion_output.split("assert")[0].strip()
             # there is no message and thus we must
