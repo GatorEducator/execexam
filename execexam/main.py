@@ -277,7 +277,7 @@ def run(
     # that was created by the JSON report plugin
     # --> display details about the test runs
     _ = extract_test_run_details(plugin.report)  # type: ignore
-    # filter the test output and decide if an 
+    # filter the test output and decide if an
     # extra newline is or is not needed
     filtered_test_output = filter_test_output("FAILED", captured_output.getvalue())
     if filtered_test_output != "":
