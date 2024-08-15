@@ -58,9 +58,15 @@ def extract_test_run_details(details: Dict[Any, Any]) -> str:
 def extract_test_assertion_details(test_details: Dict[Any, Any]) -> str:
     """Extract the details of a dictionary and return it as a string."""
     output = []
+    first = True
     # iterate through the dictionary and add each key-value pair
     for key, value in test_details.items():
-        output.append(f"  {key}: {value}\n")
+        if first:
+            output = ["  - "]
+            output.append(f"{key}: {value}\n")
+            first = False
+        else:
+            output.append(f"    {key}: {value}\n")
     return "".join(output)
 
 
