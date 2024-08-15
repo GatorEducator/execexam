@@ -27,6 +27,22 @@ def pytest_exception_interact(node, call, report):
             f"NICE pytest_exception_interact! AssertionError in {node.nodeid}: {call.excinfo.value}"
         )
 
+        repr = call.excinfo.getrepr(showlocals=True, style="short")
+        print(
+            f"HIYA AssertionError occurred at line {repr.reprtraceback.reprentries[-1].lines} in {node.nodeid}: {call.excinfo.value}"
+        )
+
+        print(f"NICE, here is the type data for node: {dir(node)}")
+        print(
+            f"NICE, showing details about the report --> lineno: {report.location[1]}"
+        )
+        print(f"NICE, here is the type data for call: {dir(call.excinfo)}")
+        print(f"NICE, here is the call traceback: {call.excinfo.traceback}")
+        last_traceback_entry = call.excinfo.traceback[-1]
+        print(
+            f"COOL, AssertionError occurred at line {last_traceback_entry.lineno} in {node.nodeid}: {call.excinfo.value}"
+        )
+
 
 def pytest_assertion_pass(item, lineno, orig, expl):
     """Prints that an assertion was run and the message that went along with the assertion."""
