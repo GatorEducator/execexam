@@ -105,7 +105,9 @@ def extract_test_assertions_details(test_reports: List[dict[str, Any]]):
         # basically all of the content after the final slash
         display_test_name = test_name.rsplit("/", 1)[-1]
         test_report_string += f"\n{display_test_name}\n"
-        test_report_string += extract_test_assertion_details_list(test_report["assertions"])
+        test_report_string += extract_test_assertion_details_list(
+            test_report["assertions"]
+        )
     # return the string that contains all of the test assertion details
     return test_report_string
 
@@ -152,6 +154,18 @@ def extract_failing_test_details(
             failing_details_str += f"  Message: {failing_test_message}\n"
     # return the string that contains all of the failing test details
     return (failing_details_str, failing_test_paths)
+
+
+def filter_test_output(keep_line_label: str, output: str) -> str:
+    """Filter the output of the test run to keep only the lines that contain the label."""
+    # create an empty string that will store the filtered output
+    filtered_output = ""
+    # iterate through the lines in the output
+    for line in output.splitlines():
+        # if the line contains the label, add it to the filtered output
+        if keep_line_label in line:
+            filtered_output += line + "\n"
+    return filtered_output
 
 
 def is_failing_test_details_empty(details: str) -> bool:
@@ -266,7 +280,8 @@ def run(
     console.print(
         Panel(
             Text(
-                captured_output.getvalue()
+                "\n"
+                + filter_test_output("FAILED", captured_output.getvalue())
                 + exec_exam_test_assertion_details,
                 overflow="fold",
             ),
