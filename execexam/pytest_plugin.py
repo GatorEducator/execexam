@@ -49,7 +49,7 @@ def pytest_exception_interact(node, call, report):
 
 def pytest_assertion_pass(item, lineno, orig, expl):
     """Prints that an assertion was run and the message that went along with the assertion."""
-    global reports
+    global reports  # noqa: PLW0602
     # create an empty dictionary for the test report
     current_test_report = {}
     # find the test report for this specific test that
@@ -85,6 +85,3 @@ def pytest_assertion_pass(item, lineno, orig, expl):
             # there is an existing list of assertion dictionaries
             # for this test case and thus we must add a new one to it
             current_test_report["assertions"].append(current_assertion_dict)
-    print(
-        f"NICE pytest_assertion_pass! Assertion passed in {item.nodeid} at line {lineno} for {orig}: {expl}"
-    )
