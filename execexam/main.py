@@ -253,8 +253,6 @@ def run(
     # extract the data that was created by the internal
     # execexam pytest plugin for further diagnostic display
     execexam_report = pytest_plugin.reports
-    console.print("Internal execexam report:")
-    console.print(execexam_report)
     # extract the details about the test assertions
     # that come from the pytest plugin that execexam uses
     exec_exam_test_assertion_details = extract_test_assertions_details(
@@ -268,13 +266,12 @@ def run(
     console.print(
         Panel(
             Text(
-                "\n"
-                + captured_output.getvalue()
+                captured_output.getvalue()
                 + exec_exam_test_assertion_details,
                 overflow="fold",
             ),
             expand=False,
-            title="Test output",
+            title="Test Output",
         )
     )
     # --> display details about the failing tests,
@@ -300,7 +297,7 @@ def run(
                 Panel(
                     Text(failing_test_details, overflow="fold"),
                     expand=False,
-                    title="Failing test details",
+                    title="Failing Test Details",
                 )
             )
             # display the source code for the failing test cases
@@ -310,9 +307,6 @@ def run(
                 # build the command for running symbex; this tool can
                 # perform static analysis of Python source code and
                 # extract the code of a function inside of a file
-                console.print(failing_test_path_dict)
-                console.print(f"Test Name: {test_name}")
-                console.print(f"Failing Test Path: {failing_test_path}")
                 command = f"symbex {test_name} -f {failing_test_path}"
                 # run the symbex command and collect its output
                 process = subprocess.run(
@@ -336,7 +330,7 @@ def run(
                     Panel(
                         source_code_syntax,
                         expand=False,
-                        title="Failing test code",
+                        title="Failing Test Code",
                     )
                 )
     # pretty print the JSON report using rich
