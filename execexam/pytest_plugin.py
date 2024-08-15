@@ -7,25 +7,23 @@ from typing import Any, List
 reports: List[dict[str, Any]] = []
 
 
-def pytest_runtest_protocol(item, nextitem):
+def pytest_runtest_protocol(item, nextitem):  # type: ignore
     """Track when a test case is run."""
-    global reports
+    global reports  # noqa: PLW0602
+    # reference the nextitem parameter
+    # that is not used by the hook
+    _ = nextitem
     # create a new dictionary for the report
     # and add it to the report list
     reports.append({"nodeid": item.nodeid})
 
 
-# def pytest_assertrepr_compare(config, op, left, right):
-#     """Prints out the values of the left and right sides of an assertion."""
-#     print(
-#         f"NICE pytest_assertrepr_compare! Assertion is {op} with {left} and {right}"
-#     )
-#     return [f"{left} {op} {right}"]
-
-
 def pytest_exception_interact(node, call, report):
     """Interacts with exceptions."""
     global reports  # noqa: PLW0602
+    # reference the report parameter
+    # that is not used by the hook
+    _ = report
     # there was an assertion error and thus
     # the plugin must extract details about what failed
     if isinstance(call.excinfo.value, AssertionError):
