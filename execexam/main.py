@@ -57,16 +57,25 @@ def extract_test_run_details(details: Dict[Any, Any]) -> str:
 
 def extract_test_assertion_details(test_details: Dict[Any, Any]) -> str:
     """Extract the details of a dictionary and return it as a string."""
+    # create an empty list to store the output
     output = []
+    # indicate that this is the first assertion
+    # to be processed (it will have a "-" to start)
     first = True
     # iterate through the dictionary and add each key-value pair
+    # that contains the details about the assertion
     for key, value in test_details.items():
+        # this is the first assertion and thus
+        # the output will start with a "-"
         if first:
             output = ["  - "]
             output.append(f"{key}: {value}\n")
             first = False
+        # this is not the first assertion and thus
+        # the output will start with a "  " to indent
         else:
             output.append(f"    {key}: {value}\n")
+    # return each index in the output list as a string
     return "".join(output)
 
 
@@ -74,6 +83,7 @@ def extract_test_assertion_details_list(details: List[Dict[Any, Any]]) -> str:
     """Extract the details of a list of dictionaries and return it as a string."""
     output = []
     # iterate through the list of dictionaries and add each dictionary
+    # to the running string that conatins test assertion details
     for current_dict in details:
         output.append(extract_test_assertion_details(current_dict))
     return "".join(output)
@@ -81,7 +91,13 @@ def extract_test_assertion_details_list(details: List[Dict[Any, Any]]) -> str:
 
 def extract_test_assertions_details(test_reports: List[dict[str, Any]]):
     """Extract the details of test assertions."""
+    # create an empty list that will store details about
+    # each test case that was execued and each of
+    # the assertions that was run for that test case
     test_report_string = ""
+    # iterate through the list of test reports
+    # where each report is a dictionary that includes
+    # the name of the test and the assertions that it ran
     for test_report in test_reports:
         # get the name of the test
         test_name = test_report["nodeid"]
@@ -90,6 +106,7 @@ def extract_test_assertions_details(test_reports: List[dict[str, Any]]):
         display_test_name = test_name.rsplit("/", 1)[-1]
         test_report_string += f"\n{display_test_name}\n"
         test_report_string += extract_test_assertion_details_list(test_report["assertions"])
+    # return the string that contains all of the test assertion details
     return test_report_string
 
 
@@ -99,8 +116,6 @@ def extract_failing_test_details(
     """Extract the details of a failing test."""
     # extract the tests from the details
     tests = details["tests"]
-    console.print("Coming from here")
-    console.print(tests)
     # create an empty string that starts with a newline;
     # the goal of the for loop is to incrementally build
     # of a string that contains all deteails about failing tests
