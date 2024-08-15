@@ -50,9 +50,9 @@ def pytest_exception_interact(node, call, report):
             # "Minimum negative value in matrix assert (-4 == 1)"
             # extract the part before 'assert'
             assertion_output = str(call.excinfo.value)
-            orig = assertion_output.split('assert')[0].strip()
+            orig = assertion_output.split("assert")[0].strip()
             # extract the part inside the parentheses
-            expl = assertion_output.split('(')[1].split(')')[0]
+            expl = assertion_output.split("(")[1].split(")")[0]
             # orig = "working on it orig"
             # expl = "working on it expl"
             # there is no data about assertions for this test
