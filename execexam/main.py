@@ -15,7 +15,7 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.text import Text
 
-from . import pytest_plugin  # import the plugin
+from . import pytest_plugin as exec_exam_pytest_plugin  # import the plugin
 
 # create a Typer object to support the command-line interface
 cli = typer.Typer(no_args_is_help=True)
@@ -211,7 +211,7 @@ def run(
     # about the test runs and report it as a JSON object;
     # note that this approach avoids the need to write
     # a custom pytest plugin for the executable examination
-    plugin = JSONReport()
+    json_report_plugin = JSONReport()
     # display basic diagnostic information about command-line
     # arguments using an emoji and the rich console
     diagnostics = f"\nProject directory: {project}\n"
@@ -253,7 +253,7 @@ def run(
                 found_marks_str,
                 os.path.join(tests),
             ],
-            plugins=[plugin, pytest_plugin],
+            plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
     else:
         pytest.main(
@@ -270,7 +270,7 @@ def run(
                 "--json-report-file=none",
                 os.path.join(tests),
             ],
-            plugins=[plugin, pytest_plugin],
+            plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
     # restore stdout and stderr; this will allow
     # the execexam program to continue to produce
@@ -279,7 +279,7 @@ def run(
     sys.stderr = sys.__stderr__
     # extract the data that was created by the internal
     # execexam pytest plugin for further diagnostic display
-    execexam_report = pytest_plugin.reports
+    execexam_report = exec_exam_pytest_plugin.reports
     # extract the details about the test assertions
     # that come from the pytest plugin that execexam uses
     exec_exam_test_assertion_details = extract_test_assertions_details(
@@ -288,7 +288,7 @@ def run(
     # extract information about the test run from plugin.report
     # that was created by the JSON report plugin
     # --> display details about the test runs
-    _ = extract_test_run_details(plugin.report)  # type: ignore
+    _ = extract_test_run_details(json_report_plugin.report)  # type: ignore
     # filter the test output and decide if an
     # extra newline is or is not needed
     filtered_test_output = filter_test_output("FAILED", captured_output.getvalue())
@@ -314,7 +314,7 @@ def run(
     (
         failing_test_details,
         failing_test_path_dicts,
-    ) = extract_failing_test_details(plugin.report)  # type: ignore
+    ) = extract_failing_test_details(json_report_plugin.report)  # type: ignore
     # there was at least one failing test case
     if not is_failing_test_details_empty(failing_test_details):
         # there were test failures and thus the return code is non-zero
