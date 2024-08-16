@@ -63,6 +63,18 @@ def extract_exception_details(call: pytest.CallInfo) -> Tuple[int, str, str]:
     return (lineno, exact, message)
 
 
+def pytest_collection_modifyitems(items):
+    """Reorder the tests based on the 'order' mark that has an integer value."""
+    # sort the items in-place based on the 'order' mark;
+    # note that this actually modifies the item list which
+    # is what pytest uses to determine the order of tests
+    items.sort(
+        key=lambda item: item.get_closest_marker("order").args[0]
+        if item.get_closest_marker("order")
+        else float("inf")
+    )
+
+
 def pytest_runtest_protocol(item, nextitem):  # type: ignore
     """Track when a test case is run."""
     global reports  # noqa: PLW0602
