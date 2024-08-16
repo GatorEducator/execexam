@@ -52,7 +52,12 @@ def extract_exception_details(call: pytest.CallInfo) -> Tuple[int, str, str]:
             exact = exception_output.split("assert")[1].strip()
         # dealing with an exception that is not an AssertionError
         else:
+            # note that there is not an ideal match for the information
+            # that is available to the plugin for a general purpose
+            # exception and the information that the plugin can report
+            # --> the message is the exception's text-based rendering
             message = exception_output
+            # --> the exact message is the type of the exception
             exact = type(call.excinfo.value).__name__
     # return the details extracted from the exception
     return (lineno, exact, message)
