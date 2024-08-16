@@ -33,7 +33,6 @@ def extract_exception_details(call: pytest.CallInfo) -> Tuple[int, str, str]:
     # dealing with a pytest.CallInfo that is an exception and it can
     # first be processed generally and then, if possible, as an AssertionError
     if call.excinfo is not None and isinstance(call.excinfo.value, Exception):
-        print("**Is is an exception")
         # extract the line number
         last_traceback_entry = call.excinfo.traceback[-1]
         lineno = last_traceback_entry.lineno + 1
@@ -93,29 +92,6 @@ def pytest_exception_interact(node, call, report):
         # one of the test reports was found
         # and thus we can store information about this assertion
         if current_test_report is not {}:
-            # extract the data to the values we can store
-            # --> extract the line number
-            # last_traceback_entry = call.excinfo.traceback[-1]
-            # lineno = last_traceback_entry.lineno + 1
-            # --> extract the error message and the exact
-            # assertion from a string representation
-            # convert the exception to a string so
-            # that its contents can be parsed
-            assertion_output = str(call.excinfo.value)
-            print(
-                "This is the entire assertion output: **",
-                assertion_output,
-                "**",
-            )
-            # extract the error message before the "assert" keyword
-            # orig = assertion_output.split("assert")[0].strip()
-            # there is no message and thus we must
-            # set it to a default value of "AssertionError"
-            # if orig == "":
-            # orig = type(call.excinfo.value).__name__
-            # extract any details after the "assert" keyword that
-            # corresponds to the exact assertion that failed
-            # expl = assertion_output.split("assert")[1].strip()
             # create an empty dictionary for the data about
             # the assertions for this failing test
             current_assertion_dict = {}
