@@ -105,9 +105,12 @@ def extract_test_assertions_details(test_reports: List[dict[str, Any]]):
         # basically all of the content after the final slash
         display_test_name = test_name.rsplit("/", 1)[-1]
         test_report_string += f"\n{display_test_name}\n"
-        test_report_string += extract_test_assertion_details_list(
-            test_report["assertions"]
-        )
+        # there is data about the assertions for this
+        # test and thus it should be extracted and reported
+        if "assertions" in test_report:
+            test_report_string += extract_test_assertion_details_list(
+                test_report["assertions"]
+            )
     # return the string that contains all of the test assertion details
     return test_report_string
 
@@ -138,13 +141,22 @@ def extract_failing_test_details(
             failing_test_call = failing_details["call"]
             # get the crash information of the failing test's call
             failing_test_crash = failing_test_call["crash"]
-            # get all needed information about the test crash call
-            failing_test_path = Path(failing_test_crash["path"])
+            # extract the root of the report, which corresponds
+            # to the filesystem on which the tests were run
+            failing_test_path_root = details["root"]
+            # extract the name of the file that contains the test
+            # from the name of the individual test case itself
+            failing_test_nodeid_split = failing_test_nodeid.split("::")
+            # create a complete path to the file that contains the failing test file
+            failing_test_path = Path(failing_test_path_root) / failing_test_nodeid_split[0]
             # extract the name of the function from the nodeid
-            failing_test_name = failing_test_nodeid.split("::")[-1]
+            failing_test_name = failing_test_nodeid_split[-1]
+            # assign the details about the failing test to the dictionary
             current_test_failing_dict["test_name"] = failing_test_name
             current_test_failing_dict["test_path"] = failing_test_path
             failing_test_paths.append(current_test_failing_dict)
+            # creation additional diagnotics about the failing test
+            # for further display in the console in a text-based fashion
             failing_test_path_str = path_to_string(failing_test_path, 4)
             failing_test_lineno = failing_test_crash["lineno"]
             failing_test_message = failing_test_crash["message"]
