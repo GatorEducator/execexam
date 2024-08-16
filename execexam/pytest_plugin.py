@@ -144,7 +144,6 @@ def pytest_assertion_pass(item, lineno, orig, expl):
         # create a dictionary to store details
         # about the passing assertion for this test
         current_assertion_dict = {}
-        print("Exact value: **", expl, "**")
         # indicate that the assertion passed
         current_assertion_dict["Status"] = "Passed"
         # there is no data about assertions for this test
@@ -159,7 +158,6 @@ def pytest_assertion_pass(item, lineno, orig, expl):
             current_test_report["assertions"] = assertions_dictionary_list
         # there is already data about assertions for this test
         else:
-            print("Exact value: **", expl, "**")
             # create an empty dictionary for the data about
             # this assertion and then add the needed fields
             current_assertion_dict["Line"] = lineno
