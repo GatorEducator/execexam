@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-import coverage
+import openai
 import pytest
 import typer
 
@@ -18,7 +18,6 @@ from pytest_jsonreport.plugin import JSONReport
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
-from rich.spinner import Spinner
 from rich.syntax import Syntax
 from rich.text import Text
 
@@ -36,8 +35,8 @@ skip = ["keywords", "setup", "teardown"]
 
 # Function to load litellm
 def load_litellm():
-    global litellm
-    global completion
+    global litellm  # noqa: PLW0602
+    global completion  # noqa: PLW0603
     from litellm import completion
     # Do any necessary initialization work here
 
@@ -319,32 +318,14 @@ def run(
     exec_exam_test_assertion_details = extract_test_assertions_details(
         execexam_report
     )
-    # Get the coverage data
-    # cov_data = cov.get_data()
-    # # Analyze the coverage data
-    # for filename in cov_data.measured_files():
-    #     # Get the analysis for the file
-    #     analysis = cov._analyze(filename)
-    #     # Get the list of executed lines
-    #     executed_lines = analysis.executed
-    #     # Get the list of statements (lines that could have been executed)
-    #     statements = analysis.statements
-    #     # Get the list of missing lines (statements that were not executed)
-    #     missing_lines = analysis.missing
-    #     print(f"File: {filename}")
-    #     print(f"Executed lines: {executed_lines}")
-    #     print(f"Statements: {statements}")
-    #     print(f"Missing lines: {missing_lines}")
-    # extract information about the test run from plugin.report
-    # that was created by the JSON report plugin
     # --> display details about the test runs
     _ = extract_test_run_details(json_report_plugin.report)  # type: ignore
     # filter the test output and decide if an
     # extra newline is or is not needed
-    filtered_test_output = captured_output.getvalue()
-    # filtered_test_output = filter_test_output(
-    #     "FAILED", captured_output.getvalue()
-    # )
+    # filtered_test_output = captured_output.getvalue()
+    filtered_test_output = filter_test_output(
+        "FAILED", captured_output.getvalue()
+    )
     if filtered_test_output != "":
         filtered_test_output = "\n" + filtered_test_output
     console.print()
@@ -417,7 +398,6 @@ def run(
                         title="Failing Test Code",
                     )
                 )
-    # os.environ['GROQ_API_KEY'] = ""
     # Start a thread to display the spinner
     # Display the spinner until the litellm thread finishes
     console.print()
@@ -425,29 +405,68 @@ def run(
         while litellm_thread.is_alive():
             time.sleep(0.1)
     litellm_thread.join()
-    with console.status("[bold green] Getting Feedback from ExecExam Copilot "):
-        test_overview = (filtered_test_output + exec_exam_test_assertion_details,)
+
+    with console.status(
+        "[bold green] Getting Feedback from ExecExam Copilot "
+    ):
+        test_overview = (
+            filtered_test_output + exec_exam_test_assertion_details,
+        )
         llm_debugging_request = (
             "I am an undergraduate student completing an examination."
+            + "DO NOT make suggestions to change the test cases."
+            + "DO ALWAYS make suggestions about how to improve the Python source code of the program under test."
+            + "DO ALWAYS give a Python code in a Markdown fenced code block shows your suggested program."
+            + "DO ALWAYS conclude saying that you making a helpful suggestion but could be wrong."
+            + "Can you please suggest in a step-by-step fashion how to fix the bug in the program?"
             + f"Here is the test overview: {test_overview}"
             + f"Here are the failing test details: {failing_test_details}"
             # + f"Here is the source code for the failing test: {failing_test_code}"
-            + "Can you please suggest in a step-by-step fashion what to do next?"
         )
         response = completion(
-            model="groq/llama3-8b-8192",
-            # model="anthropic/claude-3-haiku-20240307",
+            # model="groq/llama3-8b-8192",
+            # model="anthropic/claude-3-opus-20240229",
+            model="anthropic/claude-3-haiku-20240307",
             # model="anthropic/claude-instant-1.2",
             messages=[{"role": "user", "content": llm_debugging_request}],
         )
         console.print(
             Panel(
-                Markdown(response.choices[0].message.content),
+                Markdown(str(response.choices[0].message.content)),
                 expand=False,
-                title="Failing Test Details",
+                title="ExecExam Assistant (API Key)",
+                padding=1,
             )
         )
-    # pretty print the JSON report using rich
+        console.print()
+        # attempt with openai;
+        # does not work correctly if
+        # you use the standard LiteLLM
+        # as done above with the extra base_url
+        client = openai.OpenAI(
+            api_key="anything",
+            # base_url="http://0.0.0.0:4000"
+            base_url="https://execexamadviser.fly.dev/",
+        )
+        # response = client.chat.completions.create(model="groq/llama3-8b-8192", messages = [
+        response = client.chat.completions.create(
+            model="anthropic/claude-3-haiku-20240307",
+            messages=[
+                # response = client.chat.completions.create(model="anthropic/claude-3-opus-20240229", messages = [
+                {"role": "user", "content": llm_debugging_request}
+            ],
+        )
+        console.print(
+            Panel(
+                Markdown(
+                    "\n\n" + str(response.choices[0].message.content) + "\n\n"
+                ),
+                expand=False,
+                title="ExecExam Assistant (Fly.io)",
+                padding=1,
+            )
+        )
+
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
     sys.exit(return_code)
