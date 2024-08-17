@@ -11,11 +11,13 @@ execexam = "execexam.main:cli"
 [tool.poetry.dependencies]
 python = "^3.11"
 pytest = "^8.1.1"
-typer = "^0.9.0"
 pytest-json-report = "^1.5.0"
 rich = "^13.7.1"
 coverage = "^7.4.3"
 pytest-cov = "^4.1.0"
+typer = "^0.12.3"
+litellm = {extras = ["proxy"], version = "^1.43.15"}
+openai = "^1.41.0"
 
 [tool.poetry.plugins.pytest11]
 "execexam" = "execexam.pytest_plugin"
