@@ -1,12 +1,17 @@
 """This module contains the pytest plugin for the execexam package."""
 
 from typing import Any, List, Tuple
+import os
+import sys
 
+import coverage
 import pytest
 
 # create the report list of
 # dictionaries that are organized by nodeid
 reports: List[dict[str, Any]] = []
+
+internal_coverage = coverage.Coverage()
 
 
 def extract_single_line(text: str) -> str:
@@ -73,6 +78,38 @@ def pytest_collection_modifyitems(items):
         if item.get_closest_marker("order")
         else float("inf")
     )
+
+
+# def pytest_runtest_call(item):
+#     """Called before the test function is called."""
+#     # Start the coverage collection
+#     internal_coverage.start()
+
+
+# def pytest_runtest_teardown(item, nextitem):
+#     """Called after the test function has been called."""
+#     # Stop the coverage collection
+#     internal_coverage.stop()
+#     internal_coverage.save()
+#     # Get the coverage data
+#     cov_data = internal_coverage.get_data()
+#     # Analyze the coverage data
+#     for filename in cov_data.measured_files():
+#         # Get the analysis for the file
+#         analysis = internal_coverage._analyze(filename)
+#         # Get the list of executed lines
+#         executed_lines = analysis.executed
+#         # Get the list of statements (lines that could have been executed)
+#         statements = analysis.statements
+#         # Get the list of missing lines (statements that were not executed)
+#         missing_lines = analysis.missing
+#         print(f"Test: {item.nodeid}")
+#         print(f"File: {filename}")
+#         print(f"Executed lines: {executed_lines}")
+#         print(f"Statements: {statements}")
+#         print(f"Missing lines: {missing_lines}")
+#     # Clear the coverage data for the next test
+#     internal_coverage.erase()
 
 
 def pytest_runtest_protocol(item, nextitem):  # type: ignore
