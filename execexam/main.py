@@ -4,14 +4,21 @@ import io
 import os
 import subprocess
 import sys
+import threading
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+import coverage
 import pytest
 import typer
+
+# from litellm import completion
 from pytest_jsonreport.plugin import JSONReport
 from rich.console import Console
+from rich.markdown import Markdown
 from rich.panel import Panel
+from rich.spinner import Spinner
 from rich.syntax import Syntax
 from rich.text import Text
 
@@ -25,6 +32,22 @@ console = Console()
 
 # create the skip list for data not needed
 skip = ["keywords", "setup", "teardown"]
+
+
+# Function to load litellm
+def load_litellm():
+    global litellm
+    global completion
+    from litellm import completion
+    # Do any necessary initialization work here
+
+
+# # Function to display a spinner
+# def display_spinner():
+#     global console
+#     with Spinner("Waiting for diagnostics", console=console):
+#         while not litellm_thread.is_alive():
+#             time.sleep(0.1)
 
 
 def path_to_string(path_name: Path, levels: int = 4) -> str:
@@ -148,7 +171,9 @@ def extract_failing_test_details(
             # from the name of the individual test case itself
             failing_test_nodeid_split = failing_test_nodeid.split("::")
             # create a complete path to the file that contains the failing test file
-            failing_test_path = Path(failing_test_path_root) / failing_test_nodeid_split[0]
+            failing_test_path = (
+                Path(failing_test_path_root) / failing_test_nodeid_split[0]
+            )
             # extract the name of the function from the nodeid
             failing_test_name = failing_test_nodeid_split[-1]
             # assign the details about the failing test to the dictionary
@@ -204,6 +229,9 @@ def run(
     verbose: bool = typer.Option(False, help="Display verbose output"),
 ) -> None:
     """Run an executable exam."""
+    litellm_thread = threading.Thread(target=load_litellm)
+    litellm_thread.start()
+
     return_code = 0
     # add the project directory to the system path
     sys.path.append(str(project))
@@ -236,6 +264,9 @@ def run(
     # run pytest in a fashion that will not
     # produce any output to the console
     found_marks_str = mark
+    # Start the coverage collection
+    # cov = coverage.Coverage()
+    # cov.start()
     if found_marks_str:
         pytest.main(
             [
@@ -272,6 +303,9 @@ def run(
             ],
             plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
+    # Stop the coverage collection
+    # cov.stop()
+    # cov.save()
     # restore stdout and stderr; this will allow
     # the execexam program to continue to produce
     # output in the console
@@ -285,21 +319,39 @@ def run(
     exec_exam_test_assertion_details = extract_test_assertions_details(
         execexam_report
     )
+    # Get the coverage data
+    # cov_data = cov.get_data()
+    # # Analyze the coverage data
+    # for filename in cov_data.measured_files():
+    #     # Get the analysis for the file
+    #     analysis = cov._analyze(filename)
+    #     # Get the list of executed lines
+    #     executed_lines = analysis.executed
+    #     # Get the list of statements (lines that could have been executed)
+    #     statements = analysis.statements
+    #     # Get the list of missing lines (statements that were not executed)
+    #     missing_lines = analysis.missing
+    #     print(f"File: {filename}")
+    #     print(f"Executed lines: {executed_lines}")
+    #     print(f"Statements: {statements}")
+    #     print(f"Missing lines: {missing_lines}")
     # extract information about the test run from plugin.report
     # that was created by the JSON report plugin
     # --> display details about the test runs
     _ = extract_test_run_details(json_report_plugin.report)  # type: ignore
     # filter the test output and decide if an
     # extra newline is or is not needed
-    filtered_test_output = filter_test_output("FAILED", captured_output.getvalue())
+    filtered_test_output = captured_output.getvalue()
+    # filtered_test_output = filter_test_output(
+    #     "FAILED", captured_output.getvalue()
+    # )
     if filtered_test_output != "":
         filtered_test_output = "\n" + filtered_test_output
     console.print()
     console.print(
         Panel(
             Text(
-                filtered_test_output
-                + exec_exam_test_assertion_details,
+                filtered_test_output + exec_exam_test_assertion_details,
                 overflow="fold",
             ),
             expand=False,
@@ -365,6 +417,36 @@ def run(
                         title="Failing Test Code",
                     )
                 )
+    # os.environ['GROQ_API_KEY'] = ""
+    # Start a thread to display the spinner
+    # Display the spinner until the litellm thread finishes
+    console.print()
+    with console.status("[bold green] Loading ExecExam Copilot "):
+        while litellm_thread.is_alive():
+            time.sleep(0.1)
+    litellm_thread.join()
+    with console.status("[bold green] Getting Feedback from ExecExam Copilot "):
+        test_overview = (filtered_test_output + exec_exam_test_assertion_details,)
+        llm_debugging_request = (
+            "I am an undergraduate student completing an examination."
+            + f"Here is the test overview: {test_overview}"
+            + f"Here are the failing test details: {failing_test_details}"
+            # + f"Here is the source code for the failing test: {failing_test_code}"
+            + "Can you please suggest in a step-by-step fashion what to do next?"
+        )
+        response = completion(
+            model="groq/llama3-8b-8192",
+            # model="anthropic/claude-3-haiku-20240307",
+            # model="anthropic/claude-instant-1.2",
+            messages=[{"role": "user", "content": llm_debugging_request}],
+        )
+        console.print(
+            Panel(
+                Markdown(response.choices[0].message.content),
+                expand=False,
+                title="Failing Test Details",
+            )
+        )
     # pretty print the JSON report using rich
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
