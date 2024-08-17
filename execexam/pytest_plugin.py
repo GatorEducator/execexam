@@ -1,8 +1,8 @@
 """This module contains the pytest plugin for the execexam package."""
 
-from typing import Any, List, Tuple
-import os
 import sys
+from pathlib import Path
+from typing import Any, List, Tuple
 
 import coverage
 import pytest
@@ -26,6 +26,23 @@ def extract_single_line(text: str) -> str:
     if len(lines) > 1:
         output += " ..."
     return output
+
+
+def trace_calls(frame, event, arg):
+    """Trace function calls."""
+    if event != "call":
+        return
+    code = frame.f_code
+    func_name = code.co_name
+    func_filename = code.co_filename
+    if func_name == "write":
+        # Ignore write() calls from print statements
+        return
+    target_dir = Path(
+        "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-final-examination-solution/exam/questions/"
+    )
+    if Path(func_filename).resolve().parent == target_dir.resolve():
+        print(f"  --> Call to {func_name} in {func_filename}")
 
 
 def extract_exception_details(call: pytest.CallInfo) -> Tuple[int, str, str]:
@@ -80,15 +97,23 @@ def pytest_collection_modifyitems(items):
     )
 
 
-# def pytest_runtest_call(item):
-#     """Called before the test function is called."""
-#     # Start the coverage collection
-#     internal_coverage.start()
+def pytest_runtest_call(item):
+    """Called before the test function is called."""
+    # Print the name of the test
+    print(f"** Running test: {item.nodeid}")
+    # Print the full path of the test file
+    print(f"** Test file: {item.fspath}")
+    # Start the coverage collection
+    sys.settrace(trace_calls)
 
 
-# def pytest_runtest_teardown(item, nextitem):
-#     """Called after the test function has been called."""
-#     # Stop the coverage collection
+def pytest_runtest_teardown(item, nextitem):
+    """Called after the test function has been called."""
+    # Stop the coverage collection
+    # Stop the trace
+    sys.settrace(None)
+
+
 #     internal_coverage.stop()
 #     internal_coverage.save()
 #     # Get the coverage data
