@@ -38,15 +38,6 @@ def load_litellm():
     global litellm  # noqa: PLW0602
     global completion  # noqa: PLW0603
     from litellm import completion
-    # Do any necessary initialization work here
-
-
-# # Function to display a spinner
-# def display_spinner():
-#     global console
-#     with Spinner("Waiting for diagnostics", console=console):
-#         while not litellm_thread.is_alive():
-#             time.sleep(0.1)
 
 
 def path_to_string(path_name: Path, levels: int = 4) -> str:
@@ -263,9 +254,6 @@ def run(
     # run pytest in a fashion that will not
     # produce any output to the console
     found_marks_str = mark
-    # Start the coverage collection
-    # cov = coverage.Coverage()
-    # cov.start()
     if found_marks_str:
         pytest.main(
             [
@@ -302,9 +290,6 @@ def run(
             ],
             plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
-    # Stop the coverage collection
-    # cov.stop()
-    # cov.save()
     # restore stdout and stderr; this will allow
     # the execexam program to continue to produce
     # output in the console
