@@ -12,8 +12,6 @@ from typing import Any, Dict, List, Tuple
 import openai
 import pytest
 import typer
-
-# from litellm import completion
 from pytest_jsonreport.plugin import JSONReport
 from rich.console import Console
 from rich.markdown import Markdown
@@ -21,7 +19,7 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.text import Text
 
-from . import pytest_plugin as exec_exam_pytest_plugin  # import the plugin
+from . import pytest_plugin as exec_exam_pytest_plugin
 
 # create a Typer object to support the command-line interface
 cli = typer.Typer(no_args_is_help=True)
@@ -33,8 +31,12 @@ console = Console()
 skip = ["keywords", "setup", "teardown"]
 
 
-# Function to load litellm
 def load_litellm():
+    """Load the litellm module."""
+    # note that the purpose of this function is
+    # to allow the loading of the litellm module
+    # to take place in a separate thread, thus
+    # ensuring that the main interface is not blocked
     global litellm  # noqa: PLW0602
     global completion  # noqa: PLW0603
     from litellm import completion
