@@ -19,6 +19,12 @@ typer = "^0.12.3"
 litellm = {extras = ["proxy"], version = "^1.43.15"}
 openai = "^1.41.0"
 
+[tool.poetry.group.dev.dependencies]
+taskipy = "^1.13.0"
+mypy = "^1.11.1"
+pytest-randomly = "^3.15.0"
+pytest-xdist = "^3.6.1"
+
 [tool.poetry.plugins.pytest11]
 "execexam" = "execexam.pytest_plugin"
 
@@ -51,6 +57,37 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 88
+
+[tool.taskipy.variables]
+project = "execexam"
+tests = "tests"
+check-command = { var = "ruff check {project} {tests}", recursive = true }
+coverage-test-command = "pytest -s --cov-context=test --cov-fail-under=90 --cov-report term-missing --cov-report json --cov --cov-branch"
+coverage-test-command-silent = "pytest -x --show-capture=no --cov-report term-missing --cov-report json --cov --cov-branch"
+developer-test-command = "pytest -x -s"
+developer-test-silent-command = "pytest -x --show-capture=no"
+fixformat-command = { var = "ruff format {project} {tests}", recursive = true }
+format-command = { var = "ruff format --check {project} {tests}", recursive = true }
+symbex-typed-command = {var = "symbex -s --untyped -d {project} --check", recursive = true}
+symbex-documented-command = {var = "symbex -s --undocumented -d {project} --check", recursive = true}
+
+[tool.taskipy.tasks]
+all = "task format && task lint && task test"
+lint = "task format && task check && task mypy && task symbex"
+check = { cmd = "{check-command}", help = "Run the ruff linting checks", use_vars = true }
+format = { cmd = "{format-command}", help = "Run the ruff formatter on source code", use_vars = true }
+format-fix = { cmd = "{fixformat-command}", help = "Run the ruff formatter to fix source code", use_vars = true}
+mypy = { cmd = "poetry run mypy cellveyor", help = "Run the mypy type checker for potential type errors" }
+symbex = "task symbex-typed && task symbex-documented"
+symbex-typed = { cmd = "{symbex-typed-command}", help = "Run symbex for fully typed functions", use_vars = true }
+symbex-documented = { cmd = "{symbex-documented-command}", help = "Run symbex for documentation", use_vars = true }
+test = { cmd = "pytest -x -s -vv -n auto", help = "Run the pytest test suite using order randomization and test distribution" }
+test-not-randomly = { cmd = "pytest -x -s -vv -p no:randomly", help = "Run the pytest test suite without order randomization" }
+test-not-xdist = { cmd = "pytest -x -s -vv -p no:xdist", help = "Run the pytest test suite without order randomization" }
+test-silent = { cmd = "pytest -x --show-capture=no -n auto", help = "Run the pytest test suite without showing output" }
+test-silent-not-randomly = { cmd = "pytest -x --show-capture=no -p no:randomly", help = "Run the pytest test suite without showing output and order randomization" }
+test-silent-not-xdist = { cmd = "pytest -x --show-capture=no -p no:xdist", help = "Run the pytest test suite without showing output and test distribution" }
+
 
 [build-system]
 requires = ["poetry-core"]
