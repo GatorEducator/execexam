@@ -19,6 +19,8 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.text import Text
 
+from . import convert
+from . import extract
 from . import pytest_plugin as exec_exam_pytest_plugin
 
 # create a Typer object to support the command-line interface
@@ -40,34 +42,6 @@ def load_litellm():
     global litellm  # noqa: PLW0602
     global completion  # noqa: PLW0603
     from litellm import completion
-
-
-def path_to_string(path_name: Path, levels: int = 4) -> str:
-    """Convert the path to an elided version of the path as a string."""
-    parts = path_name.parts
-    if len(parts) > levels:
-        return Path("<...>", *parts[-levels:]).as_posix()
-    else:
-        return path_name.as_posix()
-
-
-def extract_details(details: Dict[Any, Any]) -> str:
-    """Extract the details of a dictionary and return it as a string."""
-    output = []
-    # iterate through the dictionary and add each key-value pair
-    for key, value in details.items():
-        output.append(f"{value} {key}")
-    return "Details: " + ", ".join(output)
-
-
-def extract_test_run_details(details: Dict[Any, Any]) -> str:
-    """Extract the details of a test run."""
-    # Format of the data in the dictionary:
-    # 'summary': Counter({'passed': 2, 'total': 2, 'collected': 2})
-    summary_details = details["summary"]
-    # convert the dictionary of summary to a string
-    summary_details_str = extract_details(summary_details)
-    return summary_details_str
 
 
 def extract_test_assertion_details(test_details: Dict[Any, Any]) -> str:
@@ -174,7 +148,9 @@ def extract_failing_test_details(
             failing_test_paths.append(current_test_failing_dict)
             # creation additional diagnotics about the failing test
             # for further display in the console in a text-based fashion
-            failing_test_path_str = path_to_string(failing_test_path, 4)
+            failing_test_path_str = convert.path_to_string(
+                failing_test_path, 4
+            )
             failing_test_lineno = failing_test_crash["lineno"]
             failing_test_message = failing_test_crash["message"]
             # assemble all of the failing test details into the string
@@ -306,7 +282,7 @@ def run(
         execexam_report
     )
     # --> display details about the test runs
-    _ = extract_test_run_details(json_report_plugin.report)  # type: ignore
+    _ = extract.extract_test_run_details(json_report_plugin.report)  # type: ignore
     # filter the test output and decide if an
     # extra newline is or is not needed
     # filtered_test_output = captured_output.getvalue()
@@ -393,66 +369,66 @@ def run(
             time.sleep(0.1)
     litellm_thread.join()
 
-    with console.status(
-        "[bold green] Getting Feedback from ExecExam Copilot "
-    ):
-        test_overview = (
-            filtered_test_output + exec_exam_test_assertion_details,
-        )
-        llm_debugging_request = (
-            "I am an undergraduate student completing an examination."
-            + "DO NOT make suggestions to change the test cases."
-            + "DO ALWAYS make suggestions about how to improve the Python source code of the program under test."
-            + "DO ALWAYS give a Python code in a Markdown fenced code block shows your suggested program."
-            + "DO ALWAYS conclude saying that you making a helpful suggestion but could be wrong."
-            + "Can you please suggest in a step-by-step fashion how to fix the bug in the program?"
-            + f"Here is the test overview: {test_overview}"
-            + f"Here are the failing test details: {failing_test_details}"
-            # + f"Here is the source code for the failing test: {failing_test_code}"
-        )
-        response = completion(
-            # model="groq/llama3-8b-8192",
-            # model="anthropic/claude-3-opus-20240229",
-            model="anthropic/claude-3-haiku-20240307",
-            # model="anthropic/claude-instant-1.2",
-            messages=[{"role": "user", "content": llm_debugging_request}],
-        )
-        console.print(
-            Panel(
-                Markdown(str(response.choices[0].message.content)),
-                expand=False,
-                title="ExecExam Assistant (API Key)",
-                padding=1,
-            )
-        )
-        console.print()
-        # attempt with openai;
-        # does not work correctly if
-        # you use the standard LiteLLM
-        # as done above with the extra base_url
-        client = openai.OpenAI(
-            api_key="anything",
-            # base_url="http://0.0.0.0:4000"
-            base_url="https://execexamadviser.fly.dev/",
-        )
-        # response = client.chat.completions.create(model="groq/llama3-8b-8192", messages = [
-        response = client.chat.completions.create(
-            model="anthropic/claude-3-haiku-20240307",
-            messages=[
-                # response = client.chat.completions.create(model="anthropic/claude-3-opus-20240229", messages = [
-                {"role": "user", "content": llm_debugging_request}
-            ],
-        )
-        console.print(
-            Panel(
-                Markdown(
-                    "\n\n" + str(response.choices[0].message.content) + "\n\n"
-                ),
-                expand=False,
-                title="ExecExam Assistant (Fly.io)",
-                padding=1,
-            )
-        )
+    # with console.status(
+    #     "[bold green] Getting Feedback from ExecExam Copilot "
+    # ):
+    #     test_overview = (
+    #         filtered_test_output + exec_exam_test_assertion_details,
+    #     )
+    #     llm_debugging_request = (
+    #         "I am an undergraduate student completing an examination."
+    #         + "DO NOT make suggestions to change the test cases."
+    #         + "DO ALWAYS make suggestions about how to improve the Python source code of the program under test."
+    #         + "DO ALWAYS give a Python code in a Markdown fenced code block shows your suggested program."
+    #         + "DO ALWAYS conclude saying that you making a helpful suggestion but could be wrong."
+    #         + "Can you please suggest in a step-by-step fashion how to fix the bug in the program?"
+    #         + f"Here is the test overview: {test_overview}"
+    #         + f"Here are the failing test details: {failing_test_details}"
+    #         # + f"Here is the source code for the failing test: {failing_test_code}"
+    #     )
+    #     response = completion(
+    #         # model="groq/llama3-8b-8192",
+    #         # model="anthropic/claude-3-opus-20240229",
+    #         model="anthropic/claude-3-haiku-20240307",
+    #         # model="anthropic/claude-instant-1.2",
+    #         messages=[{"role": "user", "content": llm_debugging_request}],
+    #     )
+    #     console.print(
+    #         Panel(
+    #             Markdown(str(response.choices[0].message.content)),
+    #             expand=False,
+    #             title="ExecExam Assistant (API Key)",
+    #             padding=1,
+    #         )
+    #     )
+    #     console.print()
+    #     # attempt with openai;
+    #     # does not work correctly if
+    #     # you use the standard LiteLLM
+    #     # as done above with the extra base_url
+    #     client = openai.OpenAI(
+    #         api_key="anything",
+    #         # base_url="http://0.0.0.0:4000"
+    #         base_url="https://execexamadviser.fly.dev/",
+    #     )
+    #     # response = client.chat.completions.create(model="groq/llama3-8b-8192", messages = [
+    #     response = client.chat.completions.create(
+    #         model="anthropic/claude-3-haiku-20240307",
+    #         messages=[
+    #             # response = client.chat.completions.create(model="anthropic/claude-3-opus-20240229", messages = [
+    #             {"role": "user", "content": llm_debugging_request}
+    #         ],
+    #     )
+    #     console.print(
+    #         Panel(
+    #             Markdown(
+    #                 "\n\n" + str(response.choices[0].message.content) + "\n\n"
+    #             ),
+    #             expand=False,
+    #             title="ExecExam Assistant (Fly.io)",
+    #             padding=1,
+    #         )
+    #     )
 
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
