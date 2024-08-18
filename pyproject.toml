@@ -39,10 +39,10 @@ enable_assertion_pass_hook = true
 
 [tool.ruff]
 line-length = 79
-ignore = [
+lint.ignore = [
     "E501", # do not check line length
 ]
-select = [
+lint.select = [
     "E",    # pycodestyle errors
     "I",    # isort
     "F",    # Pyflakes
