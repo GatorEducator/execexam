@@ -357,6 +357,8 @@ def run(
     with console.status("[bold green] Loading ExecExam's Coding Mentor"):
         while litellm_thread.is_alive():
             time.sleep(0.1)
+    # return control to the main thread now that the
+    # litellm module has been loaded in a separate thread
     litellm_thread.join()
     advise.fix_failures(
         console,
