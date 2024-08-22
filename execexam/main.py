@@ -357,19 +357,18 @@ def run(  # noqa: PLR0913
             # delete an extra blank line from the end of the file
             # if there are two blank lines in a row
             sanitized_output = process.stdout.rstrip() + "\n"
-            # use rich to display this source code in a formatted box
-            source_code_syntax = Syntax(
-                "\n" + sanitized_output,
-                "python",
-                theme="ansi_dark",
-            )
-            console.print()
-            console.print(
-                Panel(
-                    source_code_syntax,
-                    expand=False,
-                    title="Failing Test Code",
-                )
+            # display the source code of the failing test
+            syntax = True
+            newline = True
+            display.display_content(
+                console,
+                sanitized_output,
+                "Failing Test",
+                fancy,
+                syntax,
+                syntax_theme,
+                "Python",
+                newline
             )
     # display the spinner until the litellm thread finishes
     # loading the litellm module that provides the LLM-based
