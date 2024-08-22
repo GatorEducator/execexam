@@ -3,7 +3,7 @@
 from typing import Any, Dict
 
 from rich.console import Console
-from rich.markdown import Markdown
+from rich.pretty import Pretty
 from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.text import Text
@@ -28,6 +28,7 @@ def display_diagnostics(  # noqa: PLR0913
 ) -> None:
     """Display a diagnostic message using rich or plain text."""
     if verbose:
+        console.print()
         display_content(
             console,
             content,
@@ -75,9 +76,10 @@ def display_content(  # noqa: PLR0913
         else:
             console.print(
                 Panel(
-                    Text(content, overflow="fold"),
+                    content,
                     expand=False,
                     title=label,
+                    highlight=True,
                 )
             )
     # plain text was chosen and thus the message
