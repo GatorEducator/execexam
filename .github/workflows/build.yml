@@ -78,4 +78,4 @@ jobs:
         - name: Run Tests
           if: always()
           run: |
-            poetry run task test-not-fuzz
+            poetry run task test-not-fuzz-not-xdist
