@@ -293,17 +293,29 @@ def run(  # noqa: PLR0913
     )
     if filtered_test_output != "":
         filtered_test_output = "\n" + filtered_test_output
-    console.print()
-    console.print(
-        Panel(
-            Text(
-                filtered_test_output + exec_exam_test_assertion_details,
-                overflow="fold",
-            ),
-            expand=False,
-            title="Test Trace",
-        )
+
+    syntax = False
+    display.display_content(
+        console,
+        filtered_test_output + exec_exam_test_assertion_details,
+        "Test Trace",
+        fancy,
+        syntax,
+        syntax_theme,
     )
+
+    # console.print()
+    # console.print(
+    #     Panel(
+    #         Text(
+    #             filtered_test_output + exec_exam_test_assertion_details,
+    #             overflow="fold",
+    #         ),
+    #         expand=False,
+    #         title="Test Trace",
+    #     )
+    # )
+
     # --> display details about the failing tests,
     # if they exist. Note that there can be:
     # - zero failing tests
