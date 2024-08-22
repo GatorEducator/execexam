@@ -28,13 +28,13 @@ project. It supports running tests with specified marks.
 information about the test runs and failures. This includes the name, path, line
 number, and error message of each failing test.
 - **Output Filtering**: ExecExam filters the test output to keep only the lines
-that contain the label "FAILED". This makes it easier to see which tests failed.
+that contain the label `FAILED`. This makes it easier to see which tests failed.
 - **Advice on Failures**: If any tests failed, ExecExam can give you advice on
 how to fix them. This feature uses a large language model to generate the
 advice.
 - **Exit Code**: Finally, ExecExam returns an exit code to indicate the overall
-success of the examination. The exit code is 0 if all tests passed, and 1 if any
-tests failed.
+success of the examination. The exit code is `0` if all tests passed, and `1` if
+any tests failed.
 
 ## 🎉 Get Started
 
