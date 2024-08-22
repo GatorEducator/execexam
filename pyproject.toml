@@ -76,7 +76,7 @@ symbex-documented-command = {var = "symbex -s --undocumented -d {project} --chec
 mypy-command = {var = "mypy {project}", recursive = true}
 
 [tool.taskipy.tasks]
-all = "task format && task lint && task test"
+all = "task lint && task test"
 lint = "task format && task check && task mypy && task symbex"
 check = { cmd = "{check-command}", help = "Run the ruff linting checks", use_vars = true }
 format = { cmd = "{format-command}", help = "Run the ruff formatter on source code", use_vars = true }
