@@ -86,6 +86,7 @@ symbex = "task symbex-typed && task symbex-documented"
 symbex-typed = { cmd = "{symbex-typed-command}", help = "Run symbex for fully typed functions", use_vars = true }
 symbex-documented = { cmd = "{symbex-documented-command}", help = "Run symbex for documentation", use_vars = true }
 test = { cmd = "pytest -x -s -vv -n auto", help = "Run the pytest test suite using order randomization and test distribution" }
+test-not-fuzz-not-xdist = { cmd = "pytest -x -s -vv -p no:xdist -m 'not fuzz'", help = "Run the pytest test suite using order randomization but without either test distribution or the fuzz tests" }
 test-not-fuzz = { cmd = "pytest -x -s -vv -n auto -m 'not fuzz'", help = "Run the pytest test suite using order randomization and test distribution" }
 test-not-randomly = { cmd = "pytest -x -s -vv -p no:randomly", help = "Run the pytest test suite without order randomization" }
 test-not-xdist = { cmd = "pytest -x -s -vv -p no:xdist", help = "Run the pytest test suite without order randomization" }
