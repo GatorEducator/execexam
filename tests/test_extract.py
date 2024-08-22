@@ -4,8 +4,7 @@ import pytest
 from hypothesis import given
 from hypothesis.strategies import dictionaries, text
 
-from execexam.extract import extract_details
-from execexam.extract import extract_test_run_details
+from execexam.extract import extract_details, extract_test_run_details
 
 
 def test_extract_details():
