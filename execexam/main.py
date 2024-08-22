@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Tuple
 
 import pytest
 import typer
-from pytest_jsonreport.plugin import JSONReport
+from pytest_jsonreport.plugin import JSONReport  # type: ignore
 from rich.console import Console
 
 from . import advise, convert, display, extract
