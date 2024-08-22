@@ -50,11 +50,17 @@ def display_content(  # noqa: PLR0913
     syntax: bool,
     syntax_theme: str = "ansi_dark",
     syntax_language: str = "python",
+    newline: bool = False,
 ) -> None:
     """Display a diagnostic message using rich or plain text."""
     # rich text was chosen and thus the message
     # should appear in a panel with a title
     if richtext:
+        # add an extra newline in the output
+        # to separate this block for a prior one;
+        # only needed when using rich text
+        if newline:
+            console.print()
         # use rich to print highlighted
         # source code in a formatted box
         if syntax:
