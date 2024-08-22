@@ -73,8 +73,7 @@ def fix_failures(  # noqa: PLR0913
             # as done above with the extra base_url
             client = openai.OpenAI(
                 api_key="anything",
-                base_url="http://0.0.0.0:4000"
-                # base_url="https://execexamadviser.fly.dev/",
+                base_url="https://execexamadviser.fly.dev/",
             )
             response = client.chat.completions.create(
                 model="anthropic/claude-3-haiku-20240307",
