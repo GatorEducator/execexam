@@ -2,10 +2,12 @@
 
 import sys
 from pathlib import Path
+from types import FrameType
 from typing import Any, List, Tuple
 
 import coverage
 import pytest
+from _pytest.nodes import Item
 
 # create the report list of
 # dictionaries that are organized by nodeid
@@ -28,7 +30,7 @@ def extract_single_line(text: str) -> str:
     return output
 
 
-def trace_calls(frame, event, arg):
+def trace_calls(frame: FrameType, event: str, arg: Any):
     """Trace function calls."""
     if event != "call":
         return
@@ -36,13 +38,15 @@ def trace_calls(frame, event, arg):
     func_name = code.co_name
     func_filename = code.co_filename
     if func_name == "write":
-        # Ignore write() calls from print statements
+        # ignore write() calls from print statements
         return
+    # note that all of this is current hard-coded
     target_dir = Path(
         "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-final-examination-solution/exam/questions/"
     )
     if Path(func_filename).resolve().parent == target_dir.resolve():
-        print(f"  --> Call to {func_name} in {func_filename}")
+        called = (func_name, func_filename)
+        _ = called
 
 
 def extract_exception_details(call: pytest.CallInfo) -> Tuple[int, str, str]:
@@ -85,29 +89,30 @@ def extract_exception_details(call: pytest.CallInfo) -> Tuple[int, str, str]:
     return (lineno, exact, message)
 
 
-def pytest_collection_modifyitems(items):
+def pytest_collection_modifyitems(items: List[Item]):
     """Reorder the tests based on the 'order' mark that has an integer value."""
     # sort the items in-place based on the 'order' mark;
     # note that this actually modifies the item list which
     # is what pytest uses to determine the order of tests
     items.sort(
-        key=lambda item: item.get_closest_marker("order").args[0]
+        key=lambda item: item.get_closest_marker("order").args[0]  # type: ignore
         if item.get_closest_marker("order")
         else float("inf")
     )
 
 
-def pytest_runtest_call(item):
+def pytest_runtest_call(item: Item):
     """Called before the test function is called."""
-    # Print the name of the test
-    print(f"** Running test: {item.nodeid}")
-    # Print the full path of the test file
-    print(f"** Test file: {item.fspath}")
-    # Start the coverage collection
+    # save the name of the test
+    test_name = item.nodeid
+    # save the full path of the test file
+    test_file_name_path = item.fspath
+    _ = (test_name, test_file_name_path)
+    # start the coverage collection
     sys.settrace(trace_calls)
 
 
-def pytest_runtest_teardown(item, nextitem):
+def pytest_runtest_teardown(item: Item, nextitem: Item):
     """Called after the test function has been called."""
     # Stop the coverage collection
     # Stop the trace
@@ -137,7 +142,7 @@ def pytest_runtest_teardown(item, nextitem):
 #     internal_coverage.erase()
 
 
-def pytest_runtest_protocol(item, nextitem):  # type: ignore
+def pytest_runtest_protocol(item: Item, nextitem: Item):  # type: ignore
     """Track when a test case is run."""
     global reports  # noqa: PLW0602
     # reference the nextitem parameter
@@ -148,7 +153,7 @@ def pytest_runtest_protocol(item, nextitem):  # type: ignore
     reports.append({"nodeid": item.nodeid})
 
 
-def pytest_exception_interact(node, call, report):
+def pytest_exception_interact(node: Item, call: pytest.CallInfo, report: Any):
     """Interacts with exceptions."""
     global reports  # noqa: PLW0602
     # reference the report parameter
@@ -156,7 +161,7 @@ def pytest_exception_interact(node, call, report):
     _ = report
     # there was an assertion error and thus
     # the plugin must extract details about what failed
-    if isinstance(call.excinfo.value, Exception):
+    if isinstance(call.excinfo.value, Exception):  # type: ignore
         # create an empty dictionary for the test report
         current_test_report = {}
         # find the test report for this specific test that
@@ -179,7 +184,7 @@ def pytest_exception_interact(node, call, report):
             # there is no data about assertions for this test
             if current_test_report.get("assertions") is None:
                 # add the needed fields about the assertion
-                current_assertion_dict["Line"] = lineno
+                current_assertion_dict["Line"] = str(lineno)
                 current_assertion_dict["Exact"] = extract_single_line(expl)
                 current_assertion_dict["Message"] = orig
                 # create a new list and add the dictionary with
@@ -200,7 +205,9 @@ def pytest_exception_interact(node, call, report):
                 )
 
 
-def pytest_assertion_pass(item, lineno, orig, expl):
+def pytest_assertion_pass(
+    item: Any, lineno: int, orig: str, expl: str
+) -> None:
     """Extract and save information about a passing assertion."""
     global reports  # noqa: PLW0602
     # create an empty dictionary for the test report
