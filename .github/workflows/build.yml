@@ -77,6 +77,7 @@ jobs:
         - name: Run Linters
           if: always()
           run: |
+            pipx install ruff
             poetry run task lint
         # Run the tests
         - name: Run Tests
