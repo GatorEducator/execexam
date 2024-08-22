@@ -88,7 +88,19 @@ def display_content(  # noqa: PLR0913
                     highlight=True,
                 )
             )
-    # plain text was chosen and thus the message
-    # should appear without any formatting
+    # plain text was chosen but the content is
+    # source code and thus syntax highlighting
+    # is needed, even without the panel box
+    elif not richtext and syntax:
+        source_code_syntax = Syntax(
+            "\n" + content,
+            syntax_language,
+            theme=syntax_theme,
+        )
+        console.print(f"{label}")
+        console.print(source_code_syntax)
+    # plain text was chosen and the content is
+    # not source code and thus no syntax highlighting
+    # is needed and there is no panel box either
     else:
         console.print(f"{label}\n{content}")
