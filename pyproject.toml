@@ -27,6 +27,7 @@ pytest-xdist = "^3.6.1"
 symbex = "^1.4"
 pytest-clarity = "^1.0.1"
 hypothesis = "^6.111.1"
+ruff = "^0.6.2"
 
 [tool.poetry.plugins.pytest11]
 "execexam" = "execexam.pytest_plugin"
