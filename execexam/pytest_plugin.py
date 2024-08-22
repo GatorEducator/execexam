@@ -175,7 +175,7 @@ def pytest_exception_interact(node: Item, call: pytest.CallInfo, report: Any):
         (lineno, expl, orig) = extract_exception_details(call)
         # one of the test reports was found
         # and thus we can store information about this assertion
-        if current_test_report is not {}:
+        if current_test_report != {}:
             # create an empty dictionary for the data about
             # the assertions for this failing test
             current_assertion_dict = {}
@@ -221,7 +221,7 @@ def pytest_assertion_pass(
             current_test_report = current_report
     # one of the test reports was found
     # and thus we can store information about this assertion
-    if current_test_report is not {}:
+    if current_test_report != {}:
         # create a dictionary to store details
         # about the passing assertion for this test
         current_assertion_dict = {}
