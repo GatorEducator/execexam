@@ -6,6 +6,7 @@ import subprocess
 import sys
 import threading
 import time
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -17,7 +18,7 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.text import Text
 
-from . import advise, convert, extract
+from . import advise, convert, display, extract
 from . import pytest_plugin as exec_exam_pytest_plugin
 
 # create a Typer object to support the command-line interface
@@ -28,6 +29,13 @@ console = Console()
 
 # create the skip list for data not needed
 skip = ["keywords", "setup", "teardown"]
+
+
+class Theme(str, Enum):
+    """An enumeration of the themes for syntax highlighting in rich."""
+
+    ansi_dark = "ansi_dark"
+    ansi_light = "ansi_light"
 
 
 def extract_test_assertion_details(test_details: Dict[Any, Any]) -> str:
@@ -168,7 +176,7 @@ def is_failing_test_details_empty(details: str) -> bool:
 
 
 @cli.command()
-def run(
+def run(  # noqa: PLR0913
     project: Path = typer.Argument(
         ...,
         help="Project directory containing questions and tests",
@@ -177,8 +185,10 @@ def run(
         ...,
         help="Test file or test directory",
     ),
-    mark: str = typer.Option(
-        None, help="Only run tests with the specified mark(s)"
+    mark: str = typer.Option(None, help="Run tests with specified mark(s)"),
+    fancy: bool = typer.Option(True, help="Display fancy output"),
+    syntax_theme: Theme = typer.Option(
+        Theme.ansi_dark, help="Syntax highlighting theme"
     ),
     verbose: bool = typer.Option(False, help="Display verbose output"),
 ) -> None:
@@ -197,17 +207,20 @@ def run(
     # note that this approach avoids the need to write
     # a custom pytest plugin for the executable examination
     json_report_plugin = JSONReport()
-    # display basic diagnostic information about command-line
-    # arguments using an emoji and the rich console
-    diagnostics = f"\nProject directory: {project}\n"
-    diagnostics += f"Test file or test directory: {tests}\n"
+    # display basic diagnostic information about command-line's arguments;
+    # extract the local parmeters and then make a displayable string of them
+    args = locals()
+    colon_separated_diagnostics = display.make_colon_separated_string(args)
+    syntax = False
     console.print()
-    console.print(
-        Panel(
-            Text(diagnostics, overflow="fold"),
-            expand=False,
-            title="Parameter Information",
-        )
+    display.display_diagnostics(
+        verbose,
+        console,
+        colon_separated_diagnostics,
+        "Parameter Information",
+        fancy,
+        syntax,
+        syntax_theme,
     )
     # run pytest for either:
     # - a single test file that was specified in tests
@@ -288,7 +301,7 @@ def run(
                 overflow="fold",
             ),
             expand=False,
-            title="Test Overview",
+            title="Test Trace",
         )
     )
     # --> display details about the failing tests,
@@ -360,14 +373,14 @@ def run(
     # return control to the main thread now that the
     # litellm module has been loaded in a separate thread
     litellm_thread.join()
-    advise.fix_failures(
-        console,
-        filtered_test_output,
-        exec_exam_test_assertion_details,
-        filtered_test_output + exec_exam_test_assertion_details,
-        failing_test_details,
-        "apiserver",
-    )
+    # advise.fix_failures(
+    #     console,
+    #     filtered_test_output,
+    #     exec_exam_test_assertion_details,
+    #     filtered_test_output + exec_exam_test_assertion_details,
+    #     failing_test_details,
+    #     "apiserver",
+    # )
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
     sys.exit(return_code)
