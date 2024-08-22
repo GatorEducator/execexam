@@ -3,10 +3,8 @@
 from typing import Any, Dict
 
 from rich.console import Console
-from rich.pretty import Pretty
 from rich.panel import Panel
 from rich.syntax import Syntax
-from rich.text import Text
 
 
 def make_colon_separated_string(arguments: Dict[str, Any]):
