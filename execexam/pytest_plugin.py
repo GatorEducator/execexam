@@ -194,7 +194,7 @@ def pytest_exception_interact(node: Item, call: pytest.CallInfo, report: Any):
             # there is already data about assertions for this test
             else:
                 # add the needed fields about the assertion
-                current_assertion_dict["Line"] = lineno
+                current_assertion_dict["Line"] = str(lineno)
                 current_assertion_dict["Exact"] = extract_single_line(expl)
                 current_assertion_dict["Message"] = orig
                 # there is an existing list of assertion dictionaries
@@ -230,7 +230,7 @@ def pytest_assertion_pass(
         # there is no data about assertions for this test
         if current_test_report.get("assertions") is None:
             # create an empty dictionary for the data about
-            current_assertion_dict["Line"] = lineno
+            current_assertion_dict["Line"] = str(lineno)
             current_assertion_dict["Code"] = orig
             current_assertion_dict["Exact"] = extract_single_line(expl)
             # create a new list and add the dictionary with
@@ -241,7 +241,7 @@ def pytest_assertion_pass(
         else:
             # create an empty dictionary for the data about
             # this assertion and then add the needed fields
-            current_assertion_dict["Line"] = lineno
+            current_assertion_dict["Line"] = str(lineno)
             current_assertion_dict["Code"] = orig
             current_assertion_dict["Exact"] = extract_single_line(expl)
             # there is an existing list of assertion dictionaries
