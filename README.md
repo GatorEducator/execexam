@@ -36,9 +36,29 @@ advice.
 success of the examination. The exit code is `0` if all tests passed, and `1` if
 any tests failed.
 
-## 🎉 Get Started
+## ⚡️ Requirements
 
-To get started with ExecExam as a developer, simply clone the repository,
-install the dependencies, and run the `execexam` command in your project
-directory. If you want to use the program, you should first install the `pipx`
-command and then type `pipx install execexam`.
+- Python 3.12
+- Chasten leverages numerous Python packages, including notable ones such as:
+    - [Rich](https://github.com/Textualize/rich): Full-featured formatting and display of text in the terminal
+    - [Typer](https://github.com/tiangolo/typer): Easy-to-implement and fun-to-use command-line interfaces
+- The developers of Chasten use [Poetry](https://github.com/python-poetry/poetry) for packaging and dependency management
+
+## 🔽 Installation
+
+Follow these steps to install the `execexam` program:
+
+- Install Python 3.12 for your operating system
+- Install [pipx](https://github.com/pypa/pipx) to support program installation in isolated environments
+- Type `pipx install execexam` to install ExecExam
+- Type `pipx list` and confirm that ExecExam is installed
+- Type `execexam --help` to learn how to use the tool
+
+## 🧗Improvement
+
+- Found a bug or have a feature that the development team should implement?
+[Raise an issue](https://github.com/gkapfham/execexam/issues)!
+- Interesting in learning more about tool usage details? [Check the
+wiki](https://github.com/gkapfham/execexam/wiki)!
+- Contact [Gregory M. Kapfhammer](https://www.gregorykapfhammer.com/) with any
+questions or suggestions about ExecExam!
