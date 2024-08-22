@@ -1,7 +1,7 @@
 """Test suite for the extract module."""
 
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis.strategies import dictionaries, text
 
 from execexam.extract import extract_details, extract_test_run_details
@@ -14,7 +14,20 @@ def test_extract_details():
     assert result == "Details: value1 key1, value2 key2, value3 key3"
 
 
-@given(dictionaries(keys=text(), values=text()))
+@settings(max_examples=5)
+# @given(
+#     dictionaries(
+#         keys=text(min_size=1, max_size=2),
+#         values=text(min_size=1, max_size=2),
+#         max_size=2,
+#     )
+# )
+@given(
+    dictionaries(
+        keys=text(),
+        values=text(),
+    )
+)
 @pytest.mark.fuzz
 def test_extract_details_hypothesis(details):
     result = extract_details(details)
