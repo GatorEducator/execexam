@@ -14,9 +14,6 @@ import pytest
 import typer
 from pytest_jsonreport.plugin import JSONReport
 from rich.console import Console
-from rich.panel import Panel
-from rich.syntax import Syntax
-from rich.text import Text
 
 from . import advise, convert, display, extract
 from . import pytest_plugin as exec_exam_pytest_plugin
@@ -336,7 +333,7 @@ def run(  # noqa: PLR0913
             syntax,
             syntax_theme,
             "Python",
-            newline
+            newline,
         )
         # display the source code for the failing test cases
         for failing_test_path_dict in failing_test_path_dicts:
@@ -368,7 +365,7 @@ def run(  # noqa: PLR0913
                 syntax,
                 syntax_theme,
                 "Python",
-                newline
+                newline,
             )
     # display the spinner until the litellm thread finishes
     # loading the litellm module that provides the LLM-based
