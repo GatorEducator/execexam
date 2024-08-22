@@ -287,13 +287,15 @@ def run(  # noqa: PLR0913
     _ = extract.extract_test_run_details(json_report_plugin.report)  # type: ignore
     # filter the test output and decide if an
     # extra newline is or is not needed
-    # filtered_test_output = captured_output.getvalue()
     filtered_test_output = filter_test_output(
         "FAILED", captured_output.getvalue()
     )
+    # add an extra newline to the filtered output
+    # since there is a failing test case to display
     if filtered_test_output != "":
         filtered_test_output = "\n" + filtered_test_output
-
+    # indicate that the material that will be displayed
+    # is not source code and thus does not need syntax highlighting
     syntax = False
     display.display_content(
         console,
@@ -303,24 +305,15 @@ def run(  # noqa: PLR0913
         syntax,
         syntax_theme,
     )
-
-    # console.print()
-    # console.print(
-    #     Panel(
-    #         Text(
-    #             filtered_test_output + exec_exam_test_assertion_details,
-    #             overflow="fold",
-    #         ),
-    #         expand=False,
-    #         title="Test Trace",
-    #     )
-    # )
-
-    # --> display details about the failing tests,
+    # display details about the failing tests,
     # if they exist. Note that there can be:
     # - zero failing tests
     # - one failing test
     # - multiple failing tests
+    # note that details about the failing tests are
+    # collected by the execexam pytest plugin and
+    # there is no need for the developer of the
+    # examination to collect and report this data
     (
         failing_test_details,
         failing_test_path_dicts,
@@ -330,51 +323,54 @@ def run(  # noqa: PLR0913
         # there were test failures and thus the return code is non-zero
         # to indicate that at least one test case did not pass
         return_code = 1
-        # there was a request for verbose output, so display additional
-        # helpful information about the failing test cases
-        if verbose:
-            # display the details about the failing test cases
+        # display additional helpful information about the failing
+        # test cases; this is the error message that would appear
+        # when standardly running the test suite with pytest
+        syntax = False
+        newline = True
+        display.display_content(
+            console,
+            failing_test_details,
+            "Test Failure(s)",
+            fancy,
+            syntax,
+            syntax_theme,
+            "Python",
+            newline
+        )
+        # display the source code for the failing test cases
+        for failing_test_path_dict in failing_test_path_dicts:
+            test_name = failing_test_path_dict["test_name"]
+            failing_test_path = failing_test_path_dict["test_path"]
+            # build the command for running symbex; this tool can
+            # perform static analysis of Python source code and
+            # extract the code of a function inside of a file
+            command = f"symbex {test_name} -f {failing_test_path}"
+            # run the symbex command and collect its output
+            process = subprocess.run(
+                command,
+                shell=True,
+                check=True,
+                text=True,
+                capture_output=True,
+            )
+            # delete an extra blank line from the end of the file
+            # if there are two blank lines in a row
+            sanitized_output = process.stdout.rstrip() + "\n"
+            # use rich to display this source code in a formatted box
+            source_code_syntax = Syntax(
+                "\n" + sanitized_output,
+                "python",
+                theme="ansi_dark",
+            )
             console.print()
             console.print(
                 Panel(
-                    Text(failing_test_details, overflow="fold"),
+                    source_code_syntax,
                     expand=False,
-                    title="Failing Test Details",
+                    title="Failing Test Code",
                 )
             )
-            # display the source code for the failing test cases
-            for failing_test_path_dict in failing_test_path_dicts:
-                test_name = failing_test_path_dict["test_name"]
-                failing_test_path = failing_test_path_dict["test_path"]
-                # build the command for running symbex; this tool can
-                # perform static analysis of Python source code and
-                # extract the code of a function inside of a file
-                command = f"symbex {test_name} -f {failing_test_path}"
-                # run the symbex command and collect its output
-                process = subprocess.run(
-                    command,
-                    shell=True,
-                    check=True,
-                    text=True,
-                    capture_output=True,
-                )
-                # delete an extra blank line from the end of the file
-                # if there are two blank lines in a row
-                sanitized_output = process.stdout.rstrip() + "\n"
-                # use rich to display this source code in a formatted box
-                source_code_syntax = Syntax(
-                    "\n" + sanitized_output,
-                    "python",
-                    theme="ansi_dark",
-                )
-                console.print()
-                console.print(
-                    Panel(
-                        source_code_syntax,
-                        expand=False,
-                        title="Failing Test Code",
-                    )
-                )
     # display the spinner until the litellm thread finishes
     # loading the litellm module that provides the LLM-based
     # mentoring by automatically suggesting fixes for test failures
