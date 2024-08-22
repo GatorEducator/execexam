@@ -6,7 +6,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 
 
-def load_litellm():
+def load_litellm() -> None:
     """Load the litellm module."""
     # note that the purpose of this function is
     # to allow the loading of the litellm module
@@ -44,7 +44,7 @@ def fix_failures(  # noqa: PLR0913
             # + f"Here is the source code for the failing test: {failing_test_code}"
         )
         if approach == "apikey":
-            response = completion(
+            response = completion(  # type: ignore
                 # model="groq/llama3-8b-8192",
                 # model="openrouter/meta-llama/llama-3.1-8b-instruct:free",
                 model="openrouter/google/gemma-2-9b-it:free",
@@ -56,7 +56,7 @@ def fix_failures(  # noqa: PLR0913
                 Panel(
                     Markdown(
                         str(
-                            response.choices[0].message.content,
+                            response.choices[0].message.content,  # type: ignore
                         ),
                         code_theme="ansi_dark",
                     ),
