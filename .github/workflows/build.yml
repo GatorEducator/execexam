@@ -72,10 +72,17 @@ jobs:
         - name: Run Linters
           if: always()
           run: |
+            # install ruff directly instead of managing
+            # it as a dependency with Poetry since ruff
+            # does not (currently) install correctly
+            # through Poetry on NixOS
             pipx install ruff
             poetry run task lint
         # Run the tests
         - name: Run Tests
           if: always()
           run: |
+            # do not run the Hypothesis-based fuzz tests
+            # because they sometimes take longer to run
+            # on Windows and MacOS and this creates errors
             poetry run task test-not-fuzz
