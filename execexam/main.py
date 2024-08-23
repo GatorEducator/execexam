@@ -96,6 +96,9 @@ def run(  # noqa: PLR0913
     # run pytest in a fashion that will not
     # produce any output to the console
     found_marks_str = mark
+    # there were test marks on the command-line and
+    # thus they should be run for the specified tests
+    # (marks can control which tests are run)
     if found_marks_str:
         pytest.main(
             [
@@ -115,6 +118,8 @@ def run(  # noqa: PLR0913
             ],
             plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
+    # there were no test marks specified on the command-line
+    # and thus all of the tests should be run based on that specified
     else:
         pytest.main(
             [
