@@ -6,6 +6,13 @@ from typing import Any, Dict, List, Tuple
 from . import convert
 
 
+def is_failing_test_details_empty(details: str) -> bool:
+    """Determine if the string contains a newline as a hallmark of no failing tests."""
+    if details == "\n":
+        return True
+    return False
+
+
 def extract_details(details: Dict[Any, Any]) -> str:
     """Extract the details of a dictionary and return it as a string."""
     output = []
