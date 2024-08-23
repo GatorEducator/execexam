@@ -34,19 +34,6 @@ class Theme(str, Enum):
     ansi_light = "ansi_light"
 
 
-def filter_test_output(keep_line_label: str, output: str) -> str:
-    """Filter the output of the test run to keep only the lines that contain the label."""
-    # create an empty string that will store the filtered output
-    filtered_output = ""
-    # iterate through the lines in the output
-    for line in output.splitlines():
-        # if the line contains the label, add it to the filtered output
-        if keep_line_label in line:
-            filtered_output += line + "\n"
-    # return the filtered output
-    return filtered_output
-
-
 def is_failing_test_details_empty(details: str) -> bool:
     """Determine if the string contains a newline as a hallmark of no failing tests."""
     if details == "\n":
@@ -166,7 +153,7 @@ def run(  # noqa: PLR0913
     _ = extract.extract_test_run_details(json_report_plugin.report)  # type: ignore
     # filter the test output and decide if an
     # extra newline is or is not needed
-    filtered_test_output = filter_test_output(
+    filtered_test_output = extract.extract_test_output(
         "FAILED", captured_output.getvalue()
     )
     # add an extra newline to the filtered output
