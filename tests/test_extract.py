@@ -10,6 +10,7 @@ from execexam.extract import (
     extract_test_assertion_details,
     extract_test_assertion_details_list,
     extract_test_assertions_details,
+    extract_test_output,
     extract_test_run_details,
 )
 
@@ -159,3 +160,28 @@ def test_extract_failing_test_details():
     assert (
         str(result[1][0]["test_path"]) == "/home/user/project/test_module.py"
     )
+
+
+def test_extract_test_output_with_label():
+    """Confirm correct filtering out of the lines that contain the label."""
+    # define a string that contains the label
+    output = "This is a test\nThis is another test\nTest label: This is a test with a label\nAnother test label: This is another test with a label"
+    keep_line_label = "label"
+    # call the function with the output and the label
+    result = extract_test_output(keep_line_label, output)
+    # check the result
+    assert (
+        result
+        == "Test label: This is a test with a label\nAnother test label: This is another test with a label\n"
+    )
+
+
+def test_extract_test_output_without_label():
+    """Confirm correct filtering out of the lines that do not contain the label."""
+    # define a string that does not contain the label
+    output = "This is a test\nThis is another test\nThis is a test without a document\nThis is another test without a document"
+    keep_line_label = "label"
+    # call the function with the output and the label
+    result = extract_test_output(keep_line_label, output)
+    # check the result
+    assert result == ""
