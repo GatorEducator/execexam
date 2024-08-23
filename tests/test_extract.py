@@ -1,5 +1,7 @@
 """Test suite for the extract module."""
 
+from pathlib import Path
+
 import pytest
 from hypothesis import given, settings
 from hypothesis.strategies import dictionaries, text
@@ -159,7 +161,7 @@ def test_extract_failing_test_details():
     assert len(result[1]) == 1
     assert result[1][0]["test_name"] == "test_function"
     assert (
-        str(result[1][0]["test_path"]) == "/home/user/project/test_module.py"
+        str(result[1][0]["test_path"]) == str(Path("/home/user/project/test_module.py"))
     )
 
 
