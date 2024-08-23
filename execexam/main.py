@@ -34,13 +34,6 @@ class Theme(str, Enum):
     ansi_light = "ansi_light"
 
 
-def is_failing_test_details_empty(details: str) -> bool:
-    """Determine if the string contains a newline as a hallmark of no failing tests."""
-    if details == "\n":
-        return True
-    return False
-
-
 @cli.command()
 def run(  # noqa: PLR0913
     project: Path = typer.Argument(
@@ -185,7 +178,7 @@ def run(  # noqa: PLR0913
         failing_test_path_dicts,
     ) = extract.extract_failing_test_details(json_report_plugin.report)  # type: ignore
     # there was at least one failing test case
-    if not is_failing_test_details_empty(failing_test_details):
+    if not extract.is_failing_test_details_empty(failing_test_details):
         # there were test failures and thus the return code is non-zero
         # to indicate that at least one test case did not pass
         return_code = 1
