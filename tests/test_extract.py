@@ -12,6 +12,7 @@ from execexam.extract import (
     extract_test_assertions_details,
     extract_test_output,
     extract_test_run_details,
+    is_failing_test_details_empty,
 )
 
 
@@ -185,3 +186,33 @@ def test_extract_test_output_without_label():
     result = extract_test_output(keep_line_label, output)
     # check the result
     assert result == ""
+
+
+def test_is_failing_test_details_empty_with_newline():
+    """Confirm returns True when the input string contains only a newline."""
+    # define a string that contains only a newline
+    details = "\n"
+    # call the function with the details
+    result = is_failing_test_details_empty(details)
+    # check the result
+    assert result is True
+
+
+def test_is_failing_test_details_empty_with_non_empty_string():
+    """Confirm returns False when input contains content but not a newline."""
+    # define a string that contains more than a newline
+    details = "This is a test"
+    # call the function with the details
+    result = is_failing_test_details_empty(details)
+    # check the result
+    assert result is False
+
+
+def test_is_failing_test_details_empty_with_empty_string():
+    """Confirm returns False when the input string is empty."""
+    # define an empty string
+    details = ""
+    # call the function with the details
+    result = is_failing_test_details_empty(details)
+    # check the result
+    assert result is False
