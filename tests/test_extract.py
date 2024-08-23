@@ -6,6 +6,7 @@ from hypothesis.strategies import dictionaries, text
 
 from execexam.extract import (
     extract_details,
+    extract_failing_test_details,
     extract_test_assertion_details,
     extract_test_assertion_details_list,
     extract_test_assertions_details,
@@ -125,3 +126,36 @@ def test_extract_test_assertions_details():
         "    assertion4: value4\n"
     )
     assert extract_test_assertions_details(test_reports) == expected_output
+
+
+def test_extract_failing_test_details():
+    """Confirm that extracting details about the failing tests works."""
+    # define a dictionary that contains details about failing tests
+    failing_test_details = {
+        "root": "/home/user/project",
+        "tests": [
+            {
+                "outcome": "failed",
+                "nodeid": "test_module.py::test_function",
+                "call": {"crash": {"lineno": 10, "message": "AssertionError"}},
+            },
+            {
+                "outcome": "passed",
+                "nodeid": "test_module.py::test_function2",
+                "call": {"crash": {"lineno": 20, "message": "AssertionError"}},
+            },
+        ],
+    }
+    # call the function with the failing test details
+    result = extract_failing_test_details(failing_test_details)
+    # check the result
+    assert len(result) == 2  # noqa: PLR2004
+    assert (
+        result[0]
+        == "\n  Name: test_module.py::test_function\n  Path: /home/user/project/test_module.py\n  Line number: 10\n  Message: AssertionError\n"
+    )
+    assert len(result[1]) == 1
+    assert result[1][0]["test_name"] == "test_function"
+    assert (
+        str(result[1][0]["test_path"]) == "/home/user/project/test_module.py"
+    )
