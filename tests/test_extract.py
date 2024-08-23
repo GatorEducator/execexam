@@ -8,6 +8,7 @@ from execexam.extract import (
     extract_details,
     extract_test_assertion_details,
     extract_test_assertion_details_list,
+    extract_test_assertions_details,
     extract_test_run_details,
 )
 
@@ -70,7 +71,7 @@ def test_extract_test_assertion_details():
 
 
 def test_extract_test_assertion_details_list():
-    """Confirm that extract details about a list of test assertions works."""
+    """Confirm that extracting details about a list of test assertions works."""
     test_details_list = [
         {
             "assertion1": "value1",
@@ -91,3 +92,36 @@ def test_extract_test_assertion_details_list():
         extract_test_assertion_details_list(test_details_list)
         == expected_output
     )
+
+
+def test_extract_test_assertions_details():
+    """Confirm that extracting details about test assertions works."""
+    test_reports = [
+        {
+            "nodeid": "/path/to/test_file.py::test_name1",
+            "assertions": [
+                {
+                    "assertion1": "value1",
+                    "assertion2": "value2",
+                },
+            ],
+        },
+        {
+            "nodeid": "/path/to/test_file.py::test_name2",
+            "assertions": [
+                {
+                    "assertion3": "value3",
+                    "assertion4": "value4",
+                },
+            ],
+        },
+    ]
+    expected_output = (
+        "\ntest_file.py::test_name1\n"
+        "  - assertion1: value1\n"
+        "    assertion2: value2\n"
+        "\ntest_file.py::test_name2\n"
+        "  - assertion3: value3\n"
+        "    assertion4: value4\n"
+    )
+    assert extract_test_assertions_details(test_reports) == expected_output
