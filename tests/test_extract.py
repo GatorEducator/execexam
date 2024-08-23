@@ -160,8 +160,8 @@ def test_extract_failing_test_details():
     )
     assert len(result[1]) == 1
     assert result[1][0]["test_name"] == "test_function"
-    assert (
-        str(result[1][0]["test_path"]) == str(Path("/home/user/project/test_module.py"))
+    assert str(result[1][0]["test_path"]) == str(
+        Path("/home/user/project/test_module.py")
     )
 
 
