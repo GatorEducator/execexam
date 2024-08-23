@@ -1,10 +1,12 @@
 """Display results from running the execexam tool."""
 
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
+
+from . import enumerations
 
 
 def make_colon_separated_string(arguments: Dict[str, Any]):
@@ -14,50 +16,24 @@ def make_colon_separated_string(arguments: Dict[str, Any]):
     )
 
 
-def display_return_code(console: Console, fancy: bool, return_code: int) -> None:
-    """Display the return code from running the specified checks(s)."""
-    # fancy display is used to create panels around the
-    # output and thus there is a need for an extra newline
-    if fancy:
-        console.print()
+def display_return_code(return_code: int, fancy: bool) -> str:
+    """Determine the return code from running the specified checks(s)."""
+    message = "\n"
     # no errors were found in the executable examination
     if return_code == 0:
-        console.print("[green]\u2714 All checks passed.")
+        message += "[green]\u2714 All checks passed."
     # there was an error in the executable examination
     else:
-        console.print("[red]\u2718 One or more checks failed.")
-
-
-def display_diagnostics(  # noqa: PLR0913
-    verbose: bool,
-    console: Console,
-    content: str,
-    label: str,
-    richtext: bool,
-    syntax: bool,
-    syntax_theme: str = "ansi_dark",
-    syntax_language: str = "python",
-    newline: bool = False,
-) -> None:
-    """Display a diagnostic message using rich or plain text."""
-    if verbose:
-        console.print()
-        display_content(
-            console,
-            content,
-            label,
-            richtext,
-            syntax,
-            syntax_theme,
-            syntax_language,
-            newline
-        )
-    else:
-        return None
+        message += "[red]\u2718 One or more checks failed."
+    if fancy:
+        message += "\n"
+    return message
 
 
 def display_content(  # noqa: PLR0913
     console: Console,
+    display_report_type: enumerations.ReportType,
+    report_types: Optional[List[enumerations.ReportType]],
     content: str,
     label: str,
     richtext: bool,
@@ -67,54 +43,58 @@ def display_content(  # noqa: PLR0913
     newline: bool = False,
 ) -> None:
     """Display a diagnostic message using rich or plain text."""
-    # rich text was chosen and thus the message
-    # should appear in a panel with a title
-    if richtext:
-        # add an extra newline in the output
-        # to separate this block for a prior one;
-        # only needed when using rich text
-        if newline:
-            console.print()
-        # use rich to print highlighted
-        # source code in a formatted box
-        if syntax:
+    if report_types is not None and (
+        display_report_type in report_types
+        or enumerations.ReportType.all in report_types
+    ):
+        # rich text was chosen and thus the message
+        # should appear in a panel with a title
+        if richtext:
+            # add an extra newline in the output
+            # to separate this block for a prior one;
+            # only needed when using rich text
+            if newline:
+                console.print()
+            # use rich to print highlighted
+            # source code in a formatted box
+            if syntax:
+                source_code_syntax = Syntax(
+                    "\n" + content,
+                    syntax_language,
+                    theme=syntax_theme,
+                )
+                console.print(
+                    Panel(
+                        source_code_syntax,
+                        expand=False,
+                        title=label,
+                    )
+                )
+            # use rich to print sylized text since
+            # the content is not source code
+            # that should be syntax highlighted
+            else:
+                console.print(
+                    Panel(
+                        content,
+                        expand=False,
+                        title=label,
+                        highlight=True,
+                    )
+                )
+        # plain text was chosen but the content is
+        # source code and thus syntax highlighting
+        # is needed, even without the panel box
+        elif not richtext and syntax:
             source_code_syntax = Syntax(
                 "\n" + content,
                 syntax_language,
                 theme=syntax_theme,
             )
-            console.print(
-                Panel(
-                    source_code_syntax,
-                    expand=False,
-                    title=label,
-                )
-            )
-        # use rich to print sylized text since
-        # the content is not source code
-        # that should be syntax highlighted
+            console.print(f"{label}")
+            console.print(source_code_syntax)
+        # plain text was chosen and the content is
+        # not source code and thus no syntax highlighting
+        # is needed and there is no panel box either
         else:
-            console.print(
-                Panel(
-                    content,
-                    expand=False,
-                    title=label,
-                    highlight=True,
-                )
-            )
-    # plain text was chosen but the content is
-    # source code and thus syntax highlighting
-    # is needed, even without the panel box
-    elif not richtext and syntax:
-        source_code_syntax = Syntax(
-            "\n" + content,
-            syntax_language,
-            theme=syntax_theme,
-        )
-        console.print(f"{label}")
-        console.print(source_code_syntax)
-    # plain text was chosen and the content is
-    # not source code and thus no syntax highlighting
-    # is needed and there is no panel box either
-    else:
-        console.print(f"{label}\n{content}")
+            console.print(f"{label}\n{content}")
