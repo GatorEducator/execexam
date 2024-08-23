@@ -14,6 +14,15 @@ def make_colon_separated_string(arguments: Dict[str, Any]):
     )
 
 
+def display_return_code(console: Console, return_code: int) -> None:
+    """Display the return code from running the specified checks(s)."""
+    # no errors were found in the executable examination
+    if return_code == 0:
+        console.print("[green]\u2714 All checks passed.")
+    else:
+        console.print("[red]\u2718 One or more checks failed.")
+
+
 def display_diagnostics(  # noqa: PLR0913
     verbose: bool,
     console: Console,
