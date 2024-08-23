@@ -6,15 +6,15 @@ import subprocess
 import sys
 import threading
 import time
-from enum import Enum
 from pathlib import Path
+from typing import List, Optional
 
 import pytest
 import typer
 from pytest_jsonreport.plugin import JSONReport  # type: ignore
 from rich.console import Console
 
-from . import advise, display, extract
+from . import advise, display, enumerations, extract
 from . import pytest_plugin as exec_exam_pytest_plugin
 
 # create a Typer object to support the command-line interface
@@ -27,15 +27,8 @@ console = Console()
 skip = ["keywords", "setup", "teardown"]
 
 
-class Theme(str, Enum):
-    """An enumeration of the themes for syntax highlighting in rich."""
-
-    ansi_dark = "ansi_dark"
-    ansi_light = "ansi_light"
-
-
 @cli.command()
-def run(  # noqa: PLR0913
+def run(  # noqa: PLR0913, PLR0915
     project: Path = typer.Argument(
         ...,
         help="Project directory containing questions and tests",
@@ -44,20 +37,26 @@ def run(  # noqa: PLR0913
         ...,
         help="Test file or test directory",
     ),
+    report: Optional[List[enumerations.ReportType]] = typer.Option(
+        None,
+        help="Types of reports to generate",
+    ),
     mark: str = typer.Option(None, help="Run tests with specified mark(s)"),
     maxfail: int = typer.Option(
         10, help="Maximum test failures before stopping"
     ),
     fancy: bool = typer.Option(True, help="Display fancy output"),
-    syntax_theme: Theme = typer.Option(
-        Theme.ansi_dark, help="Syntax highlighting theme"
+    syntax_theme: enumerations.Theme = typer.Option(
+        enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
     ),
-    verbose: bool = typer.Option(False, help="Display verbose output"),
+    # verbose: bool = typer.Option(False, help="Display verbose output"),
 ) -> None:
     """Run an executable exam."""
-    # load the litellm module in a separate thread
+    # load the litellm module in a separate thread when advice
+    # was requested for this run of the program
     litellm_thread = threading.Thread(target=advise.load_litellm)
-    litellm_thread.start()
+    if report and enumerations.ReportType.testadvice in report:
+        litellm_thread.start()
     # indicate that the program's exit code is zero
     # to show that the program completed successfully;
     # attempt to prove otherwise by running all the checks
@@ -74,15 +73,22 @@ def run(  # noqa: PLR0913
     args = locals()
     colon_separated_diagnostics = display.make_colon_separated_string(args)
     syntax = False
-    console.print()
-    display.display_diagnostics(
-        verbose,
+    newline = True
+    # console.print()
+    # newline = display.determine_newline(
+    #     [enumerations.ReportType.setup], report
+    # )
+    display.display_content(
         console,
+        enumerations.ReportType.setup,
+        report,
         colon_separated_diagnostics,
         "Parameter Information",
         fancy,
         syntax,
         syntax_theme,
+        "python",
+        newline,
     )
     # run pytest for either:
     # - a single test file that was specified in tests
@@ -164,13 +170,28 @@ def run(  # noqa: PLR0913
     # indicate that the material that will be displayed
     # is not source code and thus does not need syntax highlighting
     syntax = False
+    # a new line is needed if the verbose flag was set because
+    # this means that there has already been output displayed
+    # if report is not None and (
+    #     enumerations.ReportType.setup in report
+    #     or enumerations.ReportType.all in report
+    # ):
+    newline = True
+    # newline = display.determine_newline(
+    #     [enumerations.ReportType.setup], report
+    # )
+    # --> TRACE
     display.display_content(
         console,
+        enumerations.ReportType.testtrace,
+        report,
         filtered_test_output + exec_exam_test_assertion_details,
         "Test Trace",
         fancy,
         syntax,
         syntax_theme,
+        "python",
+        newline,
     )
     # display details about the failing tests,
     # if they exist. Note that there can be:
@@ -195,8 +216,15 @@ def run(  # noqa: PLR0913
         # when standardly running the test suite with pytest
         syntax = False
         newline = True
+        # newline = display.determine_newline(
+        #     [enumerations.ReportType.setup, enumerations.ReportType.testtrace],
+        #     report,
+        # )
+        # --> FAILURE
         display.display_content(
             console,
+            enumerations.ReportType.testfailures,
+            report,
             failing_test_details,
             "Test Failure(s)",
             fancy,
@@ -229,6 +257,8 @@ def run(  # noqa: PLR0913
             newline = True
             display.display_content(
                 console,
+                enumerations.ReportType.testcodes,
+                report,
                 sanitized_output,
                 "Failing Test",
                 fancy,
@@ -240,13 +270,14 @@ def run(  # noqa: PLR0913
     # display the spinner until the litellm thread finishes
     # loading the litellm module that provides the LLM-based
     # mentoring by automatically suggesting fixes for test failures
-    console.print()
-    with console.status("[bold green] Loading ExecExam's Coding Mentor"):
-        while litellm_thread.is_alive():
-            time.sleep(0.1)
-    # return control to the main thread now that the
-    # litellm module has been loaded in a separate thread
-    litellm_thread.join()
+    if report and enumerations.ReportType.testadvice in report:
+        console.print()
+        with console.status("[bold green] Loading ExecExam's Coding Mentor"):
+            while litellm_thread.is_alive():
+                time.sleep(0.1)
+        # return control to the main thread now that the
+        # litellm module has been loaded in a separate thread
+        litellm_thread.join()
     # advise.fix_failures(
     #     console,
     #     filtered_test_output,
@@ -258,7 +289,22 @@ def run(  # noqa: PLR0913
     # display a final message about the return code;
     # this is the only output that will always appear
     # by default when no other levels are specified
-    display.display_return_code(console, return_code)
+    exit_code_message = display.display_return_code(return_code, fancy)
+    # display the source code of the failing test
+    syntax = False
+    newline = True
+    display.display_content(
+        console,
+        enumerations.ReportType.exitcode,
+        report,
+        exit_code_message,
+        "Overall Status",
+        fancy,
+        syntax,
+        syntax_theme,
+        "Python",
+        newline,
+    )
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
     sys.exit(return_code)
