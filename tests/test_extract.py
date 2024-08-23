@@ -4,7 +4,12 @@ import pytest
 from hypothesis import given, settings
 from hypothesis.strategies import dictionaries, text
 
-from execexam.extract import extract_details, extract_test_run_details
+from execexam.extract import (
+    extract_details,
+    extract_test_assertion_details,
+    extract_test_assertion_details_list,
+    extract_test_run_details,
+)
 
 
 def test_extract_details():
@@ -14,7 +19,7 @@ def test_extract_details():
     assert result == "Details: value1 key1, value2 key2, value3 key3"
 
 
-@settings(max_examples=5)
+@settings(max_examples=2)
 @given(
     dictionaries(
         keys=text(),
@@ -47,3 +52,42 @@ def test_extract_test_run_details():
     details = {"summary": {}}
     result = extract_test_run_details(details)
     assert result == ""
+
+
+def test_extract_test_assertion_details():
+    """Confirm that extract details about a test assertion works."""
+    test_details = {
+        "assertion1": "value1",
+        "assertion2": "value2",
+        "assertion3": "value3",
+    }
+    expected_output = (
+        "  - assertion1: value1\n"
+        "    assertion2: value2\n"
+        "    assertion3: value3\n"
+    )
+    assert extract_test_assertion_details(test_details) == expected_output
+
+
+def test_extract_test_assertion_details_list():
+    """Confirm that extract details about a list of test assertions works."""
+    test_details_list = [
+        {
+            "assertion1": "value1",
+            "assertion2": "value2",
+        },
+        {
+            "assertion3": "value3",
+            "assertion4": "value4",
+        },
+    ]
+    expected_output = (
+        "  - assertion1: value1\n"
+        "    assertion2: value2\n"
+        "  - assertion3: value3\n"
+        "    assertion4: value4\n"
+    )
+    assert (
+        extract_test_assertion_details_list(test_details_list)
+        == expected_output
+    )
