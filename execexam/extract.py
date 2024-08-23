@@ -142,3 +142,16 @@ def extract_failing_test_details(
             failing_details_str += f"  Message: {failing_test_message}\n"
     # return the string that contains all of the failing test details
     return (failing_details_str, failing_test_paths)
+
+
+def extract_test_output(keep_line_label: str, output: str) -> str:
+    """Filter the output of the test run to keep only the lines that contain the label."""
+    # create an empty string that will store the filtered output
+    filtered_output = ""
+    # iterate through the lines in the output
+    for line in output.splitlines():
+        # if the line contains the label, add it to the filtered output
+        if keep_line_label in line:
+            filtered_output += line + "\n"
+    # return the filtered output
+    return filtered_output
