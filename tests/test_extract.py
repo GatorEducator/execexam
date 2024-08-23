@@ -15,13 +15,6 @@ def test_extract_details():
 
 
 @settings(max_examples=5)
-# @given(
-#     dictionaries(
-#         keys=text(min_size=1, max_size=2),
-#         values=text(min_size=1, max_size=2),
-#         max_size=2,
-#     )
-# )
 @given(
     dictionaries(
         keys=text(),
