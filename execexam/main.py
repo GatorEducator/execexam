@@ -250,6 +250,10 @@ def run(  # noqa: PLR0913
     #     failing_test_details,
     #     "apiserver",
     # )
+    # display a final message about the return code;
+    # this is the only output that will always appear
+    # by default when no other levels are specified
+    display.display_return_code(console, return_code)
     # return the code for the overall success of the program
     # to communicate to the operating system the examination's status
     sys.exit(return_code)
