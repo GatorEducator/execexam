@@ -14,11 +14,16 @@ def make_colon_separated_string(arguments: Dict[str, Any]):
     )
 
 
-def display_return_code(console: Console, return_code: int) -> None:
+def display_return_code(console: Console, fancy: bool, return_code: int) -> None:
     """Display the return code from running the specified checks(s)."""
+    # fancy display is used to create panels around the
+    # output and thus there is a need for an extra newline
+    if fancy:
+        console.print()
     # no errors were found in the executable examination
     if return_code == 0:
         console.print("[green]\u2714 All checks passed.")
+    # there was an error in the executable examination
     else:
         console.print("[red]\u2718 One or more checks failed.")
 
@@ -32,6 +37,7 @@ def display_diagnostics(  # noqa: PLR0913
     syntax: bool,
     syntax_theme: str = "ansi_dark",
     syntax_language: str = "python",
+    newline: bool = False,
 ) -> None:
     """Display a diagnostic message using rich or plain text."""
     if verbose:
@@ -44,6 +50,7 @@ def display_diagnostics(  # noqa: PLR0913
             syntax,
             syntax_theme,
             syntax_language,
+            newline
         )
     else:
         return None
