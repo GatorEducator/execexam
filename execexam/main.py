@@ -45,6 +45,9 @@ def run(  # noqa: PLR0913
         help="Test file or test directory",
     ),
     mark: str = typer.Option(None, help="Run tests with specified mark(s)"),
+    maxfail: int = typer.Option(
+        10, help="Maximum test failures before stopping"
+    ),
     fancy: bool = typer.Option(True, help="Display fancy output"),
     syntax_theme: Theme = typer.Option(
         Theme.ansi_dark, help="Syntax highlighting theme"
@@ -105,7 +108,7 @@ def run(  # noqa: PLR0913
                 "no:warnings",
                 "--tb=no",
                 "--json-report-file=none",
-                "--maxfail=10",
+                f"--maxfail={maxfail}",
                 "-m",
                 found_marks_str,
                 os.path.join(tests),
@@ -123,7 +126,7 @@ def run(  # noqa: PLR0913
                 "-p",
                 "no:warnings",
                 "--tb=no",
-                "--maxfail=10",
+                f"--maxfail={maxfail}",
                 "--json-report-file=none",
                 os.path.join(tests),
             ],
