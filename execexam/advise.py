@@ -31,9 +31,20 @@ def fix_failures(  # noqa: PLR0913
     with console.status(
         "[bold green] Getting Feedback from ExecExam's Coding Mentor"
     ):
+        # the test overview is a string that contains both
+        # the filtered test output and the details about the passing
+        # and failing assertions in the test cases
         test_overview = (
             filtered_test_output + exec_exam_test_assertion_details,
         )
+        # create an LLM debugging request that contains all of the
+        # information that is needed to provide advice about how
+        # to fix the bug(s) in the program that are part of an
+        # executable examination; note that, essentially, an
+        # examination consists of Python functions that a student
+        # must complete and then test cases that confirm the correctness
+        # of the functions that are implemented; note also that
+        # ExecExam has a Pytest plugin that collects additional details
         llm_debugging_request = (
             "I am an undergraduate student completing a programming examination."
             + "Please do not make suggestions to change the test cases."
@@ -45,7 +56,10 @@ def fix_failures(  # noqa: PLR0913
             + f"Here are the failing test details: {failing_test_details}"
             + f"Here is the source code for the failing test(s): {failing_test_code}"
         )
+        # the API key approach expects that the person running the execexam
+        # tool has specified an API key for a support cloud-based LLM system
         if approach == "apikey":
+            # submit the debugging request to the LLM-based mentoring system
             response = completion(  # type: ignore
                 # model="groq/llama3-8b-8192",
                 # model="openrouter/meta-llama/llama-3.1-8b-instruct:free",
@@ -54,6 +68,8 @@ def fix_failures(  # noqa: PLR0913
                 model="anthropic/claude-3-haiku-20240307",
                 messages=[{"role": "user", "content": llm_debugging_request}],
             )
+            # display the advice from the LLM-based mentoring system
+            # in a panel that is created by using the rich library
             if fancy:
                 console.print(
                     Panel(
@@ -78,15 +94,22 @@ def fix_failures(  # noqa: PLR0913
                     ),
                 )
                 console.print()
+        # the apiserver approach expects that the person running the execexam
+        # tool will specify the URL of a remote LLM-based mentoring system
+        # that is configured to provide access to an LLM system for advice
         elif approach == "apiserver":
-            # attempt with openai;
-            # does not work correctly if
-            # you use the standard LiteLLM
-            # as done above with the extra base_url
+            # use the OpenAI approach to submitting the
+            # debugging request to the LLM-based mentoring system
+            # that is currently running on a remote LiteLLM system;
+            # note that this does not seem to work correctly if
+            # you use the standard LiteLLM approach as done with
+            # the standard API key approach elsewhere in this file
             client = openai.OpenAI(
                 api_key="anything",
                 base_url="https://execexamadviser.fly.dev/",
             )
+            # submit the debugging request to the LLM-based mentoring system
+            # using the specified model and the debugging prompt
             response = client.chat.completions.create(
                 model="anthropic/claude-3-haiku-20240307",
                 messages=[{"role": "user", "content": llm_debugging_request}],
