@@ -286,7 +286,8 @@ def run(  # noqa: PLR0913, PLR0915
                 filtered_test_output + exec_exam_test_assertion_details,
                 failing_test_details,
                 failing_test_code_overall,
-                "apiserver",
+                syntax_theme,
+                "apikey",
                 fancy,
             )
     # display a final message about the return code;
