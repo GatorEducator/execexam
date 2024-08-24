@@ -50,11 +50,13 @@ def run(  # noqa: PLR0913, PLR0915
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
     ),
 ) -> None:
-    """Run an executable exam."""
+    """Run an executable exam and produce the requested report(s)."""
     # load the litellm module in a separate thread when advice
     # was requested for this run of the program
     litellm_thread = threading.Thread(target=advise.load_litellm)
-    # if report and enumerations.ReportType.testadvice in report:
+    # if execexam was configured to produce the report for advice
+    # or if it was configured to produce all of the possible reports,
+    # then start the litellm thread that provides the advice
     display_report_type = enumerations.ReportType.testadvice
     if report is not None and (
         display_report_type in report or enumerations.ReportType.all in report
@@ -104,7 +106,7 @@ def run(  # noqa: PLR0913, PLR0915
     found_marks_str = mark
     # there were test marks on the command-line and
     # thus they should be run for the specified tests
-    # (marks can control which tests are run)
+    # (note that marks can control which tests are run)
     if found_marks_str:
         pytest.main(
             [
@@ -125,7 +127,8 @@ def run(  # noqa: PLR0913, PLR0915
             plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
     # there were no test marks specified on the command-line
-    # and thus all of the tests should be run based on that specified
+    # and thus all of the tests should be run based on the specified
+    # test file or test directory, which this provides to pytest
     else:
         pytest.main(
             [
@@ -283,7 +286,7 @@ def run(  # noqa: PLR0913, PLR0915
                 filtered_test_output + exec_exam_test_assertion_details,
                 failing_test_details,
                 failing_test_code_overall,
-                "apikey",
+                "apiserver",
                 fancy,
             )
     # display a final message about the return code;
