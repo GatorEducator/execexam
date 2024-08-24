@@ -27,7 +27,7 @@ def fix_failures(  # noqa: PLR0913
     approach: str = "api",
     fancy: bool = True,
 ):
-    """Offer advice through the use of the LLM-Based mentoring system."""
+    """Offer advice through the use of the LLM-based mentoring system."""
     with console.status(
         "[bold green] Getting Feedback from ExecExam's Coding Mentor"
     ):
@@ -35,7 +35,7 @@ def fix_failures(  # noqa: PLR0913
             filtered_test_output + exec_exam_test_assertion_details,
         )
         llm_debugging_request = (
-            "I am an undergraduate student completing an examination."
+            "I am an undergraduate student completing a programming examination."
             + "DO NOT make suggestions to change the test cases."
             + "ALWAYS make suggestions about how to improve the Python source code of the program under test."
             + "ALWAYS give a Python code in a Markdown fenced code block shows your suggested program."
