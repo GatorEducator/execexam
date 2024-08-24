@@ -49,7 +49,6 @@ def run(  # noqa: PLR0913, PLR0915
     syntax_theme: enumerations.Theme = typer.Option(
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
     ),
-    # verbose: bool = typer.Option(False, help="Display verbose output"),
 ) -> None:
     """Run an executable exam."""
     # load the litellm module in a separate thread when advice
@@ -72,12 +71,9 @@ def run(  # noqa: PLR0913, PLR0915
     # extract the local parmeters and then make a displayable string of them
     args = locals()
     colon_separated_diagnostics = display.make_colon_separated_string(args)
+    # --> SETUP
     syntax = False
     newline = True
-    # console.print()
-    # newline = display.determine_newline(
-    #     [enumerations.ReportType.setup], report
-    # )
     display.display_content(
         console,
         enumerations.ReportType.setup,
@@ -169,18 +165,9 @@ def run(  # noqa: PLR0913, PLR0915
         filtered_test_output = "\n" + filtered_test_output
     # indicate that the material that will be displayed
     # is not source code and thus does not need syntax highlighting
-    syntax = False
-    # a new line is needed if the verbose flag was set because
-    # this means that there has already been output displayed
-    # if report is not None and (
-    #     enumerations.ReportType.setup in report
-    #     or enumerations.ReportType.all in report
-    # ):
-    newline = True
-    # newline = display.determine_newline(
-    #     [enumerations.ReportType.setup], report
-    # )
     # --> TRACE
+    syntax = False
+    newline = True
     display.display_content(
         console,
         enumerations.ReportType.testtrace,
@@ -214,13 +201,9 @@ def run(  # noqa: PLR0913, PLR0915
         # display additional helpful information about the failing
         # test cases; this is the error message that would appear
         # when standardly running the test suite with pytest
+        # --> FAILURE
         syntax = False
         newline = True
-        # newline = display.determine_newline(
-        #     [enumerations.ReportType.setup, enumerations.ReportType.testtrace],
-        #     report,
-        # )
-        # --> FAILURE
         display.display_content(
             console,
             enumerations.ReportType.testfailures,
@@ -253,6 +236,7 @@ def run(  # noqa: PLR0913, PLR0915
             # if there are two blank lines in a row
             sanitized_output = process.stdout.rstrip() + "\n"
             # display the source code of the failing test
+            # --> CODE
             syntax = True
             newline = True
             display.display_content(
