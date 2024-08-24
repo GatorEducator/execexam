@@ -5,6 +5,8 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 
+from . import enumerations
+
 
 def load_litellm() -> None:
     """Load the litellm module."""
@@ -19,11 +21,12 @@ def load_litellm() -> None:
 
 def fix_failures(  # noqa: PLR0913
     console: Console,
-    filtered_test_output,
-    exec_exam_test_assertion_details,
-    test_overview,
-    failing_test_details,
-    failing_test_code,
+    filtered_test_output: str,
+    exec_exam_test_assertion_details: str,
+    test_overview: str,
+    failing_test_details: str,
+    failing_test_code: str,
+    syntax_theme: enumerations.Theme,
     approach: str = "api",
     fancy: bool = True,
 ):
@@ -34,9 +37,7 @@ def fix_failures(  # noqa: PLR0913
         # the test overview is a string that contains both
         # the filtered test output and the details about the passing
         # and failing assertions in the test cases
-        test_overview = (
-            filtered_test_output + exec_exam_test_assertion_details,
-        )
+        test_overview = filtered_test_output + exec_exam_test_assertion_details
         # create an LLM debugging request that contains all of the
         # information that is needed to provide advice about how
         # to fix the bug(s) in the program that are part of an
@@ -77,7 +78,7 @@ def fix_failures(  # noqa: PLR0913
                             str(
                                 response.choices[0].message.content,  # type: ignore
                             ),
-                            code_theme="ansi_dark",
+                            code_theme=syntax_theme.value,
                         ),
                         expand=False,
                         title="Advice from ExecExam's Coding Mentor (API Key)",
@@ -90,7 +91,7 @@ def fix_failures(  # noqa: PLR0913
                         str(
                             response.choices[0].message.content,  # type: ignore
                         ),
-                        code_theme="ansi_dark",
+                        code_theme=syntax_theme.value,
                     ),
                 )
                 console.print()
@@ -119,7 +120,7 @@ def fix_failures(  # noqa: PLR0913
                     Panel(
                         Markdown(
                             str(response.choices[0].message.content),
-                            code_theme="ansi_dark",
+                            code_theme=syntax_theme.value,
                         ),
                         expand=False,
                         title="Advice from ExecExam's Coding Mentor (API Server)",
@@ -132,7 +133,7 @@ def fix_failures(  # noqa: PLR0913
                         str(
                             response.choices[0].message.content,  # type: ignore
                         ),
-                        code_theme="ansi_dark",
+                        code_theme=syntax_theme.value,
                     ),
                 )
                 console.print()
