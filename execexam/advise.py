@@ -91,14 +91,25 @@ def fix_failures(  # noqa: PLR0913
                 model="anthropic/claude-3-haiku-20240307",
                 messages=[{"role": "user", "content": llm_debugging_request}],
             )
-            console.print(
-                Panel(
-                    Markdown(
-                        str(response.choices[0].message.content),
-                        code_theme="ansi_dark",
-                    ),
-                    expand=False,
-                    title="Advice from ExecExam's Coding Mentor (API Server)",
-                    padding=1,
+            if fancy:
+                console.print(
+                    Panel(
+                        Markdown(
+                            str(response.choices[0].message.content),
+                            code_theme="ansi_dark",
+                        ),
+                        expand=False,
+                        title="Advice from ExecExam's Coding Mentor (API Server)",
+                        padding=1,
+                    )
                 )
-            )
+            else:
+                console.print(
+                        Markdown(
+                            str(
+                                response.choices[0].message.content,  # type: ignore
+                            ),
+                            code_theme="ansi_dark",
+                        ),
+                )
+                console.print()
