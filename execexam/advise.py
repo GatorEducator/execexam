@@ -70,12 +70,12 @@ def fix_failures(  # noqa: PLR0913
                 )
             else:
                 console.print(
-                        Markdown(
-                            str(
-                                response.choices[0].message.content,  # type: ignore
-                            ),
-                            code_theme="ansi_dark",
+                    Markdown(
+                        str(
+                            response.choices[0].message.content,  # type: ignore
                         ),
+                        code_theme="ansi_dark",
+                    ),
                 )
                 console.print()
         elif approach == "apiserver":
@@ -105,11 +105,11 @@ def fix_failures(  # noqa: PLR0913
                 )
             else:
                 console.print(
-                        Markdown(
-                            str(
-                                response.choices[0].message.content,  # type: ignore
-                            ),
-                            code_theme="ansi_dark",
+                    Markdown(
+                        str(
+                            response.choices[0].message.content,  # type: ignore
                         ),
+                        code_theme="ansi_dark",
+                    ),
                 )
                 console.print()

@@ -57,8 +57,7 @@ def run(  # noqa: PLR0913, PLR0915
     # if report and enumerations.ReportType.testadvice in report:
     display_report_type = enumerations.ReportType.testadvice
     if report is not None and (
-        display_report_type in report
-        or enumerations.ReportType.all in report
+        display_report_type in report or enumerations.ReportType.all in report
     ):
         litellm_thread.start()
     # indicate that the program's exit code is zero
@@ -263,19 +262,20 @@ def run(  # noqa: PLR0913, PLR0915
     # mentoring by automatically suggesting fixes for test failures
     display_report_type = enumerations.ReportType.testadvice
     if report is not None and (
-        display_report_type in report
-        or enumerations.ReportType.all in report
+        display_report_type in report or enumerations.ReportType.all in report
     ):
-        if return_code == 1: 
+        if return_code == 1:
             console.print()
-            with console.status("[bold green] Loading ExecExam's Coding Mentor"):
+            with console.status(
+                "[bold green] Loading ExecExam's Coding Mentor"
+            ):
                 while litellm_thread.is_alive():
                     time.sleep(0.1)
         # return control to the main thread now that the
         # litellm module has been loaded in a separate thread
         litellm_thread.join()
         # provide advice about how to fix the failing tests
-        if return_code == 1: 
+        if return_code == 1:
             advise.fix_failures(
                 console,
                 filtered_test_output,
@@ -284,7 +284,7 @@ def run(  # noqa: PLR0913, PLR0915
                 failing_test_details,
                 failing_test_code_overall,
                 "apikey",
-                fancy
+                fancy,
             )
     # display a final message about the return code;
     # this is the only output that will always appear
