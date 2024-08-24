@@ -23,7 +23,9 @@ def fix_failures(  # noqa: PLR0913
     exec_exam_test_assertion_details,
     test_overview,
     failing_test_details,
+    failing_test_code,
     approach: str = "api",
+    fancy: bool = True,
 ):
     """Offer advice through the use of the LLM-Based mentoring system."""
     with console.status(
@@ -41,31 +43,41 @@ def fix_failures(  # noqa: PLR0913
             + "Can you please suggest in a step-by-step fashion how to fix the bug in the program?"
             + f"Here is the test overview: {test_overview}"
             + f"Here are the failing test details: {failing_test_details}"
-            # + f"Here is the source code for the failing test: {failing_test_code}"
+            + f"Here is the source code for the failing test: {failing_test_code}"
         )
         if approach == "apikey":
             response = completion(  # type: ignore
                 # model="groq/llama3-8b-8192",
                 # model="openrouter/meta-llama/llama-3.1-8b-instruct:free",
-                model="openrouter/google/gemma-2-9b-it:free",
+                # model="openrouter/google/gemma-2-9b-it:free",
                 # model="anthropic/claude-3-opus-20240229",
-                # model="anthropic/claude-3-haiku-20240307",
+                model="anthropic/claude-3-haiku-20240307",
                 messages=[{"role": "user", "content": llm_debugging_request}],
             )
-            console.print(
-                Panel(
-                    Markdown(
-                        str(
-                            response.choices[0].message.content,  # type: ignore
+            if fancy:
+                console.print(
+                    Panel(
+                        Markdown(
+                            str(
+                                response.choices[0].message.content,  # type: ignore
+                            ),
+                            code_theme="ansi_dark",
                         ),
-                        code_theme="ansi_dark",
-                    ),
-                    expand=False,
-                    title="Advice from ExecExam's Coding Mentor (API Key)",
-                    padding=1,
+                        expand=False,
+                        title="Advice from ExecExam's Coding Mentor (API Key)",
+                        padding=1,
+                    )
                 )
-            )
-            console.print()
+            else:
+                console.print(
+                        Markdown(
+                            str(
+                                response.choices[0].message.content,  # type: ignore
+                            ),
+                            code_theme="ansi_dark",
+                        ),
+                )
+                console.print()
         elif approach == "apiserver":
             # attempt with openai;
             # does not work correctly if
