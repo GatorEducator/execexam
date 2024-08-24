@@ -54,7 +54,12 @@ def run(  # noqa: PLR0913, PLR0915
     # load the litellm module in a separate thread when advice
     # was requested for this run of the program
     litellm_thread = threading.Thread(target=advise.load_litellm)
-    if report and enumerations.ReportType.testadvice in report:
+    # if report and enumerations.ReportType.testadvice in report:
+    display_report_type = enumerations.ReportType.testadvice
+    if report is not None and (
+        display_report_type in report
+        or enumerations.ReportType.all in report
+    ):
         litellm_thread.start()
     # indicate that the program's exit code is zero
     # to show that the program completed successfully;
@@ -193,6 +198,7 @@ def run(  # noqa: PLR0913, PLR0915
         failing_test_details,
         failing_test_path_dicts,
     ) = extract.extract_failing_test_details(json_report_plugin.report)  # type: ignore
+    failing_test_code_overall = ""
     # there was at least one failing test case
     if not extract.is_failing_test_details_empty(failing_test_details):
         # there were test failures and thus the return code is non-zero
@@ -235,6 +241,7 @@ def run(  # noqa: PLR0913, PLR0915
             # delete an extra blank line from the end of the file
             # if there are two blank lines in a row
             sanitized_output = process.stdout.rstrip() + "\n"
+            failing_test_code_overall += sanitized_output
             # display the source code of the failing test
             # --> CODE
             syntax = True
@@ -254,22 +261,31 @@ def run(  # noqa: PLR0913, PLR0915
     # display the spinner until the litellm thread finishes
     # loading the litellm module that provides the LLM-based
     # mentoring by automatically suggesting fixes for test failures
-    if report and enumerations.ReportType.testadvice in report:
-        console.print()
-        with console.status("[bold green] Loading ExecExam's Coding Mentor"):
-            while litellm_thread.is_alive():
-                time.sleep(0.1)
+    display_report_type = enumerations.ReportType.testadvice
+    if report is not None and (
+        display_report_type in report
+        or enumerations.ReportType.all in report
+    ):
+        if return_code == 1: 
+            console.print()
+            with console.status("[bold green] Loading ExecExam's Coding Mentor"):
+                while litellm_thread.is_alive():
+                    time.sleep(0.1)
         # return control to the main thread now that the
         # litellm module has been loaded in a separate thread
         litellm_thread.join()
-    # advise.fix_failures(
-    #     console,
-    #     filtered_test_output,
-    #     exec_exam_test_assertion_details,
-    #     filtered_test_output + exec_exam_test_assertion_details,
-    #     failing_test_details,
-    #     "apiserver",
-    # )
+        # provide advice about how to fix the failing tests
+        if return_code == 1: 
+            advise.fix_failures(
+                console,
+                filtered_test_output,
+                exec_exam_test_assertion_details,
+                filtered_test_output + exec_exam_test_assertion_details,
+                failing_test_details,
+                failing_test_code_overall,
+                "apikey",
+                fancy
+            )
     # display a final message about the return code;
     # this is the only output that will always appear
     # by default when no other levels are specified
