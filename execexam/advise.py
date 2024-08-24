@@ -36,14 +36,14 @@ def fix_failures(  # noqa: PLR0913
         )
         llm_debugging_request = (
             "I am an undergraduate student completing a programming examination."
-            + "DO NOT make suggestions to change the test cases."
-            + "ALWAYS make suggestions about how to improve the Python source code of the program under test."
-            + "ALWAYS give a Python code in a Markdown fenced code block shows your suggested program."
-            + "ALWAYS conclude saying that you making a helpful suggestion but could be wrong."
-            + "Can you please suggest in a step-by-step fashion how to fix the bug in the program?"
+            + "Please do not make suggestions to change the test cases."
+            + "Always make suggestions about how to improve the Python source code of the program under test."
+            + "Always give Python code in a Markdown fenced code block with your suggested program."
+            + "Always conclude by saying that you are making a helpful suggestion but could be wrong."
+            + "Can you please suggest in a step-by-step fashion how to fix the bug(s) in the program?"
             + f"Here is the test overview: {test_overview}"
             + f"Here are the failing test details: {failing_test_details}"
-            + f"Here is the source code for the failing test: {failing_test_code}"
+            + f"Here is the source code for the failing test(s): {failing_test_code}"
         )
         if approach == "apikey":
             response = completion(  # type: ignore
