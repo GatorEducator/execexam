@@ -62,20 +62,7 @@ def run(  # noqa: PLR0913, PLR0915
     # confirm that the advice model is provided when
     # the report includes the advice report type or
     # when the report includes all of the report types
-    if (
-        report is not None
-        and (
-            enumerations.ReportType.testadvice in report
-            or enumerations.ReportType.all in report
-        )
-        and advice_model is None
-    ):
-        return_code = 1
-        console.print()
-        console.print(
-            "[red]The --advice-model option is required when --report includes 'advice'"
-        )
-        sys.exit(return_code)
+    advise.check_advice_model(console, report, advice_model)
     # load the litellm module in a separate thread when advice
     # was requested for this run of the program
     litellm_thread = threading.Thread(target=advise.load_litellm)
