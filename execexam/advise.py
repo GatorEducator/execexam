@@ -1,5 +1,8 @@
 """Offer advice through the use of the LLM-Based mentoring system."""
 
+import sys
+from typing import List, Optional
+
 import openai
 from rich.console import Console
 from rich.markdown import Markdown
@@ -17,6 +20,28 @@ def load_litellm() -> None:
     global litellm  # noqa: PLW0602
     global completion  # noqa: PLW0603
     from litellm import completion
+
+
+def check_advice_method(
+    console: Console,
+    report: Optional[List[enumerations.ReportType]],
+    advice_model: str,
+) -> None:
+    """Check if the advice request is valid."""
+    if (
+        report is not None
+        and (
+            enumerations.ReportType.testadvice in report
+            or enumerations.ReportType.all in report
+        )
+        and advice_model is None
+    ):
+        return_code = 1
+        console.print()
+        console.print(
+            "[red]The --advice-model option is required when --report includes 'advice' or 'all'"
+        )
+        sys.exit(return_code)
 
 
 def fix_failures(  # noqa: PLR0913
