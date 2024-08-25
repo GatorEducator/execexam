@@ -26,8 +26,9 @@ def fix_failures(  # noqa: PLR0913
     test_overview: str,
     failing_test_details: str,
     failing_test_code: str,
+    advice_method: enumerations.AdviceMethod,
+    advice_model: str,
     syntax_theme: enumerations.Theme,
-    approach: str = "api",
     fancy: bool = True,
 ):
     """Offer advice through the use of the LLM-based mentoring system."""
@@ -62,14 +63,10 @@ def fix_failures(  # noqa: PLR0913
         )
         # the API key approach expects that the person running the execexam
         # tool has specified an API key for a support cloud-based LLM system
-        if approach == "apikey":
+        if advice_method == enumerations.AdviceMethod.api_key:
             # submit the debugging request to the LLM-based mentoring system
             response = completion(  # type: ignore
-                # model="groq/llama3-8b-8192",
-                # model="openrouter/meta-llama/llama-3.1-8b-instruct:free",
-                # model="openrouter/google/gemma-2-9b-it:free",
-                # model="anthropic/claude-3-opus-20240229",
-                model="anthropic/claude-3-haiku-20240307",
+                model=advice_model,
                 messages=[{"role": "user", "content": llm_debugging_request}],
             )
             # display the advice from the LLM-based mentoring system
@@ -101,7 +98,7 @@ def fix_failures(  # noqa: PLR0913
         # the apiserver approach expects that the person running the execexam
         # tool will specify the URL of a remote LLM-based mentoring system
         # that is configured to provide access to an LLM system for advice
-        elif approach == "apiserver":
+        elif advice_method == enumerations.AdviceMethod.api_server:
             # use the OpenAI approach to submitting the
             # debugging request to the LLM-based mentoring system
             # that is currently running on a remote LiteLLM system;
@@ -115,7 +112,7 @@ def fix_failures(  # noqa: PLR0913
             # submit the debugging request to the LLM-based mentoring system
             # using the specified model and the debugging prompt
             response = client.chat.completions.create(
-                model="anthropic/claude-3-haiku-20240307",
+                model=advice_model,
                 messages=[{"role": "user", "content": llm_debugging_request}],
             )
             if fancy:
