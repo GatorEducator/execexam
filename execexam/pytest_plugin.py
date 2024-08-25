@@ -30,23 +30,23 @@ def extract_single_line(text: str) -> str:
     return output
 
 
-def trace_calls(frame: FrameType, event: str, arg: Any):
-    """Trace function calls."""
-    if event != "call":
-        return
-    code = frame.f_code
-    func_name = code.co_name
-    func_filename = code.co_filename
-    if func_name == "write":
-        # ignore write() calls from print statements
-        return
-    # note that all of this is current hard-coded
-    target_dir = Path(
-        "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-final-examination-solution/exam/questions/"
-    )
-    if Path(func_filename).resolve().parent == target_dir.resolve():
-        called = (func_name, func_filename)
-        _ = called
+# def trace_calls(frame: FrameType, event: str, arg: Any):
+#     """Trace function calls."""
+#     if event != "call":
+#         return
+#     code = frame.f_code
+#     func_name = code.co_name
+#     func_filename = code.co_filename
+#     if func_name == "write":
+#         # ignore write() calls from print statements
+#         return
+#     # note that all of this is current hard-coded
+#     target_dir = Path(
+#         "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-final-examination-solution/exam/questions/"
+#     )
+#     if Path(func_filename).resolve().parent == target_dir.resolve():
+#         called = (func_name, func_filename)
+#         _ = called
 
 
 def extract_exception_details(call: pytest.CallInfo) -> Tuple[int, str, str]:
@@ -109,14 +109,14 @@ def pytest_runtest_call(item: Item):
     test_file_name_path = item.fspath
     _ = (test_name, test_file_name_path)
     # start the coverage collection
-    sys.settrace(trace_calls)
+    # sys.settrace(trace_calls)
 
 
 def pytest_runtest_teardown(item: Item, nextitem: Item):
     """Called after the test function has been called."""
     # Stop the coverage collection
     # Stop the trace
-    sys.settrace(None)
+    # sys.settrace(None)
 
 
 #     internal_coverage.stop()
