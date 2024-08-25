@@ -30,6 +30,22 @@ def display_return_code(return_code: int, fancy: bool) -> str:
     return message
 
 
+def display_advise(return_code: int, fancy: bool) -> str:
+    """Determine the return code from running the specified checks(s)."""
+    message = "\n"
+    # no errors were found in the executable examination
+    # and no advice is needed, so display helpful message
+    if return_code == 0:
+        message += "[green]\u2714 Advise requested, but none is needed!"
+    # there was an error in the executable examination;
+    # note that this is not going to be normally displayed
+    else:
+        message += "[red]\u2718 Advise requested, and will be provided!"
+    # add an extra newline to ensure suitable spacing
+    message += "\n"
+    return message
+
+
 def display_content(  # noqa: PLR0913
     console: Console,
     display_report_type: enumerations.ReportType,
