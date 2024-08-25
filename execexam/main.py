@@ -273,15 +273,17 @@ def run(  # noqa: PLR0913, PLR0915
         # (if there were test failures) or the program can stop running
         # (if there were no test failures and thus advice is not needed)
         console.print()
-        with console.status(
-            "[bold green] Loading ExecExam's Coding Mentor"
-        ):
+        with console.status("[bold green] Loading ExecExam's Coding Mentor"):
             while litellm_thread.is_alive():
                 time.sleep(0.1)
         # return control to the main thread now that the
         # litellm module has been loaded in a separate thread
         litellm_thread.join()
         # provide advice about how to fix the failing tests
+        # because the non-zero return code indicates that
+        # there was a test failure and that overall there
+        # is at least one mistake in the examination for
+        # which advice should be sought from the LLM
         if return_code == 1:
             advise.fix_failures(
                 console,
@@ -294,11 +296,30 @@ def run(  # noqa: PLR0913, PLR0915
                 "apikey",
                 fancy,
             )
-    # display a final message about the return code;
-    # this is the only output that will always appear
-    # by default when no other levels are specified
+        # there were no test failures and thus there is no need
+        # to seek advice from the LLM-based mentoring system;
+        # display a message to repor that even though advice
+        # was requested, it was not needed and thus is not displayed
+        else:
+            syntax = False
+            newline = False
+            advice_message = display.display_advise(return_code, fancy)
+            display.display_content(
+                console,
+                enumerations.ReportType.exitcode,
+                report,
+                advice_message,
+                "Advice Status",
+                fancy,
+                syntax,
+                syntax_theme,
+                "Python",
+                newline,
+            )
+    # display a final message about the return code, using
+    # a human-readable message that indicates the overall status
     exit_code_message = display.display_return_code(return_code, fancy)
-    # display the source code of the failing test
+    # display the return code through a diagnostic message
     syntax = False
     newline = True
     display.display_content(
