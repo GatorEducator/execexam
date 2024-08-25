@@ -3,6 +3,13 @@
 from enum import Enum
 
 
+class AdviceMethod(str, Enum):
+    """An enumeration of the ways in which advice can be sought from an LLM."""
+
+    api_key = "apikey"
+    api_server = "apiserver"
+
+
 class Theme(str, Enum):
     """An enumeration of the themes for syntax highlighting in rich."""
 
