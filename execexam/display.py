@@ -30,7 +30,7 @@ def display_return_code(return_code: int, fancy: bool) -> str:
     return message
 
 
-def display_advise(return_code: int, fancy: bool) -> str:
+def display_advice(return_code: int, fancy: bool) -> str:
     """Determine the return code from running the specified checks(s)."""
     message = "\n"
     # no errors were found in the executable examination
