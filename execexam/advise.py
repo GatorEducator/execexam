@@ -22,7 +22,7 @@ def load_litellm() -> None:
     from litellm import completion
 
 
-def check_advice_method(
+def check_advice_model(
     console: Console,
     report: Optional[List[enumerations.ReportType]],
     advice_model: str,
