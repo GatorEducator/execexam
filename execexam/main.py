@@ -45,12 +45,37 @@ def run(  # noqa: PLR0913, PLR0915
     maxfail: int = typer.Option(
         10, help="Maximum test failures before stopping"
     ),
+    advice_method: enumerations.AdviceMethod = typer.Option(
+        enumerations.AdviceMethod.api_key, help="LLM-based method for advice"
+    ),
+    advice_model: str = typer.Option(None, help="LLM model: https://docs.litellm.ai/docs/providers"),
     fancy: bool = typer.Option(True, help="Display fancy output"),
     syntax_theme: enumerations.Theme = typer.Option(
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
     ),
 ) -> None:
     """Run an executable exam and produce the requested report(s)."""
+    # indicate that the program's exit code is zero
+    # to show that the program completed successfully;
+    # attempt to prove otherwise by running all the checks
+    return_code = 0
+    # confirm that the advice model is provided when
+    # the report includes the advice report type or
+    # when the report includes all of the report types
+    if (
+        report is not None
+        and (
+            enumerations.ReportType.testadvice in report
+            or enumerations.ReportType.all in report
+        )
+        and advice_model is None
+    ):
+        return_code = 1
+        console.print()
+        console.print(
+            "[red]The --advice-model option is required when --report includes 'advice'"
+        )
+        sys.exit(return_code)
     # load the litellm module in a separate thread when advice
     # was requested for this run of the program
     litellm_thread = threading.Thread(target=advise.load_litellm)
@@ -62,10 +87,6 @@ def run(  # noqa: PLR0913, PLR0915
         display_report_type in report or enumerations.ReportType.all in report
     ):
         litellm_thread.start()
-    # indicate that the program's exit code is zero
-    # to show that the program completed successfully;
-    # attempt to prove otherwise by running all the checks
-    return_code = 0
     # add the project directory to the system path
     sys.path.append(str(project))
     # create the plugin that will collect all data
@@ -292,8 +313,9 @@ def run(  # noqa: PLR0913, PLR0915
                 filtered_test_output + exec_exam_test_assertion_details,
                 failing_test_details,
                 failing_test_code_overall,
+                advice_method,
+                advice_model,
                 syntax_theme,
-                "apikey",
                 fancy,
             )
         # there were no test failures and thus there is no need
@@ -303,7 +325,7 @@ def run(  # noqa: PLR0913, PLR0915
         else:
             syntax = False
             newline = False
-            advice_message = display.display_advise(return_code, fancy)
+            advice_message = display.display_advice(return_code, fancy)
             display.display_content(
                 console,
                 enumerations.ReportType.exitcode,
