@@ -48,14 +48,17 @@ def fix_failures(  # noqa: PLR0913
         # ExecExam has a Pytest plugin that collects additional details
         llm_debugging_request = (
             "I am an undergraduate student completing a programming examination."
-            + "Please do not make suggestions to change the test cases."
+            + "You may never make suggestions to change the source code of the test cases."
             + "Always make suggestions about how to improve the Python source code of the program under test."
             + "Always give Python code in a Markdown fenced code block with your suggested program."
+            + "Always start your response with a friendly greeting and overview of what you will provide."
             + "Always conclude by saying that you are making a helpful suggestion but could be wrong."
-            + "Can you please suggest in a step-by-step fashion how to fix the bug(s) in the program?"
-            + f"Here is the test overview: {test_overview}"
-            + f"Here are the failing test details: {failing_test_details}"
-            + f"Here is the source code for the failing test(s): {failing_test_code}"
+            + "Always be helpful, upbeat, friendly, encouraging, and concise when making a response."
+            + "Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
+            + "What follows is all of the information you need to complete the debugging task."
+            + f"Here is the test overview with test output and details about test assertions: {test_overview}"
+            + f"Here is a brief overview of the test failure information: {failing_test_details}"
+            + f"Here is the source code for the one or more failing test(s): {failing_test_code}"
         )
         # the API key approach expects that the person running the execexam
         # tool has specified an API key for a support cloud-based LLM system
