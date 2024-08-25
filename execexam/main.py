@@ -267,13 +267,17 @@ def run(  # noqa: PLR0913, PLR0915
     if report is not None and (
         display_report_type in report or enumerations.ReportType.all in report
     ):
-        if return_code == 1:
-            console.print()
-            with console.status(
-                "[bold green] Loading ExecExam's Coding Mentor"
-            ):
-                while litellm_thread.is_alive():
-                    time.sleep(0.1)
+        # regardless of whether or not there were test failures, it is
+        # appropriate to display the loading message so that the thread
+        # can finish the imports and then the advice can be requested
+        # (if there were test failures) or the program can stop running
+        # (if there were no test failures and thus advice is not needed)
+        console.print()
+        with console.status(
+            "[bold green] Loading ExecExam's Coding Mentor"
+        ):
+            while litellm_thread.is_alive():
+                time.sleep(0.1)
         # return control to the main thread now that the
         # litellm module has been loaded in a separate thread
         litellm_thread.join()
