@@ -4,6 +4,7 @@ import sys
 from typing import List, Optional
 
 import openai
+import validators
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -22,12 +23,19 @@ def load_litellm() -> None:
     from litellm import completion
 
 
+def validate_url(value: str) -> bool:
+    """Validate a URL given as a string using the validators library."""
+    if not validators.url(value):
+        return False
+    return True
+
+
 def check_advice_model(
     console: Console,
     report: Optional[List[enumerations.ReportType]],
     advice_model: str,
 ) -> None:
-    """Check if the advice request is valid."""
+    """Check if the advice request is valid because a model was specified."""
     if (
         report is not None
         and (
@@ -44,6 +52,45 @@ def check_advice_model(
         sys.exit(return_code)
 
 
+def check_advice_server(
+    console: Console,
+    report: Optional[List[enumerations.ReportType]],
+    advice_method: str,
+    advice_server: str,
+) -> None:
+    """Check if the advice request is valid because a server was specified."""
+    if (
+        report is not None
+        and (
+            enumerations.ReportType.testadvice in report
+            or enumerations.ReportType.all in report
+        )
+        and advice_method == enumerations.AdviceMethod.api_server
+        and advice_server is None
+    ):
+        return_code = 1
+        console.print()
+        console.print(
+            "[red]The --advice-server option is required when --advice-method is 'api_server'"
+        )
+        sys.exit(return_code)
+    elif (
+        report is not None
+        and (
+            enumerations.ReportType.testadvice in report
+            or enumerations.ReportType.all in report
+        )
+        and advice_method == enumerations.AdviceMethod.api_server
+        and not validate_url(advice_server)
+    ):
+        return_code = 1
+        console.print()
+        console.print(
+            "[red]The --advice-server option did not specify a valid URL"
+        )
+        sys.exit(return_code)
+
+
 def fix_failures(  # noqa: PLR0913
     console: Console,
     filtered_test_output: str,
@@ -53,6 +100,7 @@ def fix_failures(  # noqa: PLR0913
     failing_test_code: str,
     advice_method: enumerations.AdviceMethod,
     advice_model: str,
+    advice_server: str,
     syntax_theme: enumerations.Theme,
     fancy: bool = True,
 ):
@@ -132,7 +180,7 @@ def fix_failures(  # noqa: PLR0913
             # the standard API key approach elsewhere in this file
             client = openai.OpenAI(
                 api_key="anything",
-                base_url="https://execexamadviser.fly.dev/",
+                base_url=advice_server,
             )
             # submit the debugging request to the LLM-based mentoring system
             # using the specified model and the debugging prompt
