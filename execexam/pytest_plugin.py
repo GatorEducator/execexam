@@ -10,7 +10,7 @@ from _pytest.nodes import Item
 # dictionaries that are organized by nodeid
 reports: List[dict[str, Any]] = []
 
-internal_coverage = coverage.Coverage()
+# internal_coverage = coverage.Coverage()
 
 
 def extract_single_line(text: str) -> str:
