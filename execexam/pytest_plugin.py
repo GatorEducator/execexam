@@ -217,6 +217,10 @@ def pytest_assertion_pass(
     item: Any, lineno: int, orig: str, expl: str
 ) -> None:
     """Extract and save information about a passing assertion."""
+    # Important note: this function is only active in the
+    # pytest plugin if the project that is using execexam
+    # enables the pytest assertion_pass_hook;
+    # reference: https://docs.pytest.org/en/stable/reference/reference.html
     global reports  # noqa: PLW0602
     # create an empty dictionary for the test report
     current_test_report = {}
