@@ -1,8 +1,5 @@
 """This module contains the pytest plugin for the execexam package."""
 
-import sys
-from pathlib import Path
-from types import FrameType
 from typing import Any, List, Tuple
 
 import coverage
