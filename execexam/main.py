@@ -14,7 +14,7 @@ import typer
 from pytest_jsonreport.plugin import JSONReport  # type: ignore
 from rich.console import Console
 
-from . import advise, display, enumerations, extract
+from . import advise, display, enumerations, extract, util
 from . import pytest_plugin as exec_exam_pytest_plugin
 
 # create a Typer object to support the command-line interface
@@ -48,7 +48,10 @@ def run(  # noqa: PLR0913, PLR0915
     advice_method: enumerations.AdviceMethod = typer.Option(
         enumerations.AdviceMethod.api_key, help="LLM-based method for advice"
     ),
-    advice_model: str = typer.Option(None, help="LLM model: https://docs.litellm.ai/docs/providers"),
+    advice_model: str = typer.Option(
+        None, help="LLM model: https://docs.litellm.ai/docs/providers"
+    ),
+    advice_server: str = typer.Option(None, help="URL of the LiteLLM server"),
     fancy: bool = typer.Option(True, help="Display fancy output"),
     syntax_theme: enumerations.Theme = typer.Option(
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
@@ -63,6 +66,10 @@ def run(  # noqa: PLR0913, PLR0915
     # the report includes the advice report type or
     # when the report includes all of the report types
     advise.check_advice_model(console, report, advice_model)
+    # confirm that the advice server is provided when
+    # the advice method is set to the API server and
+    # the report includes the advice report type or all reports
+    advise.check_advice_server(console, report, advice_method, advice_server)
     # load the litellm module in a separate thread when advice
     # was requested for this run of the program
     litellm_thread = threading.Thread(target=advise.load_litellm)
@@ -115,8 +122,9 @@ def run(  # noqa: PLR0913, PLR0915
     # there were test marks on the command-line and
     # thus they should be run for the specified tests
     # (note that marks can control which tests are run)
+    pytest_exit_code = 0
     if found_marks_str:
-        pytest.main(
+        pytest_exit_code = pytest.main(
             [
                 "-q",
                 "-ra",
@@ -138,7 +146,7 @@ def run(  # noqa: PLR0913, PLR0915
     # and thus all of the tests should be run based on the specified
     # test file or test directory, which this provides to pytest
     else:
-        pytest.main(
+        pytest_exit_code = pytest.main(
             [
                 "-q",
                 "-ra",
@@ -159,6 +167,11 @@ def run(  # noqa: PLR0913, PLR0915
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
+    console.print("Captured Output:")
+    console.print(captured_output.getvalue())
+    # determine the return code for the execexam command
+    # based on the exit code that was produced by pytest
+    return_code = util.determine_execexam_return_code(pytest_exit_code)
     # extract the data that was created by the internal
     # execexam pytest plugin for further diagnostic display
     execexam_report = exec_exam_pytest_plugin.reports
@@ -167,6 +180,7 @@ def run(  # noqa: PLR0913, PLR0915
     exec_exam_test_assertion_details = extract.extract_test_assertions_details(
         execexam_report
     )
+    console.print(exec_exam_test_assertion_details)
     # --> display details about the test runs
     _ = extract.extract_test_run_details(json_report_plugin.report)  # type: ignore
     # filter the test output and decide if an
@@ -211,9 +225,6 @@ def run(  # noqa: PLR0913, PLR0915
     failing_test_code_overall = ""
     # there was at least one failing test case
     if not extract.is_failing_test_details_empty(failing_test_details):
-        # there were test failures and thus the return code is non-zero
-        # to indicate that at least one test case did not pass
-        return_code = 1
         # display additional helpful information about the failing
         # test cases; this is the error message that would appear
         # when standardly running the test suite with pytest
@@ -302,6 +313,7 @@ def run(  # noqa: PLR0913, PLR0915
                 failing_test_code_overall,
                 advice_method,
                 advice_model,
+                advice_server,
                 syntax_theme,
                 fancy,
             )
