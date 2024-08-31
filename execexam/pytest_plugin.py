@@ -2,7 +2,6 @@
 
 from typing import Any, List, Tuple
 
-import coverage
 import pytest
 from _pytest.nodes import Item
 
@@ -11,6 +10,18 @@ from _pytest.nodes import Item
 reports: List[dict[str, Any]] = []
 
 # internal_coverage = coverage.Coverage()
+
+
+def pytest_configure(config):
+    """Define the order marker that can control test order in the test suites."""
+    # note that if the plugin did not define the order
+    # marker then this would lead to warnings when execexam
+    # runs a provided test suite that uses this marker;
+    # defining the marker inside of the plugin avoids needing
+    # to define it in every test suite that uses this plugin
+    config.addinivalue_line(
+        "markers", "order(number): Mark test to run in a specific order"
+    )
 
 
 def extract_single_line(text: str) -> str:
