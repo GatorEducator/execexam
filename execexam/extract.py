@@ -162,3 +162,19 @@ def extract_test_output(keep_line_label: str, output: str) -> str:
             filtered_output += line + "\n"
     # return the filtered output
     return filtered_output
+
+
+def extract_test_output_multiple_labels(
+    keep_line_labels: List[str], output: str
+) -> str:
+    """Filter the output of the test run to keep only the lines that contain the label."""
+    # create an empty string that will store the filtered output
+    filtered_output = ""
+    # iterate through the lines in the output
+    for line in output.splitlines():
+        # if the line contains any one of the the labels,
+        # then add it to the filtered output
+        if any(label in line for label in keep_line_labels):
+            filtered_output += line + "\n"
+    # return the filtered output
+    return filtered_output
