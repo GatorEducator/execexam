@@ -26,6 +26,9 @@ console = Console()
 # create the skip list for data not needed
 skip = ["keywords", "setup", "teardown"]
 
+# create a variable of the main pytest issues
+pytest_labels = ["FAILED", "ERROR", "WARNING", "COLLECTERROR"]
+
 
 @cli.command()
 def run(  # noqa: PLR0913, PLR0915
@@ -167,8 +170,7 @@ def run(  # noqa: PLR0913, PLR0915
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
-    console.print("Captured Output:")
-    console.print(captured_output.getvalue())
+    # console.print(captured_output.getvalue())
     # determine the return code for the execexam command
     # based on the exit code that was produced by pytest
     return_code = util.determine_execexam_return_code(pytest_exit_code)
@@ -180,13 +182,13 @@ def run(  # noqa: PLR0913, PLR0915
     exec_exam_test_assertion_details = extract.extract_test_assertions_details(
         execexam_report
     )
-    console.print(exec_exam_test_assertion_details)
     # --> display details about the test runs
     _ = extract.extract_test_run_details(json_report_plugin.report)  # type: ignore
     # filter the test output and decide if an
     # extra newline is or is not needed
-    filtered_test_output = extract.extract_test_output(
-        "FAILED", captured_output.getvalue()
+    filtered_test_output = extract.extract_test_output_multiple_labels(
+        pytest_labels,
+        captured_output.getvalue(),
     )
     # add an extra newline to the filtered output
     # since there is a failing test case to display
