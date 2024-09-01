@@ -38,25 +38,6 @@ def extract_single_line(text: str) -> str:
     return output
 
 
-# def trace_calls(frame: FrameType, event: str, arg: Any):
-#     """Trace function calls."""
-#     if event != "call":
-#         return
-#     code = frame.f_code
-#     func_name = code.co_name
-#     func_filename = code.co_filename
-#     if func_name == "write":
-#         # ignore write() calls from print statements
-#         return
-#     # note that all of this is current hard-coded
-#     target_dir = Path(
-#         "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-final-examination-solution/exam/questions/"
-#     )
-#     if Path(func_filename).resolve().parent == target_dir.resolve():
-#         called = (func_name, func_filename)
-#         _ = called
-
-
 def extract_exception_details(call: pytest.CallInfo) -> Tuple[int, str, str]:
     """Process an exception into relevant details about the exact issue and a message."""
     # initialize all of the variables
@@ -120,36 +101,6 @@ def pytest_runtest_call(item: Item):
     # sys.settrace(trace_calls)
 
 
-def pytest_runtest_teardown(item: Item, nextitem: Item):
-    """Called after the test function has been called."""
-    # Stop the coverage collection
-    # Stop the trace
-    # sys.settrace(None)
-
-
-#     internal_coverage.stop()
-#     internal_coverage.save()
-#     # Get the coverage data
-#     cov_data = internal_coverage.get_data()
-#     # Analyze the coverage data
-#     for filename in cov_data.measured_files():
-#         # Get the analysis for the file
-#         analysis = internal_coverage._analyze(filename)
-#         # Get the list of executed lines
-#         executed_lines = analysis.executed
-#         # Get the list of statements (lines that could have been executed)
-#         statements = analysis.statements
-#         # Get the list of missing lines (statements that were not executed)
-#         missing_lines = analysis.missing
-#         print(f"Test: {item.nodeid}")
-#         print(f"File: {filename}")
-#         print(f"Executed lines: {executed_lines}")
-#         print(f"Statements: {statements}")
-#         print(f"Missing lines: {missing_lines}")
-#     # Clear the coverage data for the next test
-#     internal_coverage.erase()
-
-
 def pytest_runtest_protocol(item: Item, nextitem: Item):  # type: ignore
     """Track when a test case is run."""
     global reports  # noqa: PLW0602
@@ -167,6 +118,13 @@ def pytest_exception_interact(node: Item, call: pytest.CallInfo, report: Any):
     # reference the report parameter
     # that is not used by the hook
     _ = report
+    # extract the details about the exception that was thrown
+    exception_info = call.excinfo
+    # set the details about the exception to be the empty string
+    # and if there are more details about it, then extract them
+    traceback_text = ""
+    if exception_info is not None:
+        traceback_text = exception_info.exconly()
     # there was an assertion error and thus
     # the plugin must extract details about what failed
     if isinstance(call.excinfo.value, Exception):  # type: ignore
@@ -211,6 +169,29 @@ def pytest_exception_interact(node: Item, call: pytest.CallInfo, report: Any):
                 current_test_report["assertions"].append(
                     current_assertion_dict
                 )
+        # there was no information about this exception; this would normally
+        # occur when there is an underlying problem with running this specific
+        # test because otherwise a different hook would have already added
+        # the name of the test into the report list. This means that we need
+        # to record all of the information about this test in a new report
+        else:
+            # create a new dictionary for the failing test case
+            new_failing_test_report = {}
+            new_failing_test_report["nodeid"] = node.nodeid
+            # create an empty dictionary for the data about
+            # the assertions for this failing test
+            current_assertion_dict = {}
+            current_assertion_dict["Status"] = "Failed"
+            current_assertion_dict["Message"] = traceback_text
+            # store the details about this test failure's assertions
+            # inside of the assertion dictionary; note that this is
+            # essentially "overloading" the assertion dictionary because
+            # there are actually no assertions being recorded --- it is
+            # only the fact that the test failed and then the traceback
+            # of the exception that was raised when running the test
+            new_failing_test_report["assertions"] = [current_assertion_dict]
+            # add the new failing test report to the list of reports
+            reports.append(new_failing_test_report)
 
 
 def pytest_assertion_pass(
@@ -259,3 +240,55 @@ def pytest_assertion_pass(
             # there is an existing list of assertion dictionaries
             # for this test case and thus we must add a new one to it
             current_test_report["assertions"].append(current_assertion_dict)
+
+
+# No longer used but may be needed {{{
+
+# def trace_calls(frame: FrameType, event: str, arg: Any):
+#     """Trace function calls."""
+#     if event != "call":
+#         return
+#     code = frame.f_code
+#     func_name = code.co_name
+#     func_filename = code.co_filename
+#     if func_name == "write":
+#         # ignore write() calls from print statements
+#         return
+#     # note that all of this is current hard-coded
+#     target_dir = Path(
+#         "/home/gkapfham/working/teaching/github-classroom/algorithmology/executable-examinations/solutions/algorithm-analysis-final-examination-solution/exam/questions/"
+#     )
+#     if Path(func_filename).resolve().parent == target_dir.resolve():
+#         called = (func_name, func_filename)
+#         _ = called
+
+# def pytest_runtest_teardown(item: Item, nextitem: Item):
+#     """Called after the test function has been called."""
+# Stop the coverage collection
+# Stop the trace
+# sys.settrace(None)
+
+
+#     internal_coverage.stop()
+#     internal_coverage.save()
+#     # Get the coverage data
+#     cov_data = internal_coverage.get_data()
+#     # Analyze the coverage data
+#     for filename in cov_data.measured_files():
+#         # Get the analysis for the file
+#         analysis = internal_coverage._analyze(filename)
+#         # Get the list of executed lines
+#         executed_lines = analysis.executed
+#         # Get the list of statements (lines that could have been executed)
+#         statements = analysis.statements
+#         # Get the list of missing lines (statements that were not executed)
+#         missing_lines = analysis.missing
+#         print(f"Test: {item.nodeid}")
+#         print(f"File: {filename}")
+#         print(f"Executed lines: {executed_lines}")
+#         print(f"Statements: {statements}")
+#         print(f"Missing lines: {missing_lines}")
+#     # Clear the coverage data for the next test
+#     internal_coverage.erase()
+
+#     }}}
