@@ -13,6 +13,7 @@ from execexam.extract import (
     extract_test_assertion_details_list,
     extract_test_assertions_details,
     extract_test_output,
+    extract_test_output_multiple_labels,
     extract_test_run_details,
     is_failing_test_details_empty,
 )
@@ -198,6 +199,39 @@ def test_is_failing_test_details_empty_with_newline():
     result = is_failing_test_details_empty(details)
     # check the result
     assert result is True
+
+
+def test_no_labels():
+    """Confirm returns empty string when no labels are provided."""
+    output = "This is a test output\nAnother line of output"
+    keep_line_labels = []
+    expected_output = ""
+    assert (
+        extract_test_output_multiple_labels(keep_line_labels, output)
+        == expected_output
+    )
+
+
+def test_single_label():
+    """Confirm returns output when a single label is provided."""
+    output = "This is a test output\nAnother line of output"
+    keep_line_labels = ["test"]
+    expected_output = "This is a test output\n"
+    assert (
+        extract_test_output_multiple_labels(keep_line_labels, output)
+        == expected_output
+    )
+
+
+def test_multiple_labels():
+    """Confirm returns output when multiple labels are provided."""
+    output = "This is a test output\nAnother line of output\nMore output"
+    keep_line_labels = ["test", "More"]
+    expected_output = "This is a test output\nMore output\n"
+    assert (
+        extract_test_output_multiple_labels(keep_line_labels, output)
+        == expected_output
+    )
 
 
 def test_is_failing_test_details_empty_with_non_empty_string():
