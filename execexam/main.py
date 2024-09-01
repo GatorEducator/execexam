@@ -303,7 +303,7 @@ def run(  # noqa: PLR0913, PLR0915
         # there was a test failure and that overall there
         # is at least one mistake in the examination for
         # which advice should be sought from the LLM
-        if return_code == 1:
+        if return_code != 0:
             advise.fix_failures(
                 console,
                 filtered_test_output,
