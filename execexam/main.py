@@ -86,6 +86,7 @@ def run(  # noqa: PLR0913, PLR0915
         litellm_thread.start()
     # add the project directory to the system path
     sys.path.append(str(project))
+    print("This is the correct execexam! You did it! You made it local. You are the best!")
     # create the plugin that will collect all data
     # about the test runs and report it as a JSON object;
     # note that this approach avoids the need to write
