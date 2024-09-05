@@ -3,6 +3,7 @@
 from typing import Any, List, Tuple
 
 import pytest
+from _pytest.config import Config
 from _pytest.nodes import Item
 
 # create the report list of
@@ -12,7 +13,7 @@ reports: List[dict[str, Any]] = []
 # internal_coverage = coverage.Coverage()
 
 
-def pytest_configure(config):
+def pytest_configure(config: Config):
     """Define the order marker that can control test order in the test suites."""
     # note that if the plugin did not define the order
     # marker then this would lead to warnings when execexam
@@ -189,7 +190,7 @@ def pytest_exception_interact(node: Item, call: pytest.CallInfo, report: Any):
             # there are actually no assertions being recorded --- it is
             # only the fact that the test failed and then the traceback
             # of the exception that was raised when running the test
-            new_failing_test_report["assertions"] = [current_assertion_dict]
+            new_failing_test_report["assertions"] = [current_assertion_dict]  # type: ignore
             # add the new failing test report to the list of reports
             reports.append(new_failing_test_report)
 
