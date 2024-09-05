@@ -74,7 +74,7 @@ jobs:
           run: |
             # install ruff directly instead of managing
             # it as a dependency with Poetry since ruff
-            # does not (currently) install correctly
+            # does not (always) install correctly
             # through Poetry on NixOS
             pipx install ruff
             poetry run task lint
