@@ -6,6 +6,7 @@ import subprocess
 import sys
 import threading
 import time
+import warnings
 from pathlib import Path
 from typing import List, Optional
 
@@ -16,6 +17,11 @@ from rich.console import Console
 
 from . import advise, display, enumerations, extract, util
 from . import pytest_plugin as exec_exam_pytest_plugin
+
+# suppress the warnings that are produced by the Pydantic library;
+# note that this is needed because one of execexam's dependencies
+# is not using Pydantic correctly and this produces warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 # create a Typer object to support the command-line interface
 cli = typer.Typer(no_args_is_help=True)
