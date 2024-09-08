@@ -10,6 +10,9 @@ messages: List[str] = []
 class Debug(str, Enum):
     """An enumeration of the various debugging messages."""
 
+    get_advice_with_llm = (
+        "[green]\u2714 Correctly requested and received advice from an LLM."
+    )
     parameter_check_passed = (
         "[green]\u2714 Validity check passed for command-line arguments."
     )
@@ -20,6 +23,13 @@ class Debug(str, Enum):
         "[green]\u2714 Correctly ran pytest when not using marks."
     )
     started_litellm_thread = "[green]\u2714 Correctly started LiteLLM thread."
+    stopped_litellm_thread = "[green]\u2714 Correctly stopped LiteLLM thread."
+    started_capturing_output = (
+        "[green]\u2714 Started to capture standard output and error."
+    )
+    stopped_capturing_output = (
+        "[green]\u2714 Stopped capturing standard output and error."
+    )
 
 
 def debug(allow: bool, message: str) -> None:
