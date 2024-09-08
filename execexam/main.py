@@ -129,6 +129,8 @@ def run(  # noqa: PLR0913, PLR0915
     if found_marks_str:
         pytest_exit_code = pytest.main(
             [
+                # "-vv",
+                # "--capture=no",
                 "-q",
                 "-ra",
                 "-s",
@@ -151,6 +153,8 @@ def run(  # noqa: PLR0913, PLR0915
     else:
         pytest_exit_code = pytest.main(
             [
+                # "-vv",
+                # "--capture=no",
                 "-q",
                 "-ra",
                 "-s",
@@ -170,7 +174,6 @@ def run(  # noqa: PLR0913, PLR0915
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
-    # console.print(captured_output.getvalue())
     # determine the return code for the execexam command
     # based on the exit code that was produced by pytest
     return_code = util.determine_execexam_return_code(pytest_exit_code)
