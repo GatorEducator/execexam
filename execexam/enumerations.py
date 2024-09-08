@@ -22,6 +22,7 @@ class ReportType(str, Enum):
 
     all = "all"
     exitcode = "status"
+    debug = "debug"
     finalresult = "result"
     setup = "setup"
     testcodes = "code"
