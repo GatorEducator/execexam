@@ -10,9 +10,15 @@ messages: List[str] = []
 class Debug(str, Enum):
     """An enumeration of the various debugging messages."""
 
-    parameter_check_passed = "[green]\u2714 Validity check passed for command-line arguments."
-    pytest_passed_with_marks = "[green]\u2714 Correctly ran pytest when using marks."
-    pytest_passed_without_marks = "[green]\u2714 Correctly ran pytest when not using marks."
+    parameter_check_passed = (
+        "[green]\u2714 Validity check passed for command-line arguments."
+    )
+    pytest_passed_with_marks = (
+        "[green]\u2714 Correctly ran pytest when using marks."
+    )
+    pytest_passed_without_marks = (
+        "[green]\u2714 Correctly ran pytest when not using marks."
+    )
     started_litellm_thread = "[green]\u2714 Correctly started LiteLLM thread."
 
 
@@ -29,7 +35,12 @@ def has_debugging_messages() -> bool:
 
 def get_debugging_messages() -> str:
     """Retrieve a formatted version of the debugging messages."""
+    # there are debugging messages; create a single
+    # string with newlines at the start and the end
+    # of the block of debugging messages
     if messages:
-        all_messages =  "\n" + "\n".join(messages)
+        all_messages = "\n" + "\n".join(messages)
         return all_messages + "\n"
+    # there are no debugging messages and thus
+    # this function must return an empty string
     return ""
