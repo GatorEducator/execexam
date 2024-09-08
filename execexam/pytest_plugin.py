@@ -10,7 +10,11 @@ from _pytest.nodes import Item
 # dictionaries that are organized by nodeid
 reports: List[dict[str, Any]] = []
 
+# No longer used but may be needed {{{
+
 # internal_coverage = coverage.Coverage()
+
+# }}}
 
 
 def pytest_configure(config: Config):
