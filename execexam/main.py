@@ -16,6 +16,7 @@ from pytest_jsonreport.plugin import JSONReport  # type: ignore
 from rich.console import Console
 
 from . import advise, display, enumerations, extract, util
+from . import debug as debugger
 from . import pytest_plugin as exec_exam_pytest_plugin
 
 # suppress the warnings that are produced by the Pydantic library;
@@ -61,6 +62,7 @@ def run(  # noqa: PLR0913, PLR0915
         None, help="LLM model: https://docs.litellm.ai/docs/providers"
     ),
     advice_server: str = typer.Option(None, help="URL of the LiteLLM server"),
+    debug: bool = typer.Option(True, help="Collect debugging information"),
     fancy: bool = typer.Option(True, help="Display fancy output"),
     syntax_theme: enumerations.Theme = typer.Option(
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
@@ -81,6 +83,7 @@ def run(  # noqa: PLR0913, PLR0915
     advise.check_advice_server(console, report, advice_method, advice_server)
     # load the litellm module in a separate thread when advice
     # was requested for this run of the program
+    debugger.debug(debug, debugger.Debug.parameter_check_passed.value)
     litellm_thread = threading.Thread(target=advise.load_litellm)
     # if execexam was configured to produce the report for advice
     # or if it was configured to produce all of the possible reports,
@@ -90,6 +93,7 @@ def run(  # noqa: PLR0913, PLR0915
         display_report_type in report or enumerations.ReportType.all in report
     ):
         litellm_thread.start()
+        debugger.debug(debug, debugger.Debug.started_litellm_thread.value)
     # add the project directory to the system path
     sys.path.append(str(project))
     # create the plugin that will collect all data
@@ -135,8 +139,6 @@ def run(  # noqa: PLR0913, PLR0915
     if found_marks_str:
         pytest_exit_code = pytest.main(
             [
-                # "-vv",
-                # "--capture=no",
                 "-q",
                 "-ra",
                 "-s",
@@ -153,14 +155,13 @@ def run(  # noqa: PLR0913, PLR0915
             ],
             plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
+        debugger.debug(debug, debugger.Debug.pytest_passed_with_marks.value)
     # there were no test marks specified on the command-line
     # and thus all of the tests should be run based on the specified
     # test file or test directory, which this provides to pytest
     else:
         pytest_exit_code = pytest.main(
             [
-                # "-vv",
-                # "--capture=no",
                 "-q",
                 "-ra",
                 "-s",
@@ -175,6 +176,7 @@ def run(  # noqa: PLR0913, PLR0915
             ],
             plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
+        debugger.debug(debug, debugger.Debug.pytest_passed_without_marks.value)
     # restore stdout and stderr; this will allow
     # the execexam program to continue to produce
     # output in the console
@@ -348,9 +350,27 @@ def run(  # noqa: PLR0913, PLR0915
                 "Python",
                 newline,
             )
+    # display the debugging messages
+    debugging_messages_exist = debugger.has_debugging_messages()
+    if debugging_messages_exist:
+        debugging_messages = debugger.get_debugging_messages()
+        syntax = False
+        newline = True
+        display.display_content(
+            console,
+            enumerations.ReportType.debug,
+            report,
+            debugging_messages,
+            "Debugging Information",
+            fancy,
+            syntax,
+            syntax_theme,
+            "Python",
+            newline,
+        )
     # display a final message about the return code, using
     # a human-readable message that indicates the overall status
-    exit_code_message = display.display_return_code(return_code, fancy)
+    exit_code_message = display.get_display_return_code(return_code, fancy)
     # display the return code through a diagnostic message
     syntax = False
     newline = True
