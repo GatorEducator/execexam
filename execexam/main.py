@@ -129,6 +129,7 @@ def run(  # noqa: PLR0913, PLR0915
     captured_output = io.StringIO()
     sys.stdout = captured_output
     sys.stderr = captured_output
+    debugger.debug(debug, debugger.Debug.started_capturing_output.value)
     # run pytest in a fashion that will not
     # produce any output to the console
     found_marks_str = mark
@@ -182,6 +183,7 @@ def run(  # noqa: PLR0913, PLR0915
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
+    debugger.debug(debug, debugger.Debug.stopped_capturing_output.value)
     # determine the return code for the execexam command
     # based on the exit code that was produced by pytest
     return_code = util.determine_execexam_return_code(pytest_exit_code)
@@ -311,6 +313,7 @@ def run(  # noqa: PLR0913, PLR0915
         # return control to the main thread now that the
         # litellm module has been loaded in a separate thread
         litellm_thread.join()
+        debugger.debug(debug, debugger.Debug.stopped_litellm_thread.value)
         # provide advice about how to fix the failing tests
         # because the non-zero return code indicates that
         # there was a test failure and that overall there
@@ -330,6 +333,7 @@ def run(  # noqa: PLR0913, PLR0915
                 syntax_theme,
                 fancy,
             )
+            debugger.debug(debug, debugger.Debug.get_advice_with_llm.value)
         # there were no test failures and thus there is no need
         # to seek advice from the LLM-based mentoring system;
         # display a message to repor that even though advice
