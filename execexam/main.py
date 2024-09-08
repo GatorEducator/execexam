@@ -62,7 +62,7 @@ def run(  # noqa: PLR0913, PLR0915
         None, help="LLM model: https://docs.litellm.ai/docs/providers"
     ),
     advice_server: str = typer.Option(None, help="URL of the LiteLLM server"),
-    debug: bool = typer.Option(True, help="Collect debugging information"),
+    debug: bool = typer.Option(False, help="Collect debugging information"),
     fancy: bool = typer.Option(True, help="Display fancy output"),
     syntax_theme: enumerations.Theme = typer.Option(
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
