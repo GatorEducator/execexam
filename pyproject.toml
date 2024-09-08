@@ -28,9 +28,6 @@ symbex = "^1.4"
 pytest-clarity = "^1.0.1"
 hypothesis = "^6.111.1"
 
-[tool.poetry.plugins.pytest11]
-"execexam" = "execexam.pytest_plugin"
-
 [tool.pytest.ini_options]
 filterwarnings = [
     "error",
