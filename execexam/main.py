@@ -335,7 +335,7 @@ def run(  # noqa: PLR0913, PLR0915
         else:
             syntax = False
             newline = False
-            advice_message = display.display_advice(return_code, fancy)
+            advice_message = display.display_advice(return_code)
             display.display_content(
                 console,
                 enumerations.ReportType.exitcode,
