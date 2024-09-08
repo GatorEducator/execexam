@@ -11,6 +11,9 @@ class Debug(str, Enum):
     """An enumeration of the various debugging messages."""
 
     parameter_check_passed = "[green]\u2714 Validity check passed for command-line arguments."
+    pytest_passed_with_marks = "[green]\u2714 Correctly ran pytest when using marks."
+    pytest_passed_without_marks = "[green]\u2714 Correctly ran pytest when not using marks."
+    started_litellm_thread = "[green]\u2714 Correctly started LiteLLM thread."
 
 
 def debug(allow: bool, message: str) -> None:
@@ -25,7 +28,8 @@ def has_debugging_messages() -> bool:
 
 
 def get_debugging_messages() -> str:
-    """Retrieve the debugging messages."""
+    """Retrieve a formatted version of the debugging messages."""
     if messages:
-        return "\n".join(messages)
+        all_messages =  "\n" + "\n".join(messages)
+        return all_messages + "\n"
     return ""
