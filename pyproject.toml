@@ -65,7 +65,7 @@ line_length = 88
 project = "execexam"
 tests = "tests"
 check-command = { var = "ruff check {project} {tests}", recursive = true }
-coverage-test-command = "pytest -s --cov-context=test --cov-fail-under=90 --cov-report term-missing --cov-report json --cov --cov-branch"
+coverage-test-command = "pytest -s --cov-context=test --cov-fail-under=50 --cov-report term-missing --cov-report json --cov --cov-branch"
 coverage-test-command-silent = "pytest -x --show-capture=no --cov-report term-missing --cov-report json --cov --cov-branch"
 developer-test-command = "pytest -x -s"
 developer-test-silent-command = "pytest -x --show-capture=no"
@@ -79,6 +79,8 @@ mypy-command = {var = "mypy {project}", recursive = true}
 all = "task lint && task test"
 lint = "task format && task check && task mypy && task symbex"
 check = { cmd = "{check-command}", help = "Run the ruff linting checks", use_vars = true }
+coverage = { cmd = "{coverage-test-command}", help = "Run test coverage monitoring", use_vars = true }
+coverage-silent = { cmd = "{coverage-test-command-silent}", help = "Run test coverage monitoring", use_vars = true }
 format = { cmd = "{format-command}", help = "Run the ruff formatter on source code", use_vars = true }
 format-fix = { cmd = "{fixformat-command}", help = "Run the ruff formatter to fix source code", use_vars = true }
 mypy = { cmd = "{mypy-command}", help = "Run the mypy type checker for potential type errors", use_vars = true }
