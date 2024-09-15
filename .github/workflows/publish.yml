@@ -1,0 +1,31 @@
+name: Publish
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'  # Ensure this matches your pyproject.toml
+
+      - name: Install Poetry
+        uses: poetry/install-poetry@v1
+        with:
+          version: latest
+
+      - name: Build the package
+        run: poetry build
+
+      - name: Publish to PyPI
+        run: poetry publish --build
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
