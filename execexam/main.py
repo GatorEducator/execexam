@@ -6,6 +6,7 @@ import subprocess
 import sys
 import threading
 import time
+import warnings
 from pathlib import Path
 from typing import List, Optional
 
@@ -15,7 +16,13 @@ from pytest_jsonreport.plugin import JSONReport  # type: ignore
 from rich.console import Console
 
 from . import advise, display, enumerations, extract, util
+from . import debug as debugger
 from . import pytest_plugin as exec_exam_pytest_plugin
+
+# suppress the warnings that are produced by the Pydantic library;
+# note that this is needed because one of execexam's dependencies
+# is not using Pydantic correctly and this produces warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 # create a Typer object to support the command-line interface
 cli = typer.Typer(no_args_is_help=True)
@@ -55,6 +62,7 @@ def run(  # noqa: PLR0913, PLR0915
         None, help="LLM model: https://docs.litellm.ai/docs/providers"
     ),
     advice_server: str = typer.Option(None, help="URL of the LiteLLM server"),
+    debug: bool = typer.Option(False, help="Collect debugging information"),
     fancy: bool = typer.Option(True, help="Display fancy output"),
     syntax_theme: enumerations.Theme = typer.Option(
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
@@ -75,6 +83,7 @@ def run(  # noqa: PLR0913, PLR0915
     advise.check_advice_server(console, report, advice_method, advice_server)
     # load the litellm module in a separate thread when advice
     # was requested for this run of the program
+    debugger.debug(debug, debugger.Debug.parameter_check_passed.value)
     litellm_thread = threading.Thread(target=advise.load_litellm)
     # if execexam was configured to produce the report for advice
     # or if it was configured to produce all of the possible reports,
@@ -84,6 +93,7 @@ def run(  # noqa: PLR0913, PLR0915
         display_report_type in report or enumerations.ReportType.all in report
     ):
         litellm_thread.start()
+        debugger.debug(debug, debugger.Debug.started_litellm_thread.value)
     # add the project directory to the system path
     sys.path.append(str(project))
     print("This is the correct execexam! You did it! You made it local. You are the best!")
@@ -120,6 +130,7 @@ def run(  # noqa: PLR0913, PLR0915
     captured_output = io.StringIO()
     sys.stdout = captured_output
     sys.stderr = captured_output
+    debugger.debug(debug, debugger.Debug.started_capturing_output.value)
     # run pytest in a fashion that will not
     # produce any output to the console
     found_marks_str = mark
@@ -146,6 +157,7 @@ def run(  # noqa: PLR0913, PLR0915
             ],
             plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
+        debugger.debug(debug, debugger.Debug.pytest_passed_with_marks.value)
     # there were no test marks specified on the command-line
     # and thus all of the tests should be run based on the specified
     # test file or test directory, which this provides to pytest
@@ -166,12 +178,13 @@ def run(  # noqa: PLR0913, PLR0915
             ],
             plugins=[json_report_plugin, exec_exam_pytest_plugin],
         )
+        debugger.debug(debug, debugger.Debug.pytest_passed_without_marks.value)
     # restore stdout and stderr; this will allow
     # the execexam program to continue to produce
     # output in the console
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
-    # console.print(captured_output.getvalue())
+    debugger.debug(debug, debugger.Debug.stopped_capturing_output.value)
     # determine the return code for the execexam command
     # based on the exit code that was produced by pytest
     return_code = util.determine_execexam_return_code(pytest_exit_code)
@@ -301,6 +314,7 @@ def run(  # noqa: PLR0913, PLR0915
         # return control to the main thread now that the
         # litellm module has been loaded in a separate thread
         litellm_thread.join()
+        debugger.debug(debug, debugger.Debug.stopped_litellm_thread.value)
         # provide advice about how to fix the failing tests
         # because the non-zero return code indicates that
         # there was a test failure and that overall there
@@ -320,6 +334,7 @@ def run(  # noqa: PLR0913, PLR0915
                 syntax_theme,
                 fancy,
             )
+            debugger.debug(debug, debugger.Debug.get_advice_with_llm.value)
         # there were no test failures and thus there is no need
         # to seek advice from the LLM-based mentoring system;
         # display a message to repor that even though advice
@@ -327,7 +342,7 @@ def run(  # noqa: PLR0913, PLR0915
         else:
             syntax = False
             newline = False
-            advice_message = display.display_advice(return_code, fancy)
+            advice_message = display.display_advice(return_code)
             display.display_content(
                 console,
                 enumerations.ReportType.exitcode,
@@ -340,9 +355,27 @@ def run(  # noqa: PLR0913, PLR0915
                 "Python",
                 newline,
             )
+    # display the debugging messages
+    debugging_messages_exist = debugger.has_debugging_messages()
+    if debugging_messages_exist:
+        debugging_messages = debugger.get_debugging_messages()
+        syntax = False
+        newline = True
+        display.display_content(
+            console,
+            enumerations.ReportType.debug,
+            report,
+            debugging_messages,
+            "Debugging Information",
+            fancy,
+            syntax,
+            syntax_theme,
+            "Python",
+            newline,
+        )
     # display a final message about the return code, using
     # a human-readable message that indicates the overall status
-    exit_code_message = display.display_return_code(return_code, fancy)
+    exit_code_message = display.get_display_return_code(return_code, fancy)
     # display the return code through a diagnostic message
     syntax = False
     newline = True
