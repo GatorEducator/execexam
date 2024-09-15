@@ -16,7 +16,7 @@ def make_colon_separated_string(arguments: Dict[str, Any]):
     )
 
 
-def display_return_code(return_code: int, fancy: bool) -> str:
+def get_display_return_code(return_code: int, fancy: bool) -> str:
     """Determine the return code from running the specified checks(s)."""
     message = "\n"
     # no errors were found in the executable examination
@@ -30,7 +30,7 @@ def display_return_code(return_code: int, fancy: bool) -> str:
     return message
 
 
-def display_advice(return_code: int, fancy: bool) -> str:
+def display_advice(return_code: int) -> str:
     """Determine the return code from running the specified checks(s)."""
     message = "\n"
     # no errors were found in the executable examination
@@ -41,7 +41,9 @@ def display_advice(return_code: int, fancy: bool) -> str:
     # note that this is not going to be normally displayed
     else:
         message += "[red]\u2718 Advise requested, and will be provided!"
-    # add an extra newline to ensure suitable spacing
+    # add an extra newline to ensure suitable spacing;
+    # note that this is always done and thus there is
+    # no need to know whether or not fancy output needed
     message += "\n"
     return message
 
