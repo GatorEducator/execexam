@@ -37,6 +37,7 @@ def is_valid_api_key(api_key: str) -> bool:
     # For example, you might check if the API key matches a specific pattern
     return api_key.isalnum()  # Example: API key should be alphanumeric
 
+
 def validate_api_key(api_key: str) -> None:
     """Validate the provided API key."""
     if not api_key:
@@ -174,6 +175,10 @@ def fix_failures(  # noqa: PLR0913
     fancy: bool = True,
 ):
     """Offer advice through the use of the LLM-based mentoring system."""
+    if not check_internet_connection():
+        handle_connection_error(console)
+        return
+
     with console.status(
         "[bold green] Getting Feedback from ExecExam's Coding Mentor"
     ):
@@ -267,11 +272,9 @@ def fix_failures(  # noqa: PLR0913
                 else:
                     console.print(
                         Markdown(
-                            str(
-                                response.choices[0].message.content,  # type: ignore
-                            ),
+                            str(response.choices[0].message.content), #type: ignore
                             code_theme=syntax_theme.value,
-                        ),
+                        )
                     )
                     console.print()
             except InvalidAPIKeyError:
