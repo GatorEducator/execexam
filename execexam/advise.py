@@ -10,6 +10,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 
 from . import enumerations
+from .exceptions import InvalidAPIKeyError, MissingAPIKeyError, WrongFormatAPIKeyError
 
 
 def load_litellm() -> None:
@@ -28,6 +29,45 @@ def validate_url(value: str) -> bool:
     if not validators.url(value):
         return False
     return True
+
+
+def is_valid_api_key(api_key: str) -> bool:
+    # Replace with the actual logic to validate the API key
+    # For example, you might check if the API key matches a specific pattern
+    return api_key.isalnum()  # Example: API key should be alphanumeric
+
+def validate_api_key(api_key: str) -> None:
+    """Validate the provided API key."""
+    if not api_key:
+        raise MissingAPIKeyError()
+    if len(api_key) < 20:
+        raise WrongFormatAPIKeyError()
+    if not is_valid_api_key(api_key):
+        raise InvalidAPIKeyError()
+
+
+def handle_invalid_api_key(console: Console) -> None:
+    """Handle invalid API key error."""
+    console.print("[bold red]Error: Invalid API key provided.[/bold red]")
+    console.print("Please check your API key and update it in the configuration file.")
+
+
+def handle_missing_api_key(console: Console) -> None:
+    """Handle missing API key error."""
+    console.print("[bold red]Error: No API key provided.[/bold red]")
+    console.print("Please provide an API key in the configuration file.")
+
+
+def handle_wrong_format_api_key(console: Console) -> None:
+    """Handle wrong format API key error."""
+    console.print("[bold red]Error: API key format is incorrect.[/bold red]")
+    console.print("Ensure the API key does not contain extra characters or spaces.")
+
+
+def handle_generic_api_key_error(console: Console) -> None:
+    """Handle generic API key error."""
+    console.print("[bold red]Error: An issue occurred with the API key.[/bold red]")
+    console.print("Please check your API key and configuration.")
 
 
 def check_advice_model(
@@ -108,18 +148,7 @@ def fix_failures(  # noqa: PLR0913
     with console.status(
         "[bold green] Getting Feedback from ExecExam's Coding Mentor"
     ):
-        # the test overview is a string that contains both
-        # the filtered test output and the details about the passing
-        # and failing assertions in the test cases
         test_overview = filtered_test_output + exec_exam_test_assertion_details
-        # create an LLM debugging request that contains all of the
-        # information that is needed to provide advice about how
-        # to fix the bug(s) in the program that are part of an
-        # executable examination; note that, essentially, an
-        # examination consists of Python functions that a student
-        # must complete and then test cases that confirm the correctness
-        # of the functions that are implemented; note also that
-        # ExecExam has a Pytest plugin that collects additional details
         llm_debugging_request = (
             "I am an undergraduate student completing a programming examination."
             + "You may never make suggestions to change the source code of the test cases."
@@ -134,79 +163,93 @@ def fix_failures(  # noqa: PLR0913
             + f"Here is a brief overview of the test failure information: {failing_test_details}"
             + f"Here is the source code for the one or more failing test(s): {failing_test_code}"
         )
-        # the API key approach expects that the person running the execexam
-        # tool has specified an API key for a support cloud-based LLM system
+
         if advice_method == enumerations.AdviceMethod.api_key:
-            # submit the debugging request to the LLM-based mentoring system
-            response = completion(  # type: ignore
-                model=advice_model,
-                messages=[{"role": "user", "content": llm_debugging_request}],
-            )
-            # display the advice from the LLM-based mentoring system
-            # in a panel that is created by using the rich library
-            if fancy:
-                console.print(
-                    Panel(
+            try:
+                # attempt to validate the key
+                validate_api_key(enumerations.AdviceMethod.api_key)
+                # submit the debugging request to the LLM-based mentoring system
+                # using the specified model and the debugging prompt
+                response = completion(  # type: ignore
+                    model=advice_model,
+                    messages=[{"role": "user", "content": llm_debugging_request}],
+                )
+                if fancy:
+                    console.print(
+                        Panel(
+                            Markdown(
+                                str(
+                                    response.choices[0].message.content,  # type: ignore
+                                ),
+                                code_theme=syntax_theme.value,
+                            ),
+                            expand=False,
+                            title="Advice from ExecExam's Coding Mentor (API Key)",
+                            padding=1,
+                        )
+                    )
+                else:
+                    console.print(
                         Markdown(
                             str(
                                 response.choices[0].message.content,  # type: ignore
                             ),
                             code_theme=syntax_theme.value,
                         ),
-                        expand=False,
-                        title="Advice from ExecExam's Coding Mentor (API Key)",
-                        padding=1,
                     )
-                )
-            else:
-                console.print(
-                    Markdown(
-                        str(
-                            response.choices[0].message.content,  # type: ignore
-                        ),
-                        code_theme=syntax_theme.value,
-                    ),
-                )
-                console.print()
-        # the apiserver approach expects that the person running the execexam
-        # tool will specify the URL of a remote LLM-based mentoring system
-        # that is configured to provide access to an LLM system for advice
+                    console.print()
+            except InvalidAPIKeyError:
+                handle_invalid_api_key(console)
+            except MissingAPIKeyError:
+                handle_missing_api_key(console)
+            except WrongFormatAPIKeyError:
+                handle_wrong_format_api_key(console)
+            except Exception:
+                handle_generic_api_key_error(console)
         elif advice_method == enumerations.AdviceMethod.api_server:
-            # use the OpenAI approach to submitting the
-            # debugging request to the LLM-based mentoring system
-            # that is currently running on a remote LiteLLM system;
-            # note that this does not seem to work correctly if
-            # you use the standard LiteLLM approach as done with
-            # the standard API key approach elsewhere in this file
-            client = openai.OpenAI(
-                api_key="anything",
-                base_url=advice_server,
-            )
-            # submit the debugging request to the LLM-based mentoring system
-            # using the specified model and the debugging prompt
-            response = client.chat.completions.create(
-                model=advice_model,
-                messages=[{"role": "user", "content": llm_debugging_request}],
-            )
-            if fancy:
-                console.print(
-                    Panel(
+            try:
+                # debugging request to the LLM-based mentoring system
+                # that is currently running on a remote LiteLLM system;
+                # note that this does not seem to work correctly if
+                # you use the standard LiteLLM approach as done with
+                # the standard API key approach elsewhere in this file
+                client = openai.OpenAI(
+                    api_key="anything",
+                    base_url=advice_server,
+                )
+                # submit the debugging request to the LLM-based mentoring system
+                # using the specified model and the debugging prompt
+                response = client.chat.completions.create(
+                    model=advice_model,
+                    messages=[{"role": "user", "content": llm_debugging_request}],
+                )
+                if fancy:
+                    console.print(
+                        Panel(
+                            Markdown(
+                                str(response.choices[0].message.content),
+                                code_theme=syntax_theme.value,
+                            ),
+                            expand=False,
+                            title="Advice from ExecExam's Coding Mentor (API Server)",
+                            padding=1,
+                        )
+                    )
+                else:
+                    console.print(
                         Markdown(
-                            str(response.choices[0].message.content),
+                            str(
+                                response.choices[0].message.content,  # type: ignore
+                            ),
                             code_theme=syntax_theme.value,
                         ),
-                        expand=False,
-                        title="Advice from ExecExam's Coding Mentor (API Server)",
-                        padding=1,
                     )
-                )
-            else:
-                console.print(
-                    Markdown(
-                        str(
-                            response.choices[0].message.content,  # type: ignore
-                        ),
-                        code_theme=syntax_theme.value,
-                    ),
-                )
-                console.print()
+                    console.print()
+            except InvalidAPIKeyError:
+                handle_invalid_api_key(console)
+            except MissingAPIKeyError:
+                handle_missing_api_key(console)
+            except WrongFormatAPIKeyError:
+                handle_wrong_format_api_key(console)
+            except Exception:
+                handle_generic_api_key_error(console)
