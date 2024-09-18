@@ -1,9 +1,10 @@
 name: Publish
 
 on:
-  release:
-    types: [created]
-
+  push:
+    tags:
+      - 'v*'  # This triggers on tags starting with 'v'
+    
 jobs:
   publish:
     runs-on: ubuntu-latest
