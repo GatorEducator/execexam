@@ -70,6 +70,24 @@ def handle_generic_api_key_error(console: Console) -> None:
     console.print("Please check your API key and configuration.")
 
 
+def handle_invalid_server_url(console: Console) -> None:
+    """Handle invalid server URL error."""
+    console.print("[bold red]Error: Invalid server URL provided.[/bold red]")
+    console.print("Please check the server URL and update it.")
+
+
+def handle_missing_server_url(console: Console) -> None:
+    """Handle missing server URL error."""
+    console.print("[bold red]Error: No server URL provided.[/bold red]")
+    console.print("Please provide a server URL. Check your configuration file.")
+
+
+def handle_connection_error(console: Console) -> None:
+    """Handle connection error."""
+    console.print("[bold red]Error: Unable to connect to the API server.[/bold red]")
+    console.print("Please check your network connection and ensure the API server is reachable.")
+
+
 def check_advice_model(
     console: Console,
     report: Optional[List[enumerations.ReportType]],
