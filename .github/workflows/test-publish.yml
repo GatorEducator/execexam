@@ -1,8 +1,9 @@
 name: Test Publish
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 't*'  # This triggers on tags starting with 't'
 
 jobs:
   publish:
