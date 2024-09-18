@@ -8,6 +8,7 @@ import validators
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
+import socket
 
 from . import enumerations
 from .exceptions import InvalidAPIKeyError, MissingAPIKeyError, WrongFormatAPIKeyError
@@ -86,6 +87,16 @@ def handle_connection_error(console: Console) -> None:
     """Handle connection error."""
     console.print("[bold red]Error: Unable to connect to the API server.[/bold red]")
     console.print("Please check your network connection and ensure the API server is reachable.")
+
+
+def check_internet_connection(timeout: int = 5) -> bool:
+    """Check if the system has an active internet connection."""
+    try:
+        # Attempt to connect to Google's DNS server (8.8.8.8) on port 53 (DNS)
+        socket.create_connection(("8.8.8.8", 53), timeout=timeout)
+        return True
+    except OSError:
+        return False
 
 
 def check_advice_model(
