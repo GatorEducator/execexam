@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.11, 3.12]
+        python-version: [3.10, 3.11, 3.12]
 
     steps:
       - name: Checkout repository
@@ -46,8 +46,14 @@ jobs:
 
       - name: Verify version from tag
         run: |
-          tag_version=${GITHUB_REF##*/v}
+          # Extract the tag version correctly
+          tag_version=${GITHUB_REF##*/}  # Remove refs/tags/
+          tag_version=${tag_version#v}   # Remove 'v' if present, for tags like v0.3.13
+
+          # Get the version from pyproject.toml
           pyproject_version=$(poetry version -s)
+
+          # Compare versions
           if [ "$tag_version" != "$pyproject_version" ]; then
             echo "Version in pyproject.toml ($pyproject_version) does not match tag version ($tag_version)"
             exit 1
@@ -74,3 +80,4 @@ jobs:
         run: poetry publish --repository testpypi --build
         env:
           POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_TOKEN }}
+          
