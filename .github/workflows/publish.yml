@@ -3,74 +3,47 @@ name: Publish
 on:
   push:
     tags:
-      - 'v*'  # Trigger the workflow on any tag that starts with "v"
+      - 'v*'  # Triggers on tags starting with 'v'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        python-version: [3.11, 3.12]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.11'  # Use the Python version compatible with your project
 
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-
-      - name: Add Poetry to PATH
-        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
-
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
-          if [ ! -f poetry.lock ]; then
-            poetry lock
-          fi
-          poetry install --no-dev
+          poetry install
 
-      - name: Verify version from tag
+      - name: Configure Poetry for PyPI
         run: |
-          tag_version=${GITHUB_REF##*/v}
-          pyproject_version=$(poetry version -s)
-          if [ "$tag_version" != "$pyproject_version" ]; then
-            echo "Version in pyproject.toml ($pyproject_version) does not match tag version ($tag_version)"
+          poetry config repositories.pypi https://upload.pypi.org/legacy/
+          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+
+      - name: Publish package to PyPI
+        run: |
+          poetry publish --repository pypi --build
+
+      - name: Check for Successful Publication
+        run: |
+          version=$(poetry version --short)
+          echo "Checking if package execexam version $version is available on PyPI..."
+          response=$(curl -s "https://pypi.org/pypi/execexam/$version/json")
+          if echo "$response" | grep -q "$version"; then
+            echo "Package execexam version $version is successfully published on PyPI."
+          else
+            echo "Package execexam version $version was not found on PyPI."
             exit 1
           fi
-
-      - name: Build the package
-        run: poetry build
-
-      - name: Check build result
-        run: |
-          if [ ! -d dist ]; then
-            echo "Build failed: dist directory not found"
-            exit 1
-          fi
-
-      - name: Check for PyPI token
-        run: |
-          if [ -z "${{ secrets.PYPI_TOKEN }}" ]; then
-            echo "PyPI token not set"
-            exit 1
-          fi
-
-      - name: Publish to PyPI
-        run: poetry publish --build
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+          
