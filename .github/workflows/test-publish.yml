@@ -37,6 +37,6 @@ jobs:
 
       - name: Check for Successful Publication
         run: |
-          PACKAGE_NAME=$(poetry version --short)
-          echo "Checking if package $PACKAGE_NAME is available on TestPyPI..."
-          curl -s "https://test.pypi.org/project/$PACKAGE_NAME/" | grep "Latest version"
+          execexam=$(poetry version --short)
+          echo "Checking if package $execexam is available on TestPyPI..."
+          curl -s "https://test.pypi.org/project/$execexam/" | grep "Latest version"
