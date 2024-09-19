@@ -35,7 +35,8 @@ jobs:
         run: |
           poetry publish --repository testpypi --build
 
-      - name: Verify Publication
+      - name: Check for Successful Publication
         run: |
-          echo "Verifying publication on TestPyPI..."
-          curl -s https://test.pypi.org/project/$(poetry version --short) | grep "Successfully published"
+          PACKAGE_NAME=$(poetry version --short)
+          echo "Checking if package $PACKAGE_NAME is available on TestPyPI..."
+          curl -s "https://test.pypi.org/project/$PACKAGE_NAME/" | grep "Latest version"
