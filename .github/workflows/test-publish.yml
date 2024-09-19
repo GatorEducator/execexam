@@ -3,7 +3,7 @@ name: Test Publish
 on:
   push:
     tags:
-      - 't*'  # This triggers on tags starting with 't'
+      - 't*'  # Triggers on tags starting with 't'
 
 jobs:
   publish:
@@ -11,14 +11,14 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.11, 3.12]  # Add more versions as needed
+        python-version: [3.11, 3.12]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -28,6 +28,11 @@ jobs:
 
       - name: Add Poetry to PATH
         run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry for TestPyPI
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
 
       - name: Cache Poetry virtualenv
         uses: actions/cache@v3
@@ -46,8 +51,7 @@ jobs:
 
       - name: Verify version from tag
         run: |
-          tag_version=${GITHUB_REF#refs/tags/}
-          tag_version=${tag_version#t}
+          tag_version=${GITHUB_REF#refs/tags/t}
           pyproject_version=$(poetry version -s)
           if [ "$tag_version" != "$pyproject_version" ]; then
             echo "Version in pyproject.toml ($pyproject_version) does not match tag version ($tag_version)"
@@ -64,9 +68,9 @@ jobs:
             exit 1
           fi
 
-      - name: Configure Poetry with TestPyPI token
-        run: |
-          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
-
       - name: Publish to TestPyPI
-        run: poetry publish --repository testpypi --build --verbose
+        run: |
+          poetry publish --repository testpypi --build --verbose
+        env:
+          POETRY_HTTP_BASIC_TESTPYPI_USERNAME: "__token__"
+          POETRY_HTTP_BASIC_TESTPYPI_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
