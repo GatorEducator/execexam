@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "execexam"
-version = "0.3.17"
+version = "0.3.18"
 description = "ExecExam runs executable examinations, providing feedback and assistance!"
 authors = ["Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
 readme = "README.md"

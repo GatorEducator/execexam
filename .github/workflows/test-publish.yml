@@ -69,6 +69,6 @@ jobs:
           fi
 
       - name: Publish to TestPyPI
-        run: poetry publish --repository testpypi --build
+        run: poetry publish --repository testpypi --build --verbose
         env:
           POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_TOKEN }}
