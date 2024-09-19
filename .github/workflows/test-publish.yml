@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -28,6 +28,11 @@ jobs:
 
       - name: Add Poetry to PATH
         run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry to use TestPyPI
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
 
       - name: Cache Poetry virtualenv
         uses: actions/cache@v3
@@ -46,14 +51,8 @@ jobs:
 
       - name: Verify version from tag
         run: |
-          # Extract the tag version correctly
-          tag_version=${GITHUB_REF##*/}  # Remove refs/tags/
-          tag_version=${tag_version#t}   # Remove 't' if present, for tags like t0.3.15
-
-          # Get the version from pyproject.toml
+          tag_version=${GITHUB_REF##*/t}
           pyproject_version=$(poetry version -s)
-
-          # Compare versions
           if [ "$tag_version" != "$pyproject_version" ]; then
             echo "Version in pyproject.toml ($pyproject_version) does not match tag version ($tag_version)"
             exit 1
@@ -66,13 +65,6 @@ jobs:
         run: |
           if [ ! -d dist ]; then
             echo "Build failed: dist directory not found"
-            exit 1
-          fi
-
-      - name: Check for TestPyPI token
-        run: |
-          if [ -z "${{ secrets.TEST_PYPI_TOKEN }}" ]; then
-            echo "TestPyPI token not set"
             exit 1
           fi
 
