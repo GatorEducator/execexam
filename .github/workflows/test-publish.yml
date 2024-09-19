@@ -48,7 +48,7 @@ jobs:
         run: |
           # Extract the tag version correctly
           tag_version=${GITHUB_REF##*/}  # Remove refs/tags/
-          tag_version=${tag_version#v}   # Remove 'v' if present, for tags like v0.3.13
+          tag_version=${tag_version#t}   # Remove 't' if present, for tags like t0.3.15
 
           # Get the version from pyproject.toml
           pyproject_version=$(poetry version -s)
