@@ -8,91 +8,34 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        python-version: [3.11]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.11'  # Use the Python version compatible with your project
 
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-
-      - name: Add Poetry to PATH
-        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
-
-      - name: Configure Poetry for TestPyPI
-        run: |
-          poetry config repositories.testpypi https://test.pypi.org/legacy/
-          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
-
-      - name: Configure Poetry for TestPyPI
-        run: |
-          poetry config repositories.testpypi https://test.pypi.org/legacy/
-          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
-
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
-          if [ ! -f poetry.lock ]; then
-            poetry lock
-          fi
-          poetry install --no-dev
+          poetry install
 
-      - name: Verify version from tag
+      - name: Configure Poetry for TestPyPI
         run: |
-          tag_version=${GITHUB_REF#refs/tags/t}
-          pyproject_version=$(poetry version -s)
-          if [ "$tag_version" != "$pyproject_version" ]; then
-            echo "Version in pyproject.toml ($pyproject_version) does not match tag version ($tag_version)"
-            exit 1
-          fi
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
 
-      - name: Build the package
+      - name: Publish package to TestPyPI
         run: |
-          poetry build
-          ls -la dist  # List the contents of the dist directory to verify build artifacts
+          poetry publish --repository testpypi --build
 
-      - name: Check build result
+      - name: Verify Publication
         run: |
-          if [ ! -d dist ]; then
-            echo "Build failed: dist directory not found"
-            exit 1
-          fi
-        
-      - name: Debugging - Print Poetry Config
-        run: |
-          poetry config --list
-
-      - name: Debugging - Print Token Environment
-        run: |
-          echo "TEST_PYPI_TOKEN is set to ${TEST_PYPI_TOKEN}"
-
-      - name: Print environment variables
-        run: printenv
-
-      - name: Check Poetry version
-        run: poetry --version
-
-      - name: Publish to TestPyPI
-        run: |
-          echo "Publishing to TestPyPI..."
-          poetry publish --repository testpypi --build --verbose || { echo "Publishing failed"; exit 1; }
-        env:
-          POETRY_HTTP_BASIC_TESTPYPI_USERNAME: "__token__"
-          POETRY_HTTP_BASIC_TESTPYPI_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
+          echo "Verifying publication on TestPyPI..."
+          curl -s https://test.pypi.org/project/$(poetry version --short) | grep "Successfully published"
