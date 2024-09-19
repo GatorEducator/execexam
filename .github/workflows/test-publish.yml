@@ -34,6 +34,11 @@ jobs:
           poetry config repositories.testpypi https://test.pypi.org/legacy/
           poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
 
+      - name: Configure Poetry for TestPyPI
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
+
       - name: Cache Poetry virtualenv
         uses: actions/cache@v3
         with:
@@ -69,15 +74,25 @@ jobs:
             echo "Build failed: dist directory not found"
             exit 1
           fi
+        
+      - name: Debugging - Print Poetry Config
+        run: |
+          poetry config --list
+
+      - name: Debugging - Print Token Environment
+        run: |
+          echo "TEST_PYPI_TOKEN is set to ${TEST_PYPI_TOKEN}"
+
+      - name: Print environment variables
+        run: printenv
+
+      - name: Check Poetry version
+        run: poetry --version
 
       - name: Publish to TestPyPI
         run: |
           echo "Publishing to TestPyPI..."
-          poetry publish --repository testpypi --build --verbose
+          poetry publish --repository testpypi --build --verbose || { echo "Publishing failed"; exit 1; }
         env:
           POETRY_HTTP_BASIC_TESTPYPI_USERNAME: "__token__"
           POETRY_HTTP_BASIC_TESTPYPI_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
-
-      - name: Debugging - Print Poetry Config
-        run: |
-          poetry config --list
