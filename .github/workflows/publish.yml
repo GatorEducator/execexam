@@ -3,15 +3,15 @@ name: Publish
 on:
   push:
     tags:
-      - 'v*'  # This triggers on tags starting with 'v'
-    
+      - 'v*'  # Trigger the workflow on any tag that starts with "v"
+
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: [3.9, 3.10, 3.11]
+        python-version: [3.10, 3.11, 3.12]
 
     steps:
       - name: Checkout repository
@@ -23,9 +23,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Poetry
-        uses: poetry/install-poetry@v1
-        with:
-          version: latest
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Add Poetry to PATH
+        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
       - name: Cache Poetry virtualenv
         uses: actions/cache@v3
@@ -72,3 +74,4 @@ jobs:
         run: poetry publish --build
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+          
