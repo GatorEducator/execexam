@@ -46,7 +46,7 @@ jobs:
 
       - name: Verify version from tag
         run: |
-          tag_version=${GITHUB_REF##*/v}
+          tag_version=${GITHUB_REF##*/t}
           pyproject_version=$(poetry version -s)
           if [ "$tag_version" != "$pyproject_version" ]; then
             echo "Version in pyproject.toml ($pyproject_version) does not match tag version ($tag_version)"
