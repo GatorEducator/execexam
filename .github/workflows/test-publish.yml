@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -28,11 +28,6 @@ jobs:
 
       - name: Add Poetry to PATH
         run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
-
-      - name: Configure Poetry to use TestPyPI
-        run: |
-          poetry config repositories.testpypi https://test.pypi.org/legacy/
-          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
 
       - name: Cache Poetry virtualenv
         uses: actions/cache@v3
@@ -51,7 +46,7 @@ jobs:
 
       - name: Verify version from tag
         run: |
-          tag_version=${GITHUB_REF##*/t}
+          tag_version=${GITHUB_REF##*/v}
           pyproject_version=$(poetry version -s)
           if [ "$tag_version" != "$pyproject_version" ]; then
             echo "Version in pyproject.toml ($pyproject_version) does not match tag version ($tag_version)"
@@ -68,7 +63,13 @@ jobs:
             exit 1
           fi
 
+      - name: Configure Poetry to use TestPyPI
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
+
       - name: Publish to TestPyPI
-        run: poetry publish --repository testpypi --build --verbose
+        run: |
+          poetry publish --repository testpypi --build --verbose
         env:
           POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_TOKEN }}
