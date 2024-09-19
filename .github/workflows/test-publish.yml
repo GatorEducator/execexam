@@ -37,6 +37,12 @@ jobs:
 
       - name: Check for Successful Publication
         run: |
-          execexam=$(poetry version --short)
-          echo "Checking if package $execexam is available on TestPyPI..."
-          curl -s "https://test.pypi.org/project/$execexam/" | grep "Latest version"
+          version=$(poetry version --short)
+          echo "Checking if package execexam version $version is available on TestPyPI..."
+          response=$(curl -s "https://test.pypi.org/pypi/execexam/$version/json")
+          if echo "$response" | grep -q "$version"; then
+            echo "Package execexam version $version is successfully published on TestPyPI."
+          else
+            echo "Package execexam version $version was not found on TestPyPI."
+            exit 1
+          fi
