@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "execexam"
-version = "0.2.0"
+version = "0.3.0"
 description = "ExecExam runs executable examinations, providing feedback and assistance!"
 authors = ["Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
 readme = "README.md"
@@ -27,9 +27,6 @@ pytest-randomly = "^3.15.0"
 symbex = "^1.4"
 pytest-clarity = "^1.0.1"
 hypothesis = "^6.111.1"
-
-[tool.poetry.plugins.pytest11]
-"execexam" = "execexam.pytest_plugin"
 
 [tool.pytest.ini_options]
 filterwarnings = [
