@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'  # Use the Python version compatible with your project
+          python-version: '^3.11'  # Use the Python version compatible with your project
 
       - name: Install Poetry
         run: |
