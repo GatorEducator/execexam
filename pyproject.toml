@@ -36,6 +36,9 @@ filterwarnings = [
     "error",
 ]
 enable_assertion_pass_hook = true
+markers = [
+    "order(number): marks test to run in a specific order"
+]
 
 [tool.ruff]
 line-length = 79
