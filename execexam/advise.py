@@ -11,8 +11,24 @@ from rich.panel import Panel
 import socket
 
 from . import enumerations
-from .exceptions import InvalidAPIKeyError, MissingAPIKeyError, WrongFormatAPIKeyError
-
+from .exceptions import (
+    InvalidAPIKeyError,
+    MissingAPIKeyError,
+    WrongFormatAPIKeyError,
+    MissingServerURLError,
+    InvalidServerURLError,
+    ConnectionError,
+    ExceededAPIRequestsError,
+    InternalServerError,
+    handle_invalid_api_key,
+    handle_missing_api_key,
+    handle_wrong_format_api_key,
+    handle_missing_server_url,
+    handle_invalid_server_url,
+    handle_connection_error,
+    handle_exceeded_requests,
+    handle_internal_server_error,
+)
 
 def load_litellm() -> None:
     """Load the litellm module."""
@@ -33,7 +49,7 @@ def validate_url(value: str) -> bool:
 
 
 def is_valid_api_key(api_key: str) -> bool:
-    # Replace with the actual logic to validate the API key
+    """Ensure that API Keys are alphanumeric."""
     # For example, you might check if the API key matches a specific pattern
     return api_key.isalnum()  # Example: API key should be alphanumeric
 
@@ -46,50 +62,6 @@ def validate_api_key(api_key: str) -> None:
         raise WrongFormatAPIKeyError()
     if not is_valid_api_key(api_key):
         raise InvalidAPIKeyError()
-
-
-def handle_invalid_api_key(console: Console) -> None:
-    """Handle invalid API key error."""
-    console.print("[bold red]Error: Invalid API key provided.[/bold red]")
-    console.print("Please check your API key and update it in the configuration file.")
-
-
-def handle_missing_api_key(console: Console) -> None:
-    """Handle missing API key error."""
-    console.print("[bold red]Error: No API key provided.[/bold red]")
-    console.print("Please provide an API key in the configuration file.")
-
-
-def handle_wrong_format_api_key(console: Console) -> None:
-    """Handle wrong format API key error."""
-    console.print("[bold red]Error: API key format is incorrect.[/bold red]")
-    console.print("Ensure the API key does not contain extra characters or spaces.")
-
-
-def handle_generic_api_key_error(console: Console) -> None:
-    """Handle generic API key error."""
-    console.print("[bold red]Error: An issue occurred with the API key.[/bold red]")
-    console.print("Please check your API key and configuration.")
-
-
-def handle_invalid_server_url(console: Console) -> None:
-    """Handle invalid server URL error."""
-    console.print("[bold red]Error: Invalid server URL provided.[/bold red]")
-    console.print("Please check the server URL and update it.")
-
-
-def handle_missing_server_url(console: Console) -> None:
-    """Handle missing server URL error."""
-    console.print("[bold red]Error: No server URL provided.[/bold red]")
-    console.print("Please provide a server URL. Check your configuration file.")
-
-
-def handle_connection_error(console: Console) -> None:
-    """Handle connection error."""
-    # Print an error message stating there's issues with connecting to the api server.
-    console.print("[bold red]Error: Unable to connect to the API server.[/bold red]")
-    # Print a troubleshooting message.
-    console.print("Please check your network connection and ensure the API server is reachable.")
 
 
 def check_internet_connection(timeout: int = 5) -> bool:
