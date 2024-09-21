@@ -20,14 +20,6 @@ from .exceptions import (
     ConnectionError,
     ExceededAPIRequestsError,
     InternalServerError,
-    handle_invalid_api_key,
-    handle_missing_api_key,
-    handle_wrong_format_api_key,
-    handle_missing_server_url,
-    handle_invalid_server_url,
-    handle_connection_error,
-    handle_exceeded_requests,
-    handle_internal_server_error,
 )
 
 def load_litellm() -> None:
@@ -48,23 +40,29 @@ def validate_url(value: str) -> bool:
     return True
 
 
-def is_valid_api_key(api_key: str) -> bool:
-    """Ensure that API Keys are alphanumeric."""
-    # For example, you might check if the API key matches a specific pattern
-    return api_key.isalnum()  # Example: API key should be alphanumeric
-
-
-def validate_api_key(api_key: str) -> None:
+def validate_api_key(console: Console, api_key: str) -> None:
     """Validate the provided API key."""
     if not api_key:
-        raise MissingAPIKeyError()
-    if len(api_key) < 20:
-        raise WrongFormatAPIKeyError()
-    if not is_valid_api_key(api_key):
-        raise InvalidAPIKeyError()
+        raise MissingAPIKeyError(console)
+    if len(api_key) != 32:  # Assuming the API key should be 32 characters long
+        raise WrongFormatAPIKeyError(console)
+    if None:  # how do we check if it is invalid
+        raise InvalidAPIKeyError(console)
+    if None:  # how do we check if requests were exceeded
+        raise ExceededAPIRequestsError(console)
 
 
-def check_internet_connection(timeout: int = 5) -> bool:
+def validate_api_server(console: Console, api_server: str) -> None:
+    """Validate the provided API server."""
+    if not api_server:
+        raise MissingServerURLError(console)
+    if not validate_url(api_server):
+        raise InvalidServerURLError(console)
+    if None: # how do we check if there is an internal server error
+        raise InternalServerError(console)
+
+
+def check_internet_connection(console: Console, timeout: int = 5) -> bool:
     """Check if the system has an active internet connection."""
     try:
         # Attempt to create a socket connection to Google's DNS server (8.8.8.8) on port 53.
@@ -76,8 +74,7 @@ def check_internet_connection(timeout: int = 5) -> bool:
     # If an OSError is raised, it indicates that the connection attempt failed.
     # This could be due to no internet connection or network issues.
     except OSError:
-        # Return False indicating that the internet connection is not available.
-        return False
+        raise ConnectionError(console)
 
 
 def check_advice_model(
@@ -156,11 +153,7 @@ def fix_failures(  # noqa: PLR0913
 ):
     """Offer advice through the use of the LLM-based mentoring system."""
     # Check if there is an active internet connection before proceeding.
-    if not check_internet_connection():
-        # If there is no internet connection, handle the connection error.
-        # Call the handle_connection_error function
-        handle_connection_error(console)
-        return
+    check_internet_connection(Console)
 
     with console.status(
         "[bold green] Getting Feedback from ExecExam's Coding Mentor"
@@ -191,12 +184,14 @@ def fix_failures(  # noqa: PLR0913
             + f"Here is a brief overview of the test failure information: {failing_test_details}"
             + f"Here is the source code for the one or more failing test(s): {failing_test_code}"
         )
+
         # the API key approach expects that the person running the execexam
         # tool has specified an API key for a support cloud-based LLM system
         if advice_method == enumerations.AdviceMethod.api_key:
             try:
                 # attempt to validate the key
                 validate_api_key(enumerations.AdviceMethod.api_key)
+                
                 # submit the debugging request to the LLM-based mentoring system
                 # using the specified model and the debugging prompt
                 response = completion(  # type: ignore
@@ -229,19 +224,17 @@ def fix_failures(  # noqa: PLR0913
                         ),
                     )
                     console.print()
-            except InvalidAPIKeyError:
-                handle_invalid_api_key(console)
-            except MissingAPIKeyError:
-                handle_missing_api_key(console)
-            except WrongFormatAPIKeyError:
-                handle_wrong_format_api_key(console)
             except Exception:
-                handle_generic_api_key_error(console)
+                console.print("[bold red]Unknown error[/bold red]")
+
         # the apiserver approach expects that the person running the execexam
         # tool will specify the URL of a remote LLM-based mentoring system
         # that is configured to provide access to an LLM system for advice
         elif advice_method == enumerations.AdviceMethod.api_server:
             try:
+                # check to make sure the server calls the exceptions correct
+                validate_api_server(enumerations.AdviceMethod.api_server)
+
                 # debugging request to the LLM-based mentoring system
                 # that is currently running on a remote LiteLLM system;
                 # note that this does not seem to work correctly if
@@ -277,11 +270,5 @@ def fix_failures(  # noqa: PLR0913
                         )
                     )
                     console.print()
-            except InvalidAPIKeyError:
-                handle_invalid_api_key(console)
-            except MissingAPIKeyError:
-                handle_missing_api_key(console)
-            except WrongFormatAPIKeyError:
-                handle_wrong_format_api_key(console)
             except Exception:
-                handle_generic_api_key_error(console)
+                console.print("[bold red]Unknown error[/bold red]")
