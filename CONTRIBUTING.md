@@ -4,9 +4,13 @@
 
 ## Table of Contents
 
+## Getting Started
+
 ## Links to Resources
 
-### Submit Changes
+## Submit Changes
+
+### Pull Requests
 
 ### Bug Reports
 
