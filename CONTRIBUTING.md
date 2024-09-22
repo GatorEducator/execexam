@@ -31,7 +31,7 @@ As you make changes, you will want to see how they affect the output of Execexam
 This will build an archive (i.e. a release artifact) of Execexam that contains your changes. To use this archive, you can install it with pipx:
 
 `pipx install dist/execexam-<archive-version>.whl`
-Then, you can run the execexam commands in any assignment repository to view the output of Execexam with your changes.
+Then, you can run the `execexam` commands in any assignment repository to view the output of Execexam with your changes.
 
 If you have already done this, have made additional changes, and would like to try out your most recent changes, we recommend that you first uninstall Execexam with pipx:
 
@@ -80,4 +80,4 @@ Big thank you to everyone who has contributed to this project thus far!
 
 ## Owner Information
 
-If you would like to contact the owner of this project please message @gkapfham for more information.
+If you would like to contact the owner of this project please message `@gkapfham` for more information.
