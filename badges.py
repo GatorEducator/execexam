@@ -1,5 +1,6 @@
 import json
 import re
+import requests
 
 
 def update_coverage_badge():
@@ -68,3 +69,28 @@ def update_coverage_badge():
 
 if __name__ == "__main__":
     update_coverage_badge()
+
+
+# Path to your local JSON file from Open Source Insights
+json_file_path = "version.json"
+
+# Load the JSON data from the file
+with open(json_file_path, "r") as f:
+    data = json.load(f)
+
+# Extract the latest version from the JSON data
+# Adjust this depending on the structure of your JSON file
+latest_version = data["info"]["version"]  # Modify this if necessary
+print(f"Latest version: {latest_version}")
+
+# Now create/update the badge using Shields.io
+badge_url = f"https://img.shields.io/badge/version-{latest_version}-blue.svg"
+
+# Download the badge and save it locally (optional)
+badge_response = requests.get(badge_url)
+if badge_response.status_code == 200:
+    with open("version-badge.svg", "wb") as f:
+        f.write(badge_response.content)
+    print("Badge updated successfully!")
+else:
+    print("Error fetching badge from Shields.io.")
