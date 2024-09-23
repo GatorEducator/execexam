@@ -376,9 +376,3 @@ credentials.json
 # poetry.toml file
 poetry.toml
 
-# Ignore version JSON file
-version.json
-
-# Ignore version badge SVG file
-version-badge.svg
-
