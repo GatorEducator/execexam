@@ -40,6 +40,13 @@ def validate_url(value: str) -> bool:
     return True
 
 
+def print_traceback() -> None:
+    """Print the traceback of the last exception."""
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    print(f"Exception Type: {exc_type.__name__}")
+    print(f"Error Message: {str(exc_obj)}")
+
+
 def validate_api_key(console: Console, api_key: str) -> None:
     """Validate the provided API key."""
     if not api_key:
