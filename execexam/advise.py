@@ -62,9 +62,18 @@ def validate_api_server(console: Console, api_server: str) -> None:
         raise InternalServerError(console)
 
 
-def check_internet_connection(console: Console, timeout: int = 5) -> bool:
+def handle_connection_error(console: Console) -> None:
+    """Handle connection error."""
+    # Print an error message stating there's issues with connecting to the api server.
+    console.print("[bold red]Error: Unable to connect to the API server.[/bold red]")
+    # Print a troubleshooting message.
+    console.print("Please check your network connection and ensure the API server is reachable.")
+
+
+def check_internet_connection(timeout: int = 5) -> bool:
     """Check if the system has an active internet connection."""
     try:
+        # Attempt to connect to Google's DNS server (8.8.8.8) on port 53 (DNS)
         # Attempt to create a socket connection to Google's DNS server (8.8.8.8) on port 53.
         # Port 53 is used for DNS, and Google's DNS server is a commonly available address.
         # This check is used to verify if the system can connect to an external network.
@@ -74,7 +83,8 @@ def check_internet_connection(console: Console, timeout: int = 5) -> bool:
     # If an OSError is raised, it indicates that the connection attempt failed.
     # This could be due to no internet connection or network issues.
     except OSError:
-        raise ConnectionError(console)
+        # Return False indicating that the internet connection is not available.
+        return False
 
 
 def check_advice_model(
@@ -153,8 +163,11 @@ def fix_failures(  # noqa: PLR0913
 ):
     """Offer advice through the use of the LLM-based mentoring system."""
     # Check if there is an active internet connection before proceeding.
-    check_internet_connection(Console)
-
+    if not check_internet_connection():
+        # If there is no internet connection, handle the connection error.
+        # Call the handle_connection_error function
+        handle_connection_error(console)
+        return
     with console.status(
         "[bold green] Getting Feedback from ExecExam's Coding Mentor"
     ):
