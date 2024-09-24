@@ -10,6 +10,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 
 from . import enumerations
+from .exceptions import get_litellm_traceback, GeneralLiteLLMException
 
 
 def load_litellm() -> None:
@@ -21,29 +22,6 @@ def load_litellm() -> None:
     global litellm  # noqa: PLW0602
     global completion  # noqa: PLW0603
     from litellm import completion
-
-
-def get_traceback() -> None:
-    """Print the traceback of the last exception."""
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-
-    # List of litellm exception types and their explanations
-    litellm_exceptions = {
-        'NotFoundError': "The requested resource was not found. Please check if your model or endpoint is correct.",
-        'AuthenticationError': "There was an issue with your authentication. Please verify your API key.",
-        'RateLimitError': "You've hit the rate limit. Please try again later or adjust your usage. This error can also be caused by the ",
-        'InvalidRequestError': "Your request was malformed. Please check the parameters you've sent.",
-        'APIError': "An internal API error occurred. Please try again later.",
-        'ConnectionError': "There was a connection issue. Please ensure your internet connection is stable."
-    }
-
-    if exc_type.__name__ in litellm_exceptions:
-        print(f"Exception Type: {exc_type.__name__}")
-        print(f"Explanation: {litellm_exceptions[exc_type.__name__]}")
-    else:
-        # Default behavior for non-litellm exceptions
-        print(f"Exception Type: {exc_type.__name__}")
-        print(f"Error Message: {str(exc_obj)}")
 
 
 def validate_url(value: str) -> bool:
@@ -200,7 +178,5 @@ def fix_failures(  # noqa: PLR0913
                     )
                     console.print()
     except Exception:
-            get_traceback()
-            console.print("[red]An error occurred while fetching advice.")
-            # Use `sys.exit(1)` after logging to ensure traceback is printed
-            sys.exit(1)
+            get_litellm_traceback()
+            raise GeneralLiteLLMException
