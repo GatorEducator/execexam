@@ -1,10 +1,10 @@
 """Offer advice through the use of the LLM-Based mentoring system."""
 
+import socket
 import sys
 from typing import List, Optional
 
 import openai
-import socket
 import validators
 from rich.console import Console
 from rich.markdown import Markdown
@@ -34,9 +34,13 @@ def validate_url(value: str) -> bool:
 def handle_connection_error(console: Console) -> None:
     """Handle connection error."""
     # Print an error message stating there's issues with connecting to the api server.
-    console.print("[bold red]Error: Unable to connect to the API server.[/bold red]")
+    console.print(
+        "[bold red]Error: Unable to connect to the API server.[/bold red]"
+    )
     # Print a troubleshooting message.
-    console.print("Please check your network connection and ensure the API server is reachable.")
+    console.print(
+        "Please check your network connection and ensure the API server is reachable."
+    )
 
 
 def check_internet_connection(timeout: int = 5) -> bool:

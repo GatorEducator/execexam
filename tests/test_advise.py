@@ -1,6 +1,8 @@
 """Test Suite for advice module."""
+
 import socket
 from unittest.mock import patch
+
 from execexam.advise import check_internet_connection
 
 
