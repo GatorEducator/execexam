@@ -10,7 +10,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 
 from . import enumerations
-from .exceptions import get_litellm_traceback, GeneralLiteLLMException
+from .exceptions import get_litellm_traceback
 
 
 def load_litellm() -> None:
@@ -179,4 +179,3 @@ def fix_failures(  # noqa: PLR0913
                     console.print()
     except Exception:
             get_litellm_traceback()
-            raise GeneralLiteLLMException
