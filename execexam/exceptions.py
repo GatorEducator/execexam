@@ -9,16 +9,16 @@ console = Console()
 
 def get_litellm_traceback() -> None:
     """Print the traceback of the last exception."""
-    exc_type, exc_obj, exc_tb = sys.exc_info()
+    exc_type, exc_obj, _ = sys.exc_info()
 
     # List of litellm exception types and their explanations
     litellm_exceptions = {
         "NotFoundError": "The requested resource was not found. Please check if your model or endpoint is correct.",
         "AuthenticationError": "There was an issue with your authentication. Please verify your API key.",
-        "RateLimitError": "You've hit the rate limit. Please try again later or adjust your usage. This error can also be caused by the ",
+        "RateLimitError": "You've hit the rate limit. Please try again later or adjust your usage.\nNOTE: This error can sometimes be caused by an invalid API key.",
         "InvalidRequestError": "Your request was malformed. Please check the parameters you've sent.",
         "APIError": "An internal API error occurred. Please try again later.",
-        "ConnectionError": "There was a connection issue. Please ensure your internet connection is stable."
+        "APIConnectionError": "There was a connection issue to the server.\nNOTE: This error can sometimes be caused by an invalid server URL. Please verify the URL you're using.",
     }
 
     # if statements to display exceptions
