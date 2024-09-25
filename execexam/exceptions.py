@@ -11,6 +11,8 @@ def get_litellm_traceback() -> None:
     """Print the traceback of the last exception."""
     exc_type, exc_obj, _ = sys.exc_info()
 
+    if exc_type is None:
+        return
     # List of litellm exception types and their explanations
     litellm_exceptions = {
         "NotFoundError": "The requested resource was not found. Please check if your model or endpoint is correct.",
