@@ -1,7 +1,7 @@
 """Test Suite for Exceptions Module."""
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 from execexam.exceptions import get_litellm_traceback
 
 
