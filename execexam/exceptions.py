@@ -23,17 +23,27 @@ def get_litellm_traceback() -> None:
 
     # if statements to display exceptions
     if exc_type.__name__ in litellm_exceptions:
-        console.print(f"[bold red]Exception Type: {exc_type.__name__}[/bold red]")
+        console.print(
+            f"[bold red]Exception Type: {exc_type.__name__}[/bold red]"
+        )
         console.print(f"Explanation: {litellm_exceptions[exc_type.__name__]}")
     else:
         # Default behavior for non-litellm exceptions
-        console.print(f"[bold red]Exception Type: {exc_type.__name__}[/bold red]")
+        console.print(
+            f"[bold red]Exception Type: {exc_type.__name__}[/bold red]"
+        )
         console.print(f"Error Message: {exc_obj!s}")
 
     # general purpose ouput as a backup
-    console.print("\n[bold red]If your issue persists, ensure the model you entered is listed below:[/bold red]")
+    console.print(
+        "\n[bold red]If your issue persists, ensure the model you entered is listed below:[/bold red]"
+    )
     console.print("[bold blue]- anthropic/claude-3-haiku-20240307[/bold blue]")
     console.print("[bold blue]- anthropic/claude-3-opus-20240229[/bold blue]")
     console.print("[bold blue]- groq/llama3-8b-8192[/bold blue]")
-    console.print("[bold blue]- openrouter/meta-llama/llama-3.1-8b-instruct:free[/bold blue]")
-    console.print("[bold blue]- openrouter/google/gemma-2-9b-it:free[/bold blue]")
+    console.print(
+        "[bold blue]- openrouter/meta-llama/llama-3.1-8b-instruct:free[/bold blue]"
+    )
+    console.print(
+        "[bold blue]- openrouter/google/gemma-2-9b-it:free[/bold blue]"
+    )

@@ -110,7 +110,9 @@ def fix_failures(  # noqa: PLR0913
         with console.status(
             "[bold green] Getting Feedback from ExecExam's Coding Mentor"
         ):
-            test_overview = filtered_test_output + exec_exam_test_assertion_details
+            test_overview = (
+                filtered_test_output + exec_exam_test_assertion_details
+            )
             llm_debugging_request = (
                 "I am an undergraduate student completing a programming examination."
                 + " You may never make suggestions to change the source code of the test cases."
@@ -129,7 +131,9 @@ def fix_failures(  # noqa: PLR0913
                 # Submit the debugging request to the LLM-based mentoring system
                 response = completion(  # type: ignore
                     model=advice_model,
-                    messages=[{"role": "user", "content": llm_debugging_request}],
+                    messages=[
+                        {"role": "user", "content": llm_debugging_request}
+                    ],
                 )
                 # Display the advice from the LLM-based mentoring system
                 if fancy:
@@ -153,10 +157,14 @@ def fix_failures(  # noqa: PLR0913
 
             elif advice_method == enumerations.AdviceMethod.api_server:
                 # Use the OpenAI approach to submit the debugging request
-                client = openai.OpenAI(api_key="anything", base_url=advice_server)
+                client = openai.OpenAI(
+                    api_key="anything", base_url=advice_server
+                )
                 response = client.chat.completions.create(
                     model=advice_model,
-                    messages=[{"role": "user", "content": llm_debugging_request}],
+                    messages=[
+                        {"role": "user", "content": llm_debugging_request}
+                    ],
                 )
                 if fancy:
                     console.print(
@@ -178,4 +186,4 @@ def fix_failures(  # noqa: PLR0913
                     )
                     console.print()
     except Exception:
-            get_litellm_traceback()
+        get_litellm_traceback()
