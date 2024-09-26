@@ -14,7 +14,7 @@ def test_check_internet_connection_success():
 
 
 def test_check_internet_connection_failure():
-    """Test that check_internet_connection returns False when connection fails."""
+    """Test that check_internet_connection function returns False when connection fails."""
     with patch("socket.create_connection", side_effect=OSError):
         assert check_internet_connection() is False
 
