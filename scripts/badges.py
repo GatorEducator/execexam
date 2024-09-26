@@ -1,9 +1,19 @@
 import json
 import toml
+import os
+
+# Define the paths to the necessary files
+COVERAGE_FILE = (
+    "../coverage.json"  # Adjusted to access from the scripts directory
+)
+README_FILE = "../README.md"  # Adjusted to access from the scripts directory
+PYPROJECT_FILE = (
+    "../pyproject.toml"  # Adjusted to access from the scripts directory
+)
 
 
 def get_coverage_percentage():
-    with open("coverage.json") as f:
+    with open(COVERAGE_FILE) as f:
         coverage_data = json.load(f)
         total_coverage = coverage_data["totals"]["percent_covered"]
     return total_coverage
@@ -13,7 +23,8 @@ def update_coverage_badge(coverage):
     badge_url = (
         f"https://img.shields.io/badge/coverage-{coverage:.2f}%25-brightgreen"
     )
-    with open("README.md", "r") as file:
+
+    with open(README_FILE, "r") as file:
         readme_content = file.read()
 
     new_readme = readme_content
@@ -27,19 +38,20 @@ def update_coverage_badge(coverage):
             full_coverage_badge, f"![coverage]({badge_url})"
         )
 
-    with open("README.md", "w") as file:
+    with open(README_FILE, "w") as file:
         file.write(new_readme)
 
 
 def get_version():
-    with open("pyproject.toml") as f:
+    with open(PYPROJECT_FILE) as f:
         pyproject_data = toml.load(f)
         return pyproject_data["tool"]["poetry"]["version"]
 
 
 def update_version_badge(version):
     badge_url = f"https://img.shields.io/badge/version-{version}-blue"
-    with open("README.md", "r") as file:
+
+    with open(README_FILE, "r") as file:
         readme_content = file.read()
 
     new_readme = readme_content
@@ -53,7 +65,7 @@ def update_version_badge(version):
             full_version_badge, f"![version]({badge_url})"
         )
 
-    with open("README.md", "w") as file:
+    with open(README_FILE, "w") as file:
         file.write(new_readme)
 
 
