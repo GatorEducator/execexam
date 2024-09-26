@@ -1,9 +1,12 @@
 name: Publish
 
+# trigger the publishing of the
+# execexam package to PyPI
+# with any tag starting with "v"
 on:
   push:
     tags:
-      - 'v*'  # Triggers on tags starting with 'v'
+      - 'v*'
 
 jobs:
   publish:
