@@ -1,6 +1,12 @@
+# Publishing workflow
 name: Publish
 
-# trigger the publishing of the
+# Use more columns for terminal output
+env:
+  COLUMNS: 120
+  PYTHONIOENCODING: utf8
+
+# Trigger the publishing of the
 # execexam package to PyPI
 # with any tag starting with "v"
 on:
@@ -8,6 +14,9 @@ on:
     tags:
       - 'v*'
 
+# Create one single job
+# that publishes the package
+# to PyPI using Poetry
 jobs:
   publish:
     runs-on: ubuntu-latest
