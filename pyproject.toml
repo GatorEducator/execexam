@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "execexam"
-version = "0.3.39"
+version = "0.3.0"
 description = "ExecExam runs executable examinations, providing feedback and assistance!"
 authors = ["Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
 readme = "README.md"
@@ -19,6 +19,7 @@ typer = "^0.12.3"
 litellm = {extras = ["proxy"], version = "^1.43.15"}
 openai = "^1.41.0"
 validators = "^0.33.0"
+toml = "^0.10.2"
 
 [tool.poetry.group.dev.dependencies]
 taskipy = "^1.13.0"

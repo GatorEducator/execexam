@@ -2,9 +2,10 @@
 
 <img src="https://i.ibb.co/vzjX7p2/exe.png" alt="logo" height="500">
 
-[![Coverage](https://img.shields.io/badge/coverage-71%25-orange)](https://github.com/GatorEducator/execexam/actions)
+[![coverage](https://img.shields.io/badge/coverage-71.28%25-brightgreen)](https://github.com/GatorEducator/execexam/actions)
 [![Static Badge](https://img.shields.io/badge/Maintained%3F-yes-orange)](https://github.com/GatorEducator/execexam/commits/main/)
-![Version Badge](version-badge.svg)
+![version](https://img.shields.io/badge/version-0.3.0-blue)
+
 
 ExecExam is a powerful tool that runs executable examinations in which a
 student provides solutions to programming problems that are checked by Pytest

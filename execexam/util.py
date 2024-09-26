@@ -3,19 +3,19 @@
 import pytest
 
 
-def determine_execexam_return_code(pytest_return_code: int) -> int:
+def determine_execexam_return_code(pytest_return_code: int) -> str:
     """Determine the return code for the execexam command by pytest code."""
-    execexam_return_code = 0
-    # see if the pytest exit code is one of the designated
-    # codes and then assign it to the appropriate value
+    # see if the pytest exit code is one of the designated codes
+    # and then assign it to the appropriate string message
     if pytest_return_code == pytest.ExitCode.TESTS_FAILED:
-        execexam_return_code = 1
+        return "Tests Failed"
     elif pytest_return_code == pytest.ExitCode.INTERRUPTED:
-        execexam_return_code = 2
+        return "Interrupted"
     elif pytest_return_code == pytest.ExitCode.INTERNAL_ERROR:
-        execexam_return_code = 3
+        return "Internal Error"
     elif pytest_return_code == pytest.ExitCode.USAGE_ERROR:
-        execexam_return_code = 4
+        return "Usage Error"
     elif pytest_return_code == pytest.ExitCode.NO_TESTS_COLLECTED:
-        execexam_return_code = 5
-    return execexam_return_code
+        return "No Tests Collected"
+    else:
+        return "Success"  # Default to success if no errors
