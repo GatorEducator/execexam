@@ -62,6 +62,34 @@ Should be void of all grammatical and spelling mistakes
 
 Once you have finished making and committing your changes to your branch, you should [create a pull request](https://docs.github.com/en/get-started/quickstart/github-flow#create-a-pull-request) so that others can review your changes. Before creating a pull request, make sure that the last commit in your branch produced a passing build in GitHub Actions. When you create a pull request, please make sure to fill out all portions of the template.
 
+### Version Tag
+
+In this repo we have two ways to version tag that will automatically push the current version to PyPI. The first way is a test tag that will test the automatic publishing feature to [PyPI](https://pypi.org/project/execexam/) using [TestPyPI](https://test.pypi.org/project/execexam/). 
+
+#### Test Publish
+
+The purpose of test publish action is to test the publishing process itself. To test publish use the lowercase `t` tag. A test publish tag should look like `t0.3.1`.
+
+Example Commands for Test Publish:
+
+- `poetry version 0.3.1`
+- `git add pyproject.toml`
+- `git commit -m "Chore: Bump version to 0.3.1"`
+- `git tag t0.3.1`
+- `git push origin t0.3.1`
+
+#### Publish
+
+The purpose of the publish action is to automatically publish the version to PyPI. The publish action uses the lowercase `v` tag. A tag for publishing should look like `v0.3.1`.
+
+Example Commands for Publish:
+
+- `poetry version 0.3.1`
+- `git add pyproject.toml`
+- `git commit -m "Chore: Bump version to 0.3.1"`
+- `git tag v0.3.1`
+- `git push origin v0.3.1`
+
 ### Bug Reports
 
 Please submit your bug reports using the [GitHub Issue Tracker](https://github.com/GatorEducator/execexam/issues). Use the bug template for submission guidelines.
