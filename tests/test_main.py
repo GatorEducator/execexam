@@ -35,7 +35,7 @@ def test_run_command_with_empty_project_and_tests():
     
     # Check for expected failure
     assert result.exit_code != 0
-    assert "Error" in result.output  # Adjust to match your error handling
+    assert "Error" in result.output  
 
 def test_run_command_with_failing_tests(tmp_path):
     """Test run command when tests fail."""
