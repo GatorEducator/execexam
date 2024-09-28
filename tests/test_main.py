@@ -3,7 +3,7 @@ import pytest
 import subprocess
 import sys
 from pathlib import Path
-from execexam.cli import cli  #
+from execexam.cli import cli 
 
 def test_run_command_with_valid_inputs(tmp_path):
     """Test the run command with valid project and test paths."""
