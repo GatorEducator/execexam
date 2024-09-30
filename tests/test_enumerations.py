@@ -1,12 +1,9 @@
 """Testing for enumeration file"""
-import pytest
-from enum import Enum
 
-from execexam.enumerations import (
-    AdviceMethod,
-    Theme,
-    ReportType
-)
+
+import pytest
+
+from execexam.enumerations import AdviceMethod, ReportType, Theme
 
 
 def test_advice_method_enum_values():
