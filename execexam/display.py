@@ -30,6 +30,31 @@ def get_display_return_code(return_code: int, fancy: bool) -> str:
     return message
 
 
+def display_tldr(console: Console) -> None:
+    """Display a list of example commands and their descriptions."""
+    console.print("[bold green]Too Lazy; Didn't Read: Example Commands[/bold green]\n")
+
+    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests>[/bold red]")
+    console.print("    Run executable exam for a project with the specified test files.")
+
+    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --mark <mark>[/bold red]")
+    console.print("    Run the tests with the specified mark(s).")
+
+    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --maxfail <num>[/bold red]")
+    console.print("    Limit the number of test failures before stopping.")
+
+    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --report <report_type>[/bold red]")
+    console.print("    Generate the specified type(s) of reports after the exam.")
+
+    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --advice-model <model> --advice-method <method>[/bold red]")
+    console.print("    Use specified LLM model and method for providing advice on test failures.")
+
+    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --debug[/bold red]")
+    console.print("    Enable debugging information.")
+
+    console.print("\n[bold green]help:[/bold green] Use [bold red]--help[/bold red] to see more options.")
+
+
 def display_advice(return_code: int) -> str:
     """Determine the return code from running the specified checks(s)."""
     message = "\n"
