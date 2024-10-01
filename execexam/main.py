@@ -55,6 +55,7 @@ def run(  # noqa: PLR0913, PLR0915
         ...,
         help="Test file or test directory",
     ),
+    tldr: Annotated[Optional[bool], typer.Option("--tldr", callback=tldr_callback, help="Display summary of commands")] = None,
     report: Optional[List[enumerations.ReportType]] = typer.Option(
         None,
         help="Types of reports to generate",
@@ -75,7 +76,6 @@ def run(  # noqa: PLR0913, PLR0915
     syntax_theme: enumerations.Theme = typer.Option(
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
     ),
-    tldr: Annotated[Optional[bool], typer.Option("--tldr", callback=tldr_callback, help="Display TLDR summary of commands")] = None,
 ) -> None:
     """Run an executable exam and produce the requested report(s)."""
     # indicate that the program's exit code is zero
