@@ -14,6 +14,7 @@ import pytest
 import typer
 from pytest_jsonreport.plugin import JSONReport  # type: ignore
 from rich.console import Console
+from typing_extensions import Annotated
 
 from . import advise, display, enumerations, extract, util
 from . import debug as debugger
@@ -35,6 +36,13 @@ skip = ["keywords", "setup", "teardown"]
 
 # create a variable of the main pytest issues
 pytest_labels = ["FAILED", "ERROR", "WARNING", "COLLECTERROR"]
+
+
+def tldr_callback(value: bool) -> None:
+    """Display a list of example commands and their descriptions."""
+    if value:
+        display.display_tldr(console)
+        raise typer.Exit()
 
 
 @cli.command()
