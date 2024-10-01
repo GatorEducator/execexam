@@ -32,27 +32,27 @@ def get_display_return_code(return_code: int, fancy: bool) -> str:
 
 def display_tldr(console: Console) -> None:
     """Display a list of example commands and their descriptions."""
-    console.print("[bold green]Too Lazy; Didn't Read: Example Commands[/bold green]\n")
+    console.print("[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n")
 
-    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests>[/bold red]")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests>[/bold cyan]")
     console.print("    Run executable exam for a project with the specified test files.")
 
-    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --mark <mark>[/bold red]")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --mark <mark>[/bold cyan]")
     console.print("    Run the tests with the specified mark(s).")
 
-    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --maxfail <num>[/bold red]")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --maxfail <num>[/bold cyan]")
     console.print("    Limit the number of test failures before stopping.")
 
-    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --report <report_type>[/bold red]")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --report <report_type>[/bold cyan]")
     console.print("    Generate the specified type(s) of reports after the exam.")
 
-    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --advice-model <model> --advice-method <method>[/bold red]")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --advice-model <model> --advice-method <method>[/bold cyan]")
     console.print("    Use specified LLM model and method for providing advice on test failures.")
 
-    console.print("[bold green]poetry run execexam[/bold green] [bold red]<project> <tests> --debug[/bold red]")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --debug[/bold cyan]")
     console.print("    Enable debugging information.")
 
-    console.print("\n[bold green]help:[/bold green] Use [bold red]--help[/bold red] to see more options.")
+    console.print("\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options.")
 
 
 def display_advice(return_code: int) -> str:
