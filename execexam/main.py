@@ -75,6 +75,7 @@ def run(  # noqa: PLR0913, PLR0915
     syntax_theme: enumerations.Theme = typer.Option(
         enumerations.Theme.ansi_dark, help="Syntax highlighting theme"
     ),
+    tldr: Annotated[Optional[bool], typer.Option("--tldr", callback=tldr_callback, help="Display TLDR summary of commands")] = None,
 ) -> None:
     """Run an executable exam and produce the requested report(s)."""
     # indicate that the program's exit code is zero
@@ -93,6 +94,10 @@ def run(  # noqa: PLR0913, PLR0915
     # was requested for this run of the program
     debugger.debug(debug, debugger.Debug.parameter_check_passed.value)
     litellm_thread = threading.Thread(target=advise.load_litellm)
+    # if --tldr was specified, then display the TLDR summary
+    # of the commands and then exit the program
+    if tldr is not None:
+        return
     # if execexam was configured to produce the report for advice
     # or if it was configured to produce all of the possible reports,
     # then start the litellm thread that provides the advice
