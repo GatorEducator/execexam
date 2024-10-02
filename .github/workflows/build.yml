@@ -86,4 +86,4 @@ jobs:
             # because they sometimes take longer to run
             # on Windows and MacOS and this creates errors
             poetry run task test
-            pytest -s --cov-context=test --cov-report term-missing --cov-report json --cov --cov-branch
+            poetry run task coverage
