@@ -40,17 +40,20 @@ def display_tldr(console: Console) -> None:
     console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --mark <mark>[/bold cyan]")
     console.print("    Run the tests with the specified mark(s).")
 
-    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --maxfail <num>[/bold cyan]")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --maxfail[/bold cyan]")
     console.print("    Limit the number of test failures before stopping.")
 
-    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --report <report_type>[/bold cyan]")
-    console.print("    Generate the specified type(s) of reports after the exam.")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --report <report_type>/<all>[/bold cyan]")
+    console.print("    Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types.")
 
     console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --advice-model <model> --advice-method <method>[/bold cyan]")
     console.print("    Use specified LLM model and method for providing advice on test failures.")
 
-    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> --debug[/bold cyan]")
-    console.print("    Enable debugging information.")
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> <--debug>/<--no-debug>[/bold cyan]")
+    console.print("    Display or disable debugging information.")
+
+    console.print("[bold cyan]poetry run execexam[/bold cyan] [bold cyan]<project> <tests> <--fancy>/<--no-fancy>[/bold cyan]")
+    console.print("    Display or disable fancy output formatting.")
 
     console.print("\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options.")
 
