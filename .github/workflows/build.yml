@@ -85,5 +85,5 @@ jobs:
             # do not run the Hypothesis-based fuzz tests
             # because they sometimes take longer to run
             # on Windows and MacOS and this creates errors
-            poetry run task test-not-fuzz
+            poetry run task test
             pytest -s --cov-context=test --cov-report term-missing --cov-report json --cov --cov-branch
