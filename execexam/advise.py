@@ -1,6 +1,5 @@
 """Offer advice through the use of the LLM-Based mentoring system."""
 
-import sys
 from typing import List, Optional
 
 import openai
