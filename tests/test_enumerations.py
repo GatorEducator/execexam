@@ -1,6 +1,5 @@
 """Test cases for the enumerations.py file."""
 
-
 import pytest
 
 from execexam.enumerations import AdviceMethod, ReportType, Theme
