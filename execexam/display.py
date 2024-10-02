@@ -32,31 +32,57 @@ def get_display_return_code(return_code: int, fancy: bool) -> str:
 
 def display_tldr(console: Console) -> None:
     """Display a list of example commands and their descriptions."""
-    console.print("[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n")
-    console.print("[bold red]Please ensure you are in the directory with the pyproject.toml file to run these commands.[/bold red]\n")
+    console.print(
+        "[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n"
+    )
+    console.print(
+        "[bold red]Please ensure you are in the directory with the pyproject.toml file to run these commands.[/bold red]\n"
+    )
 
-    console.print("[bold cyan]poetry run execexam <path-to-project> <path-to-tests>[/bold cyan]")
-    console.print("    Run executable exam for a project with the specified test files.")
+    console.print(
+        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests>[/bold cyan]"
+    )
+    console.print(
+        "    Run executable exam for a project with the specified test files."
+    )
 
-    console.print("[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --mark <mark>[/bold cyan]")
+    console.print(
+        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --mark <mark>[/bold cyan]"
+    )
     console.print("    Run the tests with the specified mark(s).")
 
-    console.print("[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --maxfail[/bold cyan]")
+    console.print(
+        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --maxfail[/bold cyan]"
+    )
     console.print("    Limit the number of test failures before stopping.")
 
-    console.print("[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --report <report_type>/<all>[/bold cyan]")
-    console.print("    Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types.")
+    console.print(
+        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --report <report_type>/<all>[/bold cyan]"
+    )
+    console.print(
+        "    Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types."
+    )
 
-    console.print("[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>[/bold cyan]")
-    console.print("    Use specified LLM model and method for providing advice on test failures.")
+    console.print(
+        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>[/bold cyan]"
+    )
+    console.print(
+        "    Use specified LLM model and method for providing advice on test failures."
+    )
 
-    console.print("[bold cyan]poetry run execexam <path-to-project> <path-to-tests> <--debug>/<--no-debug>[/bold cyan]")
+    console.print(
+        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> <--debug>/<--no-debug>[/bold cyan]"
+    )
     console.print("    Display or disable debugging information.")
 
-    console.print("[bold cyan]poetry run execexam <path-to-project> <path-to-tests> <--fancy>/<--no-fancy>[/bold cyan]")
+    console.print(
+        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> <--fancy>/<--no-fancy>[/bold cyan]"
+    )
     console.print("    Display or disable fancy output formatting.")
 
-    console.print("\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options.")
+    console.print(
+        "\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options."
+    )
 
 
 def display_advice(return_code: int) -> str:

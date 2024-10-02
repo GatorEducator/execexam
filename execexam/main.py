@@ -55,7 +55,14 @@ def run(  # noqa: PLR0913, PLR0915
         ...,
         help="Test file or test directory",
     ),
-    tldr: Annotated[Optional[bool], typer.Option("--tldr", callback=tldr_callback, help="Display summary of commands")] = None,
+    tldr: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--tldr",
+            callback=tldr_callback,
+            help="Display summary of commands",
+        ),
+    ] = None,
     report: Optional[List[enumerations.ReportType]] = typer.Option(
         None,
         help="Types of reports to generate",
