@@ -1,1 +1,1 @@
-"""Test for main module"""
+"""Test cases for the main.py file."""

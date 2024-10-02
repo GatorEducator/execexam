@@ -1,4 +1,4 @@
-"""Testing for enumeration file"""
+"""Test cases for the enumerations.py file."""
 
 
 import pytest

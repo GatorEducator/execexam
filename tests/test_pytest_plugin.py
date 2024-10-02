@@ -1,4 +1,5 @@
-"""Test cases for pytest_plugin.py file."""
+"""Test cases for the pytest_plugin.py file."""
+
 
 import pytest
 from typing import Any
@@ -33,6 +34,7 @@ def pytest_runtest_logreport(report):
 
 # Test cases
 def test_pytest_assertion_pass():
+    """Test the pytest_assertion_pass function."""
     global reports
     reports = []  # Reset reports list
 
@@ -50,6 +52,7 @@ def test_pytest_assertion_pass():
     assert reports[0]["assertions"]["1"]["Status"] == "Passed"
 
 def test_pytest_assertion_pass_no_report():
+    """Test pytest_assertion_pass with no existing report."""
     global reports
     reports = []  # Reset reports list
 
@@ -63,6 +66,7 @@ def test_pytest_assertion_pass_no_report():
     assert len(reports) == 0
 
 def test_pytest_assertion_pass_no_assertions():
+    """Test pytest_assertion_pass with no assertions."""
     global reports
     reports = []  # Reset reports list
 
@@ -80,6 +84,7 @@ def test_pytest_assertion_pass_no_assertions():
     assert reports[0]["assertions"]["1"]["Status"] == "Passed"
 
 def test_pytest_runtest_logreport():
+    """Test the pytest_runtest_logreport function."""
     global reports
     reports = []  # Reset reports list
 
@@ -101,6 +106,7 @@ def test_pytest_runtest_logreport():
     assert reports[0]["sections"] == mock_report.sections
 
 def test_pytest_runtest_logreport_not_call():
+    """Test pytest_runtest_logreport with non-call event."""
     global reports
     reports = []  # Reset reports list
 
