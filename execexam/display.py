@@ -35,7 +35,7 @@ def display_tldr(console: Console) -> None:
     console.print("[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n")
     console.print("[bold red]Please ensure you are in the directory with the .toml file to run these commands.[/bold red]\n")
 
-    console.print("[bold cyan]poetry run execexam <project> <tests>[/bold cyan]")
+    console.print("[bold cyan]poetry run execexam <path-to-project> <path-to-tests>[/bold cyan]")
     console.print("    Run executable exam for a project with the specified test files.")
 
     console.print("[bold cyan]poetry run execexam <project> <tests> --mark <mark>[/bold cyan]")
