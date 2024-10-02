@@ -45,12 +45,10 @@ def check_advice_model(
         )
         and advice_model is None
     ):
-        return_code = 1
         console.print()
         console.print(
             "[red]The --advice-model option is required when --report includes 'advice' or 'all'"
         )
-        sys.exit(return_code)
 
 
 def check_advice_server(
@@ -69,12 +67,10 @@ def check_advice_server(
         and advice_method == enumerations.AdviceMethod.api_server
         and advice_server is None
     ):
-        return_code = 1
         console.print()
         console.print(
             "[red]The --advice-server option is required when --advice-method is 'api_server'"
         )
-        sys.exit(return_code)
     elif (
         report is not None
         and (
@@ -84,12 +80,10 @@ def check_advice_server(
         and advice_method == enumerations.AdviceMethod.api_server
         and not validate_url(advice_server)
     ):
-        return_code = 1
         console.print()
         console.print(
             "[red]The --advice-server option did not specify a valid URL"
         )
-        sys.exit(return_code)
 
 
 def fix_failures(  # noqa: PLR0913
