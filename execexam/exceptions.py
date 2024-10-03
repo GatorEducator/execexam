@@ -47,5 +47,5 @@ def get_litellm_traceback() -> None:
         "[bold blue]- openrouter/meta-llama/llama-3.1-8b-instruct:free[/bold blue]"
     )
     console.print(
-        "[bold blue]- openrouter/google/gemma-2-9b-it:free[/bold blue]"
+        "\n[bold red]For server connectivity issues, please visit [bold blue]https://docs.litellm.ai/docs/simple_proxy [/bold blue]for a valid LiteLLM proxy.[/bold red]"
     )
