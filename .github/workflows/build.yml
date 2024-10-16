@@ -8,157 +8,92 @@ env:
 
 # Controls when the action will run
 # Workflow begins with push or PR events
-# Focuses on the master branch only
+# Focuses on the main branch only
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
-# Create one single job
-# This job performs all of the necessary checks
+# Create jobs
 jobs:
   build:
-    # Use the latest version of Ubuntu, MacOS, and Windows
-    # Use the latest and most stable version of Python
-    # Important: test coverage monitoring and reporting
-    # through a badge and the GitHub Actions job summary
-    # only takes place with the Linux operating system.
-    # Important: the MacOS and Windows operating systems
-    # have test coverage calculation take place but they
-    # do not report the test coverage beyond its display
-    # inside of the GitHub Actions panel for that job.
+    # Use matrix strategy for different OS
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.12"]
-        include:
-          - os: macos-latest
-            python-version: "3.12"
-          - os: windows-latest
-            python-version: "3.12"
-    # Define the workflow steps
     steps:
-    # Checkout the code of the repository
-        - name: Check out Repository Code
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 0
-        # Setup Python for the current language version
-        - name: Setup Python ${{ matrix.python-version }}
-          if: always()
-          uses: actions/setup-python@v4
-          with:
-            python-version: ${{ matrix.python-version }}
-        # Install pip
-        - name: Install Pip
-          if: always()
-          run: |
-            python -m pip install --upgrade pip
-        # Install poetry
-        - name: Install Poetry
-          if: always()
-          uses: abatilo/actions-poetry@v2.0.0
-          with:
-            poetry-version: 1.8.3
-        # Install dependencies
-        - name: Install dependencies
-          if: always()
-          run: |
-            poetry install
-        # Run the linters
-        - name: Run Linters
-          if: always()
-          run: |
-            # install ruff directly instead of managing
-            # it as a dependency with Poetry since ruff
-            # does not (always) install correctly
-            # through Poetry on NixOS
-            pipx install ruff
-            poetry run task lint
-        # Run the tests
-        - name: Run Tests
-          if: always()
-          run: |
-            # do not run the Hypothesis-based fuzz tests
-            # because they sometimes take longer to run
-            # on Windows and MacOS and this creates errors
-            poetry run task test-not-fuzz
+      # Checkout the code of the repository
+      - name: Check out Repository Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      # Setup Python for the current language version
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      # Install pip
+      - name: Install Pip
+        run: |
+          python -m pip install --upgrade pip
+          
+      # Install poetry
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.8.3
+          
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          poetry install
+          
+      # Run the linters
+      - name: Run Linters
+        run: |
+          pipx install ruff
+          poetry run task lint
+          
+      # Run the tests
+      - name: Run Tests
+        run: |
+          poetry run task test-not-fuzz
+
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v3
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
-
-    - name: Run tests and generate coverage
-      run: |
-        poetry run pytest -s --cov=my_package --cov-report json:coverage.json
-
-    - name: Generate coverage and version badges
-      run: |
-        poetry run python badges.py
-
-    - name: Commit badge
-      run: |
-        git config --local user.email "actions@github.com"
-        git config --local user.name "GitHub Actions"
-        git add README.md
-        git commit -m "Update coverage and version badges"
-        git push
-
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out repository
-      uses: actions/checkout@v3
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12.3'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
-
-    - name: Run tests and generate coverage
-      run: |
-        poetry run pytest -s --cov=my_package --cov-report json:coverage.json
-
-    - name: Generate coverage and version badges
-      run: |
-        poetry run python badges.py
-
-    - name: Commit badge
-      run: |
-        git config --local user.email "actions@github.com"
-        git config --local user.name "GitHub Actions"
-        git add README.md
-        git commit -m "Update coverage and version badges"
-        git push
-
+      - name: Check out repository
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+          
+      - name: Run tests and generate coverage
+        run: |
+          poetry run pytest -s --cov=my_package --cov-report json:coverage.json
+          
+      - name: Generate coverage and version badges
+        run: |
+          poetry run python badges.py
+          
+      - name: Commit badge
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add README.md
+          git commit -m "Update coverage and version badges"
+          git push
