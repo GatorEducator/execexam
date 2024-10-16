@@ -118,7 +118,7 @@ jobs:
         git add README.md
         git commit -m "Update coverage and version badges"
         git push
-name: build
+
 
 on:
   push:
