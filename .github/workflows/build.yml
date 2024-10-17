@@ -85,4 +85,5 @@ jobs:
             # do not run the Hypothesis-based fuzz tests
             # because they sometimes take longer to run
             # on Windows and MacOS and this creates errors
-            poetry run task test-not-fuzz
+            poetry run task test
+            poetry run task coverage
