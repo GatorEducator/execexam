@@ -1,5 +1,6 @@
 """Offer advice through the use of the LLM-Based mentoring system."""
 
+import random
 import socket
 import sys
 from typing import List, Optional
@@ -45,12 +46,18 @@ def handle_connection_error(console: Console) -> None:
 
 def check_internet_connection(timeout: int = 5) -> bool:
     """Check if the system has an active internet connection."""
+    # List of well-known DNS servers to test connectivity
+    dns_servers = [
+        ("8.8.8.8", 53),  # Google DNS
+        ("1.1.1.1", 53),  # Cloudflare DNS
+        ("9.9.9.9", 53),  # Quad9 DNS
+        ("208.67.222.222", 53),  # OpenDNS
+    ]
+    # Randomly select a DNS server from the list
+    server = random.choice(dns_servers)
     try:
-        # Attempt to connect to Google's DNS server (8.8.8.8) on port 53 (DNS)
-        # Attempt to create a socket connection to Google's DNS server (8.8.8.8) on port 53.
-        # Port 53 is used for DNS, and Google's DNS server is a commonly available address.
-        # This check is used to verify if the system can connect to an external network.
-        socket.create_connection(("8.8.8.8", 53), timeout=timeout)
+        # Attempt to create a socket connection to the selected DNS server
+        socket.create_connection(server, timeout=timeout)
         # If the connection is successful, return True indicating internet is available.
         return True
     # If an OSError is raised, it indicates that the connection attempt failed.
