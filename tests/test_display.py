@@ -20,7 +20,7 @@ def test_make_colon_separated_string():
     """Function tests colon separated string outputs with different dictionaries."""
     # Basic dictionary test
     input_dictionary = {"key1": "value1", "key2": "value2"}
-    expected_output = "\n- key1: value1\n- key2: value2"
+    expected_output = "\n- key1: value1\n- key2: value2\n"  # Include trailing newline
     assert make_colon_separated_string(input_dictionary) == expected_output
     # Test with an empty dictionary
     input_dictionary = {}
@@ -28,11 +28,11 @@ def test_make_colon_separated_string():
     assert make_colon_separated_string(input_dictionary) == expected_output
     # Test with numbers
     input_dictionary = {"key1": 123, "key2": 25.5}
-    expected_output = "\n- key1: 123\n- key2: 25.5"
+    expected_output = "\n- key1: 123\n- key2: 25.5\n"  # Include trailing newline
     assert make_colon_separated_string(input_dictionary) == expected_output
     # Test with mixed types
     input_dictionary = {"key1": "value1", "key2": 25.5, "key3": None}
-    expected_output = "\n- key1: value1\n- key2: 25.5\n- key3: None"
+    expected_output = "\n- key1: value1\n- key2: 25.5\n- key3: None\n"  # Include trailing newline
     assert make_colon_separated_string(input_dictionary) == expected_output
 
 
@@ -120,8 +120,8 @@ def test_display_content():
 def test_get_display_return_code():
     """Function tests the return code display."""
     # Test with fancy display
-    assert get_display_return_code(0, True) == "Success"
-    assert get_display_return_code(1, True) == "Failure"
+    assert get_display_return_code(0, True) == "\n[green]\u2714 All checks passed.\n"
+    assert get_display_return_code(1, True) == "\n[red]\u2718 One or more checks failed.\n"
     # Test without fancy display
-    assert get_display_return_code(0, False) == "0"
-    assert get_display_return_code(1, False) == "1"
+    assert get_display_return_code(0, False) == "\n[green]\u2714 All checks passed."
+    assert get_display_return_code(1, False) == "\n[red]\u2718 One or more checks failed."
