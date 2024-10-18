@@ -55,3 +55,7 @@ Follow these steps to install the `execexam` program:
 wiki](https://github.com/gkapfham/execexam/wiki)!
 - Contact [Gregory M. Kapfhammer](https://www.gregorykapfhammer.com/) with any
 questions or suggestions about ExecExam!
+
+## Contributing to Execexam
+
+If you would like to contribute to Execexam, please refer to the [Execexam Wiki](https://github.com/GatorEducator/gatorgrade/wiki/Contributing-Guidelines) for contributing guidelines.
