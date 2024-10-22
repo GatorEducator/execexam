@@ -109,7 +109,7 @@ jobs:
 
     - name: Generate coverage and version badges
       run: |
-        poetry run python badges.py
+        poetry run python scripts/badges.py
 
     - name: Commit badge
       run: |
