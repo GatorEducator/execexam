@@ -118,13 +118,8 @@ jobs:
         git add README.md
         git commit -m "Update coverage and version badges"
         git push
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out repository
-      uses: actions/checkout@v3
+        runs-on: ubuntu-latest
+        - name: Check out repository
       
     - name: Set up Python
       uses: actions/setup-python@v4
