@@ -1,4 +1,5 @@
 import json
+
 import toml
 import os
 
@@ -13,6 +14,8 @@ PYPROJECT_FILE = (
 
 
 def get_coverage_percentage():
+    if not os.path.exists(COVERAGE_FILE):
+        raise FileNotFoundError(f"{COVERAGE_FILE} not found.")
     with open(COVERAGE_FILE) as f:
         coverage_data = json.load(f)
         total_coverage = coverage_data["totals"]["percent_covered"]
