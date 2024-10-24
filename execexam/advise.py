@@ -33,6 +33,18 @@ def validate_url(value: str) -> bool:
     return True
 
 
+def handle_connection_error(console: Console) -> None:
+    """Handle connection error."""
+    # Print an error message stating there's issues with connecting to the api server.
+    console.print(
+        "[bold red]Error: Unable to connect to the API server.[/bold red]"
+    )
+    # Print a troubleshooting message.
+    console.print(
+        "Please check your network connection and ensure the API server is reachable."
+    )
+
+
 def check_internet_connection(timeout: int = 5) -> bool:
     """Check if the system has an active internet connection."""
     # List of well-known DNS servers to test connectivity
@@ -130,12 +142,42 @@ def fix_failures(  # noqa: PLR0913
         # Call the handle_connection_error function
         handle_connection_error(console)
         return
-    try:
-        with console.status(
-            "[bold green] Getting Feedback from ExecExam's Coding Mentor"
-        ):
-            test_overview = (
-                filtered_test_output + exec_exam_test_assertion_details
+    with console.status(
+        "[bold green] Getting Feedback from ExecExam's Coding Mentor"
+    ):
+        # the test overview is a string that contains both
+        # the filtered test output and the details about the passing
+        # and failing assertions in the test cases
+        test_overview = filtered_test_output + exec_exam_test_assertion_details
+        # create an LLM debugging request that contains all of the
+        # information that is needed to provide advice about how
+        # to fix the bug(s) in the program that are part of an
+        # executable examination; note that, essentially, an
+        # examination consists of Python functions that a student
+        # must complete and then test cases that confirm the correctness
+        # of the functions that are implemented; note also that
+        # ExecExam has a Pytest plugin that collects additional details
+        llm_debugging_request = (
+            "I am an undergraduate student completing a programming examination."
+            + "You may never make suggestions to change the source code of the test cases."
+            + "Always make suggestions about how to improve the Python source code of the program under test."
+            + "Always give Python code in a Markdown fenced code block with your suggested program."
+            + "Always start your response with a friendly greeting and overview of what you will provide."
+            + "Always conclude by saying that you are making a helpful suggestion but could be wrong."
+            + "Always be helpful, upbeat, friendly, encouraging, and concise when making a response."
+            + "Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
+            + "What follows is all of the information you need to complete the debugging task."
+            + f"Here is the test overview with test output and details about test assertions: {test_overview}"
+            + f"Here is a brief overview of the test failure information: {failing_test_details}"
+            + f"Here is the source code for the one or more failing test(s): {failing_test_code}"
+        )
+        # the API key approach expects that the person running the execexam
+        # tool has specified an API key for a support cloud-based LLM system
+        if advice_method == enumerations.AdviceMethod.api_key:
+            # submit the debugging request to the LLM-based mentoring system
+            response = completion(  # type: ignore
+                model=advice_model,
+                messages=[{"role": "user", "content": llm_debugging_request}],
             )
             llm_debugging_request = (
                 "I am an undergraduate student completing a programming examination."

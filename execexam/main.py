@@ -14,6 +14,7 @@ import pytest
 import typer
 from pytest_jsonreport.plugin import JSONReport  # type: ignore
 from rich.console import Console
+from typing_extensions import Annotated
 
 from . import advise, display, enumerations, extract, util
 from . import debug as debugger
@@ -37,6 +38,13 @@ skip = ["keywords", "setup", "teardown"]
 pytest_labels = ["FAILED", "ERROR", "WARNING", "COLLECTERROR"]
 
 
+def tldr_callback(value: bool) -> None:
+    """Display a list of example commands and their descriptions."""
+    if value:
+        display.display_tldr(console)
+        raise typer.Exit()
+
+
 @cli.command()
 def run(  # noqa: PLR0913, PLR0915
     project: Path = typer.Argument(
@@ -47,6 +55,14 @@ def run(  # noqa: PLR0913, PLR0915
         ...,
         help="Test file or test directory",
     ),
+    tldr: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--tldr",
+            callback=tldr_callback,
+            help="Display summary of commands",
+        ),
+    ] = None,
     report: Optional[List[enumerations.ReportType]] = typer.Option(
         None,
         help="Types of reports to generate",
@@ -85,6 +101,10 @@ def run(  # noqa: PLR0913, PLR0915
     # was requested for this run of the program
     debugger.debug(debug, debugger.Debug.parameter_check_passed.value)
     litellm_thread = threading.Thread(target=advise.load_litellm)
+    # if --tldr was specified, then display the TLDR summary
+    # of the commands and then exit the program
+    if tldr is not None:
+        return
     # if execexam was configured to produce the report for advice
     # or if it was configured to produce all of the possible reports,
     # then start the litellm thread that provides the advice
