@@ -1,9 +1,23 @@
+# Publishing workflow
+
 name: Publish
 
+# Use more columns for terminal output
+env:
+  COLUMNS: 120
+  PYTHONIOENCODING: utf8
+  
+# trigger the publishing of the 
+# execexam package to PyPI
+# with any tag starting with 'v'
 on:
   push:
     tags:
-      - 'v*'  # Triggers on tags starting with 'v'
+      - 'v*'
+      
+# Create one single job
+# that publishes the package
+# to PyPI using Poetry
 
 jobs:
   publish:
@@ -11,30 +25,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'  # Use the Python version compatible with your project
-
+          python-version: '3.12'
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-
       - name: Install dependencies
         run: |
           poetry install
-
       - name: Configure Poetry for PyPI
         run: |
           poetry config repositories.pypi https://upload.pypi.org/legacy/
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-
       - name: Publish package to PyPI
         run: |
           poetry publish --repository pypi --build
-
       - name: Check for Successful Publication
         run: |
           version=$(poetry version --short)
