@@ -1,12 +1,14 @@
 import json
-
 import toml
 import os
 
+# Dynamically get the current directory of the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Define the paths to the necessary files
-COVERAGE_FILE = "/Users/chezkaquinola/execexam/coverage.json"  # Adjusted to access from the scripts directory
-README_FILE = "/Users/chezkaquinola/execexam/README.md"  # Adjusted to access from the scripts directory
-PYPROJECT_FILE = "/Users/chezkaquinola/execexam/pyproject.toml"  # Adjusted to access from the scripts directory
+COVERAGE_FILE = os.path.join(current_dir, "../coverage.json")
+README_FILE = os.path.join(current_dir, "../README.md")
+PYPROJECT_FILE = os.path.join(current_dir, "../pyproject.toml")
 
 
 def get_coverage_percentage():
@@ -14,7 +16,10 @@ def get_coverage_percentage():
         raise FileNotFoundError(f"{COVERAGE_FILE} not found.")
     with open(COVERAGE_FILE) as f:
         coverage_data = json.load(f)
-        total_coverage = coverage_data["totals"]["percent_covered"]
+        try:
+            total_coverage = coverage_data["totals"]["percent_covered"]
+        except KeyError as e:
+            raise KeyError(f"Expected key missing in coverage data: {e}")
     return total_coverage
 
 
@@ -42,9 +47,15 @@ def update_coverage_badge(coverage):
 
 
 def get_version():
+    if not os.path.exists(PYPROJECT_FILE):
+        raise FileNotFoundError(f"{PYPROJECT_FILE} not found.")
     with open(PYPROJECT_FILE) as f:
         pyproject_data = toml.load(f)
-        return pyproject_data["tool"]["poetry"]["version"]
+        try:
+            version = pyproject_data["tool"]["poetry"]["version"]
+        except KeyError as e:
+            raise KeyError(f"Expected key missing in pyproject.toml: {e}")
+    return version
 
 
 def update_version_badge(version):
@@ -69,8 +80,11 @@ def update_version_badge(version):
 
 
 if __name__ == "__main__":
-    coverage_percentage = get_coverage_percentage()
-    update_coverage_badge(coverage_percentage)
+    try:
+        coverage_percentage = get_coverage_percentage()
+        update_coverage_badge(coverage_percentage)
 
-    version = get_version()
-    update_version_badge(version)
+        version = get_version()
+        update_version_badge(version)
+    except (FileNotFoundError, KeyError) as e:
+        print(f"Error: {e}")
