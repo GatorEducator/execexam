@@ -4,13 +4,9 @@ import toml
 import os
 
 # Define the paths to the necessary files
-COVERAGE_FILE = (
-    "../coverage.json"  # Adjusted to access from the scripts directory
-)
-README_FILE = "../README.md"  # Adjusted to access from the scripts directory
-PYPROJECT_FILE = (
-    "../pyproject.toml"  # Adjusted to access from the scripts directory
-)
+COVERAGE_FILE = "/Users/chezkaquinola/execexam/coverage.json"  # Adjusted to access from the scripts directory
+README_FILE = "/Users/chezkaquinola/execexam/README.md"  # Adjusted to access from the scripts directory
+PYPROJECT_FILE = "/Users/chezkaquinola/execexam/pyproject.toml"  # Adjusted to access from the scripts directory
 
 
 def get_coverage_percentage():

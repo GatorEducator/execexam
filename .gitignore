@@ -355,15 +355,6 @@ Temporary Items
 # .txt files
 *.txt
 
-# pytest-cov htmlcov
-htmlcov
-
-# coverage report
-.coveragereport.json
-
-# coverage report
-coverage.txt
-
 # bash command history
 .bash_history
 
