@@ -66,10 +66,3 @@ jobs:
         run: |
           poetry run python scripts/badges.py
 
-      - name: Commit Badge
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          git add README.md
-          git commit -m "Update coverage and version badges"
-          git push
