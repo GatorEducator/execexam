@@ -33,6 +33,29 @@ def validate_url(value: str) -> bool:
     return True
 
 
+def check_internet_connection(timeout: int = 5) -> bool:
+    """Check if the system has an active internet connection."""
+    # List of well-known DNS servers to test connectivity
+    dns_servers = [
+        ("8.8.8.8", 53),  # Google DNS
+        ("1.1.1.1", 53),  # Cloudflare DNS
+        ("9.9.9.9", 53),  # Quad9 DNS
+        ("208.67.222.222", 53),  # OpenDNS
+    ]
+    # Randomly select a DNS server from the list
+    server = random.choice(dns_servers)
+    try:
+        # Attempt to create a socket connection to the selected DNS server
+        socket.create_connection(server, timeout=timeout)
+        # If the connection is successful, return True indicating internet is available.
+        return True
+    # If an OSError is raised, it indicates that the connection attempt failed.
+    # This could be due to no internet connection or network issues.
+    except OSError:
+        # Return False indicating that the internet connection is not available.
+        return False
+
+
 def check_advice_model(
     console: Console,
     report: Optional[List[enumerations.ReportType]],
@@ -102,6 +125,11 @@ def fix_failures(  # noqa: PLR0913
     fancy: bool = True,
 ):
     """Offer advice through the use of the LLM-based mentoring system."""
+    if not check_internet_connection():
+        # If there is no internet connection, handle the connection error.
+        # Call the handle_connection_error function
+        handle_connection_error(console)
+        return
     try:
         with console.status(
             "[bold green] Getting Feedback from ExecExam's Coding Mentor"
