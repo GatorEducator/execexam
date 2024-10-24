@@ -145,115 +145,80 @@ def fix_failures(  # noqa: PLR0913
         with console.status(
             "[bold green] Getting Feedback from ExecExam's Coding Mentor"
         ):
-            # the test overview is a string that contains both
-            # the filtered test output and the details about the passing
-            # and failing assertions in the test cases
             test_overview = (
                 filtered_test_output + exec_exam_test_assertion_details
             )
-            # create an LLM debugging request that contains all of the
-            # information that is needed to provide advice about how
-            # to fix the bug(s) in the program that are part of an
-            # executable examination; note that, essentially, an
-            # examination consists of Python functions that a student
-            # must complete and then test cases that confirm the correctness
-            # of the functions that are implemented; note also that
-            # ExecExam has a Pytest plugin that collects additional details
             llm_debugging_request = (
                 "I am an undergraduate student completing a programming examination."
-                + "You may never make suggestions to change the source code of the test cases."
-                + "Always make suggestions about how to improve the Python source code of the program under test."
-                + "Always give Python code in a Markdown fenced code block with your suggested program."
-                + "Always start your response with a friendly greeting and overview of what you will provide."
-                + "Always conclude by saying that you are making a helpful suggestion but could be wrong."
-                + "Always be helpful, upbeat, friendly, encouraging, and concise when making a response."
-                + "Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
-                + f"Here is the test overview with test output and details about test assertions: {test_overview}"
-                + f"Here is a brief overview of the test failure information: {failing_test_details}"
-                + f"Here is the source code for the one or more failing test(s): {failing_test_code}"
+                + " You may never make suggestions to change the source code of the test cases."
+                + " Always make suggestions about how to improve the Python source code of the program under test."
+                + " Always give Python code in a Markdown fenced code block with your suggested program."
+                + " Always start your response with a friendly greeting and overview of what you will provide."
+                + " Always conclude by saying that you are making a helpful suggestion but could be wrong."
+                + " Always be helpful, upbeat, friendly, encouraging, and concise when making a response."
+                + " Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
+                + f" Here is the test overview with test output and details about test assertions: {test_overview}"
+                + f" Here is a brief overview of the test failure information: {failing_test_details}"
+                + f" Here is the source code for the one or more failing test(s): {failing_test_code}"
             )
-            # the API key approach expects that the person running the execexam
-            # tool has specified an API key for a support cloud-based LLM system
+
             if advice_method == enumerations.AdviceMethod.api_key:
-                # submit the debugging request to the LLM-based mentoring system
+                # Submit the debugging request to the LLM-based mentoring system
                 response = completion(  # type: ignore
                     model=advice_model,
                     messages=[
                         {"role": "user", "content": llm_debugging_request}
                     ],
                 )
-                llm_debugging_request = (
-                    "I am an undergraduate student completing a programming examination."
-                    + " You may never make suggestions to change the source code of the test cases."
-                    + " Always make suggestions about how to improve the Python source code of the program under test."
-                    + " Always give Python code in a Markdown fenced code block with your suggested program."
-                    + " Always start your response with a friendly greeting and overview of what you will provide."
-                    + " Always conclude by saying that you are making a helpful suggestion but could be wrong."
-                    + " Always be helpful, upbeat, friendly, encouraging, and concise when making a response."
-                    + " Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
-                    + f" Here is the test overview with test output and details about test assertions: {test_overview}"
-                    + f" Here is a brief overview of the test failure information: {failing_test_details}"
-                    + f" Here is the source code for the one or more failing test(s): {failing_test_code}"
+                # Display the advice from the LLM-based mentoring system
+                if fancy:
+                    console.print(
+                        Panel(
+                            Markdown(
+                                str(response.choices[0].message.content),  # type: ignore
+                            ),
+                            expand=False,
+                            title="Advice from ExecExam's Coding Mentor (API Key)",
+                            padding=1,
+                        )
+                    )
+                else:
+                    console.print(
+                        Markdown(
+                            str(response.choices[0].message.content),  # type: ignore
+                        ),
+                    )
+                    console.print()
+
+            elif advice_method == enumerations.AdviceMethod.api_server:
+                # Use the OpenAI approach to submit the debugging request
+                client = openai.OpenAI(
+                    api_key="anything", base_url=advice_server
                 )
-
-                if advice_method == enumerations.AdviceMethod.api_key:
-                    # Submit the debugging request to the LLM-based mentoring system
-                    response = completion(  # type: ignore
-                        model=advice_model,
-                        messages=[
-                            {"role": "user", "content": llm_debugging_request}
-                        ],
-                    )
-                    # Display the advice from the LLM-based mentoring system
-                    if fancy:
-                        console.print(
-                            Panel(
-                                Markdown(
-                                    str(response.choices[0].message.content),  # type: ignore
-                                ),
-                                expand=False,
-                                title="Advice from ExecExam's Coding Mentor (API Key)",
-                                padding=1,
-                            )
-                        )
-                    else:
-                        console.print(
+                response = client.chat.completions.create(
+                    model=advice_model,
+                    messages=[
+                        {"role": "user", "content": llm_debugging_request}
+                    ],
+                )
+                if fancy:
+                    console.print(
+                        Panel(
                             Markdown(
-                                str(response.choices[0].message.content),  # type: ignore
+                                str(response.choices[0].message.content),
+                                code_theme=syntax_theme.value,
                             ),
+                            expand=False,
+                            title="Advice from ExecExam's Coding Mentor (API Server)",
+                            padding=1,
                         )
-                        console.print()
-
-                elif advice_method == enumerations.AdviceMethod.api_server:
-                    # Use the OpenAI approach to
-                    # Use the OpenAI approach to submit the debugging request
-                    client = openai.OpenAI(
-                        api_key="anything", base_url=advice_server
                     )
-                    response = client.chat.completions.create(
-                        model=advice_model,
-                        messages=[
-                            {"role": "user", "content": llm_debugging_request}
-                        ],
+                else:
+                    console.print(
+                        Markdown(
+                            str(response.choices[0].message.content),  # type: ignore
+                        ),
                     )
-                    if fancy:
-                        console.print(
-                            Panel(
-                                Markdown(
-                                    str(response.choices[0].message.content),
-                                    code_theme=syntax_theme.value,
-                                ),
-                                expand=False,
-                                title="Advice from ExecExam's Coding Mentor (API Server)",
-                                padding=1,
-                            )
-                        )
-                    else:
-                        console.print(
-                            Markdown(
-                                str(response.choices[0].message.content),  # type: ignore
-                            ),
-                        )
-                        console.print()
+                    console.print()
     except Exception:
         get_litellm_traceback()
