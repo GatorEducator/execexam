@@ -24,7 +24,7 @@ def test_not_found_error():
                 "[bold red]Exception Type: NotFoundError[/bold red]"
             )
             mock_print.assert_any_call(
-                "Explanation: The requested resource was not found. Please check if your model or endpoint is correct."
+                "Explanation: The requested resource was not found. Please check if your model and/or endpoint is correct."
             )
 
 
