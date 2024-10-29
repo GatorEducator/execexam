@@ -15,7 +15,7 @@ def get_litellm_traceback() -> None:
         return
     # List of litellm exception types and their explanations
     litellm_exceptions = {
-        "NotFoundError": "The requested resource was not found. Please check if your model or endpoint is correct.",
+        "NotFoundError": "The requested resource was not found. Please check if your model and/or endpoint is correct.",
         "AuthenticationError": "There was an issue with your authentication. Please verify your API key.",
         "RateLimitError": "You've hit the rate limit. Please try again later or adjust your usage.\nNOTE: This error can sometimes be caused by an invalid API key.",
         "InvalidRequestError": "Your request was malformed. Please check the parameters you've sent.",
@@ -38,7 +38,7 @@ def get_litellm_traceback() -> None:
 
     # general purpose ouput as a backup
     console.print(
-        "\n[bold red]If your issue persists, ensure the model you entered is listed below:[/bold red]"
+        "\n[bold red]If your issue persists, ensure the model you entered is correct, such as:[/bold red]"
     )
     console.print("[bold blue]- anthropic/claude-3-haiku-20240307[/bold blue]")
     console.print("[bold blue]- anthropic/claude-3-opus-20240229[/bold blue]")
@@ -46,6 +46,11 @@ def get_litellm_traceback() -> None:
     console.print(
         "[bold blue]- openrouter/meta-llama/llama-3.1-8b-instruct:free[/bold blue]"
     )
+
+    console.print(
+        "\n[bold red]Please visit [bold blue]https://docs.litellm.ai/docs/providers [/bold blue]for more valid LiteLLM models[bold red]"
+    )
+
     console.print(
         "\n[bold red]For server connectivity issues, please visit [bold blue]https://docs.litellm.ai/docs/simple_proxy [/bold blue]for a valid LiteLLM proxy.[/bold red]"
     )
