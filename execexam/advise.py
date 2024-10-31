@@ -134,6 +134,7 @@ def fix_failures(  # noqa: PLR0913
     exec_exam_test_assertion_details: str,
     test_overview: str,
     traceback: List[str],
+    functions: List,
     failing_test_details: str,
     failing_test_code: str,
     advice_method: enumerations.AdviceMethod,
@@ -174,11 +175,13 @@ def fix_failures(  # noqa: PLR0913
             + "Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
             + "What follows is all of the information you need to complete the debugging task."
             + f"Here is the traceback of the error use this to determine which functions to fix {traceback}"
+            + f"Here are all the functions that failed contents based on the traceback {functions}"
             + f"Here is the test overview with test output and details about test assertions: {test_overview}"
             + f"Here is a brief overview of the test failure information: {failing_test_details}"
             + f"Here is the source code for the one or more failing test(s): {failing_test_code}"
         )
         print(f'Here is the traceback: {traceback}')
+        print(f'Here is the functions: {functions}')
         # the API key approach expects that the person running the execexam
         # tool has specified an API key for a support cloud-based LLM system
         if advice_method == enumerations.AdviceMethod.api_key:

@@ -338,6 +338,10 @@ def run(  # noqa: PLR0913, PLR0915
             tracebacks = extract.extract_tracebacks(json_report_plugin.report, failing_test_code_overall) 
         else: 
             tracebacks = ["No Traceback Found"]
+        if tracebacks is not None:
+            functions = extract.extract_function_code_from_traceback(tracebacks)
+        else: 
+            functions = ["No Functions Found"]
         # provide advice about how to fix the failing tests
         # because the non-zero return code indicates that
         # there was a test failure and that overall there
@@ -350,6 +354,7 @@ def run(  # noqa: PLR0913, PLR0915
                 exec_exam_test_assertion_details,
                 filtered_test_output + exec_exam_test_assertion_details,
                 tracebacks,
+                functions,
                 failing_test_details,
                 failing_test_code_overall,
                 advice_method,

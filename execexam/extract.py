@@ -1,10 +1,12 @@
 """Extract contents from data structures."""
 
 from pathlib import Path
+import trace
 from typing import Any, Dict, List, Tuple
 import re
 import inspect 
 import importlib
+import ast
 
 from . import convert
 
@@ -247,11 +249,12 @@ def find_source_file(test_path: str, traceback_lines: list) -> tuple:
                     file_path = f"{imported.replace('.', '/')}.py"
                     if file_path != "pytest.py":
                         return file_path, None, "Strategy 3: Found in test file imports"
+                    # TODO: ADD PART THAT CHECKS IF THE TEST PATH HAS THE FUNTION THAT FAILED IN IT 
     except Exception as e:
         print(f"Error reading file {test_file}: {e}")
     return None, None, "No strategy successful"
 
-def get_called_functions_from_test(test_path):
+def get_called_functions_from_test(test_path: str) -> list[str]:
     """Get the functions called in a test from the test path."""
     # Extract the module name and function name from test_path
     module_name, func_name = test_path.split("::")
@@ -386,4 +389,23 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 traceback_info_list.append(traceback_info)
     
     return traceback_info_list
+
+def extract_function_code_from_traceback(traceback_info_list):
+    # List to store code of each function as a list of lines
+    functions = []
+    for test in traceback_info_list:
+        source_file = test["source_file"]
+        tested_function = test["tested_function"]
+        # Read the file contents
+        with open(source_file, 'r') as file:
+            file_contents = file.read()
+        # Parse the file contents to find the function definition
+        tree = ast.parse(file_contents)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == tested_function:
+                # Get lines of the function's code
+                function_lines = [line.strip() for line in file_contents.splitlines()[node.lineno - 1 : node.end_lineno]]
+                functions.append(function_lines)
+                break
+    return functions
 
