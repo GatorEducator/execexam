@@ -200,37 +200,24 @@ def extract_tested_functions(failing_test_code: str) -> Any:
     # If no matching functions are found, return the full failing_test_code
     return tested_functions if tested_functions else failing_test_code
 
-def find_source_file(test_path: str, traceback_lines: list) -> tuple:
+def function_exists_in_file(file_path: str, function_name: str) -> bool:
+    """Check if a function with the given name is defined in the source file."""
+    try:
+        with open(file_path, 'r') as file:
+            file_contents = file.read()
+        # Parse file contents
+        tree = ast.parse(file_contents)
+        # Search for the function definition
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == function_name:
+                print("Checked that function exists in file and it does!")
+                return True
+    except Exception as e:
+        print(f"Error reading file {file_path}: {e}")
+    return False
+
+def find_source_file(test_path: str, function: str) -> str:
     """ Find the source file being tested using imports"""
-    # # Strategy 1: Look in traceback lines for imports or function calls
-    # if traceback_lines:
-    #     for line in traceback_lines:
-    #         if "File" in line and "line" in line:
-    #             file_path = line.split('File "', 1)[-1].split('"', 1)[0]
-    #             line_num = line.split('line ')[-1].split()[0]
-    #             # Skip test files, cache files, and site-packages
-    #             if any(skip in file_path for skip in [
-    #                 'test_', '__pycache__', 'site-packages', '.pytest'
-    #             ]):
-    #                 continue
-    #             # Found a likely source file
-    #             return file_path, line_num, "Strategy 1: Found in traceback lines"
-
-    # # Strategy 2: Parse the test path to guess source file location
-    # parts = test_path.split('::')[0].split('/')
-    # if len(parts) >= 2:
-    #     file_name = parts[-1].replace('test_', '')
-    #     # Try multiple common source directory names
-    #     for src_dir in ['questions', 'question', 'src', 'source', 'lib', 'app']:
-    #         possible_path = f"{src_dir}/{file_name}"
-    #         if src_dir in test_path:
-    #             # If we found a matching directory in the test path, use that structure
-    #             src_dir_idx = test_path.find(src_dir)
-    #             base_path = test_path[:src_dir_idx]
-    #             possible_path = f"{base_path}{src_dir}/{file_name}"
-    #         return possible_path, None, "Strategy 2: Derived from test path structure"
-
-    # Strategy 3: Look for imports in the test file
     test_file = test_path.split('::')[0]
     try:
         with open(test_file, 'r') as f:
@@ -248,11 +235,11 @@ def find_source_file(test_path: str, traceback_lines: list) -> tuple:
                     # Convert module name to potential file path
                     file_path = f"{imported.replace('.', '/')}.py"
                     if file_path != "pytest.py":
-                        return file_path, None, "Strategy 3: Found in test file imports"
-                    # TODO: ADD PART THAT CHECKS IF THE TEST PATH HAS THE FUNTION THAT FAILED IN IT 
+                        if function_exists_in_file(file_path, function):
+                            return file_path
     except Exception as e:
         print(f"Error reading file {test_file}: {e}")
-    return None, None, "No strategy successful"
+    return ""
 
 def get_called_functions_from_test(test_path: str) -> list[str]:
     """Get the functions called in a test from the test path."""
@@ -289,7 +276,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 "assertion_detail": "",
                 "expected_value": None,
                 "actual_value": None,
-                "source_file_strategy": ""
             }
             longrepr = call.get("longrepr", {})
             # Handle string longrepr
@@ -300,18 +286,15 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 called_functions = get_called_functions_from_test(test_path)
                 tested_funcs = extract_tested_functions(failing_code)
                 print(tested_funcs)
+                func = ""
                 for func in tested_funcs:
                     if func in called_functions:
                         traceback_info["tested_function"] = func
                         break
-                # Find source file from traceback with strategy
-                source_file, line_num, strategy = find_source_file(test_path, lines)
+                # Find source file from imports
+                source_file = find_source_file(test_path, func)
                 if source_file:
                     traceback_info["source_file"] = source_file
-                    # Display strategy used
-                    traceback_info["source_file_strategy"] = strategy
-                    if line_num:
-                        traceback_info["error_location"] = f"File {source_file}, line {line_num}"
                 for i, line in enumerate(lines):
                     # Look for file locations in traceback
                     if "File " in line and ", line " in line:
