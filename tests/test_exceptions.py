@@ -1,9 +1,11 @@
 """Test Suite for Exceptions Module."""
 
+from rich.console import Console
 from unittest.mock import patch
-
 from execexam.exceptions import get_litellm_traceback
 
+# Create a console object for testing
+console = Console()
 
 def test_not_found_error():
     """Test case for NotFoundError."""
@@ -18,13 +20,13 @@ def test_not_found_error():
     ):
         with patch("rich.console.Console.print") as mock_print:
             # Call the function to get the traceback
-            get_litellm_traceback()
+            get_litellm_traceback(console)
             # Assert that the correct messages are printed for NotFoundError
             mock_print.assert_any_call(
                 "[bold red]Exception Type: NotFoundError[/bold red]"
             )
             mock_print.assert_any_call(
-                "Explanation: The requested resource was not found. Please check if your model and/or endpoint is correct."
+                "Explanation: LLM resource not found. Please check your model and/or endpoint."
             )
 
 
@@ -41,13 +43,13 @@ def test_authentication_error():
     ):
         with patch("rich.console.Console.print") as mock_print:
             # Call the function to get the traceback
-            get_litellm_traceback()
+            get_litellm_traceback(console)
             # Assert that the correct messages are printed for AuthenticationError
             mock_print.assert_any_call(
                 "[bold red]Exception Type: AuthenticationError[/bold red]"
             )
             mock_print.assert_any_call(
-                "Explanation: There was an issue with your authentication. Please verify your API key."
+                "Explanation: API authentication failed. Please verify your API key."
             )
 
 
@@ -64,11 +66,11 @@ def test_rate_limit_error():
     ):
         with patch("rich.console.Console.print") as mock_print:
             # Call the function to get the traceback
-            get_litellm_traceback()
+            get_litellm_traceback(console)
             # Assert that the correct messages are printed for RateLimitError
             mock_print.assert_any_call(
                 "[bold red]Exception Type: RateLimitError[/bold red]"
             )
             mock_print.assert_any_call(
-                "Explanation: You've hit the rate limit. Please try again later or adjust your usage.\nNOTE: This error can sometimes be caused by an invalid API key."
+                "Explanation: Rate limit exceeded. Wait and retry or check API key.\nNOTE: This error can sometimes be caused by an invalid API key."
             )
