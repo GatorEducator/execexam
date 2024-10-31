@@ -285,7 +285,7 @@ def run(  # noqa: PLR0913, PLR0915
             # build the command for running symbex; this tool can
             # perform static analysis of Python source code and
             # extract the code of a function inside of a file
-            command = f'symbex {test_name}" -f "{failing_test_path}"'
+            command = f'symbex "{test_name}" -f "{failing_test_path}"'
             # run the symbex command and collect its output
             process = subprocess.run(
                 command,
