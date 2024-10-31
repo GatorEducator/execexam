@@ -215,17 +215,21 @@ def find_source_file(test_path: str, traceback_lines: list) -> tuple:
         with open(test_file, 'r') as f:
             for line in f:
                 if 'import' in line:
-                    # Extract the module being imported
+                # Extract the module being imported
                     imported = line.split('import')[-1].strip()
                     if '.' in imported:
                         imported = imported.split('.')[-1]
                     if 'from' in line:
                         imported = line.split('from')[-1].split('import')[0].strip()
+                    # Skip if 'pytest' is imported
+                    if imported == "pytest":
+                        continue
                     # Convert module name to potential file path
-                    if imported:
-                        return f"{imported.replace('.', '/')}.py", None, "Strategy 3: Found in test file imports"
-    except:
-        pass
+                    file_path = f"{imported.replace('.', '/')}.py"
+                    if file_path != "pytest.py":
+                        return file_path, None, "Strategy 3: Found in test file imports"
+    except Exception as e:
+        print(f"Error reading file {test_file}: {e}")
     return None, None, "No strategy successful"
 
 def extract_tracebacks(json_report: dict) -> list:
@@ -336,25 +340,23 @@ def extract_tracebacks(json_report: dict) -> list:
                             stack_entry = f"File {file_path}, line {line_no}"
                             traceback_info["stack_trace"].append(stack_entry)
             #MAYBE ADD BACK IT IS FOR MORE COMPLEX TRACEBACKS
-            # # Ensure we have a full traceback
-            # if not traceback_info["full_traceback"] and "log" in call:
-            #     traceback_info["full_traceback"] = call["log"]
-            
-            # # If we still don't have an error location but have a source file,
-            # # try to get line number from the assertion detail
-            # if (not traceback_info["error_location"] and 
-            #     traceback_info["source_file"] and 
-            #     traceback_info["assertion_detail"]):
-            #     try:
-            #         with open(traceback_info["source_file"], 'r') as f:
-            #             for i, line in enumerate(f, 1):
-            #                 if traceback_info["assertion_detail"].strip() in line:
-            #                     traceback_info["error_location"] = f"File {traceback_info['source_file']}, line {i}"
-            #                     break
-            #     except:
-            #         pass
-            
-            # Append there is information
+            # Ensure we have a full traceback
+            if not traceback_info["full_traceback"] and "log" in call:
+                traceback_info["full_traceback"] = call["log"]
+            # If we still don't have an error location but have a source file,
+            # try to get line number from the assertion detail
+            if (not traceback_info["error_location"] and 
+                traceback_info["source_file"] and 
+                traceback_info["assertion_detail"]):
+                try:
+                    with open(traceback_info["source_file"], 'r') as f:
+                        for i, line in enumerate(f, 1):
+                            if traceback_info["assertion_detail"].strip() in line:
+                                traceback_info["error_location"] = f"File {traceback_info['source_file']}, line {i}"
+                                break
+                except:
+                    pass
+            # Append if there is information
             if (traceback_info["full_traceback"] or 
                 traceback_info["error_message"] or 
                 traceback_info["stack_trace"]):
