@@ -7,6 +7,7 @@ from execexam.exceptions import get_litellm_traceback
 # Create a console object for testing
 console = Console()
 
+
 def test_not_found_error():
     """Test case for NotFoundError."""
     # Mocking sys.exc_info to simulate a NotFoundError exception
