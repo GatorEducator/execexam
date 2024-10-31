@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+import re
 
 from . import convert
 
@@ -179,6 +180,22 @@ def extract_test_output_multiple_labels(
     # return the filtered output
     return filtered_output
 
+def extract_tested_functions(failing_test_code: str) -> Any:
+    """Extract all functions being tested from the failing test code."""
+    # Find all function calls in the code
+    function_calls = re.findall(r"(\w+)\(", failing_test_code)
+    # List of prefixes for functions we want to ignore
+    ignore_prefixes = ["assert", "test_"]
+    # Initialize a list to store valid function names
+    tested_functions = set()
+    # Check each function call
+    for func_name in function_calls:
+        # If the function name doesn't start with any ignore prefix, add it to the list
+        if not any(func_name.startswith(prefix) for prefix in ignore_prefixes):
+            tested_functions.add(func_name)
+    # If no matching functions are found, return the full failing_test_code
+    return tested_functions if tested_functions else failing_test_code
+
 def find_source_file(test_path: str, traceback_lines: list) -> tuple:
     """ Find the source file being tested using imports"""
     # # Strategy 1: Look in traceback lines for imports or function calls
@@ -232,7 +249,7 @@ def find_source_file(test_path: str, traceback_lines: list) -> tuple:
         print(f"Error reading file {test_file}: {e}")
     return None, None, "No strategy successful"
 
-def extract_tracebacks(json_report: dict) -> list:
+def extract_tracebacks(json_report: dict, failing_code: str) -> list:
     """Extract comprehensive test failure information from pytest JSON report including test details, assertions, variables, and complete stack traces. Handles if JSON report returns string or dictionary"""
     traceback_info_list = []
     tests = json_report.get("tests", [])
@@ -244,6 +261,7 @@ def extract_tracebacks(json_report: dict) -> list:
             traceback_info = {
                 "test_path": test_path,
                 "source_file": "",
+                "tested_function": "",
                 "error_location": "",
                 "test_location": "",
                 "full_traceback": "",
@@ -261,6 +279,10 @@ def extract_tracebacks(json_report: dict) -> list:
             if isinstance(longrepr, str):
                 traceback_info["full_traceback"] = longrepr
                 lines = longrepr.split('\n')
+                # Get the name of the actual function being tested
+                tested_func = extract_tested_functions(failing_code)
+                if tested_func:
+                    traceback_info["tested_function"] = tested_func
                 # Find source file from traceback with strategy
                 source_file, line_num, strategy = find_source_file(test_path, lines)
                 if source_file:
@@ -302,16 +324,17 @@ def extract_tracebacks(json_report: dict) -> list:
             elif isinstance(longrepr, dict):
                 crash = longrepr.get("reprcrash", {})
                 entries = longrepr.get("reprtraceback", {}).get("reprentries", [])
+                tested_func = extract_tested_functions([e.get("data", "") for e in entries])
+                if tested_func:
+                    traceback_info["tested_function"] = tested_func
                 # First try to find source file from traceback entries
                 source_file, line_num = find_source_file(test_path, 
                     [f"File {e.get('reprfileloc', {}).get('path', '')}, line {e.get('reprfileloc', {}).get('lineno', '')}"
                     for e in entries if isinstance(e, dict)])
-                
                 if source_file:
                     traceback_info["source_file"] = source_file
                     if line_num:
                         traceback_info["error_location"] = f"File {source_file}, line {line_num}"
-                
                 # Get the error location
                 path = crash.get("path", "")
                 line = crash.get("lineno", "")

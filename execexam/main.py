@@ -335,7 +335,7 @@ def run(  # noqa: PLR0913, PLR0915
         litellm_thread.join()
         debugger.debug(debug, debugger.Debug.stopped_litellm_thread.value)
         if json_report_plugin.report is not None:
-            tracebacks = extract.extract_tracebacks(json_report_plugin.report) 
+            tracebacks = extract.extract_tracebacks(json_report_plugin.report, failing_test_code_overall) 
         else: 
             tracebacks = ["No Traceback Found"]
         # provide advice about how to fix the failing tests
