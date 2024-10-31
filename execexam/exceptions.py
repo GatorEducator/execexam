@@ -2,12 +2,10 @@
 
 import sys
 
-from rich.console import Console
-
-console = Console()
+# from rich.console import Console (ask if i need to import this?) i dont think i do because i pass it as an atg
 
 
-def get_litellm_traceback() -> None:
+def get_litellm_traceback(console) -> None:
     """Print the traceback of the last exception."""
     exc_type, exc_obj, _ = sys.exc_info()
 
@@ -15,12 +13,12 @@ def get_litellm_traceback() -> None:
         return
     # List of litellm exception types and their explanations
     litellm_exceptions = {
-        "NotFoundError": "The requested resource was not found. Please check if your model and/or endpoint is correct.",
-        "AuthenticationError": "There was an issue with your authentication. Please verify your API key.",
-        "RateLimitError": "You've hit the rate limit. Please try again later or adjust your usage.\nNOTE: This error can sometimes be caused by an invalid API key.",
-        "InvalidRequestError": "Your request was malformed. Please check the parameters you've sent.",
-        "APIError": "An internal API error occurred. Please try again later.",
-        "APIConnectionError": "There was a connection issue to the server.\nNOTE: This error can sometimes be caused by an invalid server URL. Please verify the URL you're using.",
+        "NotFoundError": "LLM resource not found. Please check your model and/or endpoint.",
+        "AuthenticationError": "API authentication failed. Please verify your API key.",
+        "RateLimitError": "Rate limit exceeded. Wait and retry or check API key.\nNOTE: This error can sometimes be caused by an invalid API key.",
+        "InvalidRequestError": "Malformed API request. Please review parameters.",
+        "APIError": "Internal LLM API error. Retry later.",
+        "APIConnectionError": "Connection failed. \nNOTE: This error can sometimes be caused by an invalid server URL. Verify your server URL.",
     }
 
     # if statements to display exceptions
@@ -30,7 +28,7 @@ def get_litellm_traceback() -> None:
         )
         console.print(f"Explanation: {litellm_exceptions[exc_type.__name__]}")
     else:
-        # Default behavior for non-litellm exceptions
+        # default behavior for non-litellm exceptions
         console.print(
             f"[bold red]Exception Type: {exc_type.__name__}[/bold red]"
         )
