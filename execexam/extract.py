@@ -278,8 +278,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 "test_path": test_path,
                 "source_file": "",
                 "tested_function": "",
-                "error_location": "",
-                "test_location": "",
                 "full_traceback": "",
                 "error_type": "",
                 "error_message": "",
@@ -315,10 +313,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                     # Look for file locations in traceback
                     if "File " in line and ", line " in line:
                         loc = line.strip()
-                        if "test_" in line:
-                            traceback_info["test_location"] = loc
-                        elif source_file and source_file in line:
-                            traceback_info["error_location"] = loc
                         traceback_info["stack_trace"].append(loc)
                     # Extract error type and message
                     elif line.startswith('E   '):
@@ -345,10 +339,11 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 crash = longrepr.get("reprcrash", {})
                 entries = longrepr.get("reprtraceback", {}).get("reprentries", [])
                 tested_funcs = extract_tested_functions(failing_code)
+                called_functions = get_called_functions_from_test(test_path)
                 print(tested_funcs)
                 for func in tested_funcs:
                 # Check for any mention of the function's expected behavior in the error message
-                    if func in crash.get("message", "") or func in traceback_info["assertion_detail"]:
+                    if func in called_functions:
                         traceback_info["tested_function"] = func
                         break
                 # First try to find source file from traceback entries
@@ -360,13 +355,7 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                     if line_num:
                         traceback_info["error_location"] = f"File {source_file}, line {line_num}"
                 # Get the error location
-                path = crash.get("path", "")
                 line = crash.get("lineno", "")
-                if path and line:
-                    if "test_" in path:
-                        traceback_info["test_location"] = f"File {path}, line {line}"
-                    elif source_file and source_file in path:
-                        traceback_info["error_location"] = f"File {path}, line {line}"
                 
                 # Get error type and message
                 message = crash.get("message", "")
@@ -390,19 +379,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
             # Ensure we have a full traceback
             if not traceback_info["full_traceback"] and "log" in call:
                 traceback_info["full_traceback"] = call["log"]
-            # If we still don't have an error location but have a source file,
-            # try to get line number from the assertion detail
-            if (not traceback_info["error_location"] and 
-                traceback_info["source_file"] and 
-                traceback_info["assertion_detail"]):
-                try:
-                    with open(traceback_info["source_file"], 'r') as f:
-                        for i, line in enumerate(f, 1):
-                            if traceback_info["assertion_detail"].strip() in line:
-                                traceback_info["error_location"] = f"File {traceback_info['source_file']}, line {i}"
-                                break
-                except:
-                    pass
             # Append if there is information
             if (traceback_info["full_traceback"] or 
                 traceback_info["error_message"] or 
