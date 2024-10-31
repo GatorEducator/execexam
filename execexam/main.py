@@ -334,6 +334,10 @@ def run(  # noqa: PLR0913, PLR0915
         # litellm module has been loaded in a separate thread
         litellm_thread.join()
         debugger.debug(debug, debugger.Debug.stopped_litellm_thread.value)
+        if json_report_plugin.report is not None:
+            tracebacks = extract.extract_tracebacks(json_report_plugin.report) 
+        else: 
+            tracebacks = ["No Traceback Found"]
         # provide advice about how to fix the failing tests
         # because the non-zero return code indicates that
         # there was a test failure and that overall there
@@ -345,6 +349,7 @@ def run(  # noqa: PLR0913, PLR0915
                 filtered_test_output,
                 exec_exam_test_assertion_details,
                 filtered_test_output + exec_exam_test_assertion_details,
+                tracebacks,
                 failing_test_details,
                 failing_test_code_overall,
                 advice_method,
