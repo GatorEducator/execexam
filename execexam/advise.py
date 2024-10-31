@@ -221,4 +221,4 @@ def fix_failures(  # noqa: PLR0913
                     )
                     console.print()
     except Exception:
-        get_litellm_traceback()
+        get_litellm_traceback(console)
