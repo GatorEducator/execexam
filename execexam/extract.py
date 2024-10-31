@@ -198,7 +198,23 @@ def extract_tested_functions(failing_test_code: str) -> Any:
         if not any(func_name.startswith(prefix) for prefix in ignore_prefixes):
             tested_functions.add(func_name)
     # If no matching functions are found, return the full failing_test_code
+    print(f'tested functions{tested_functions}')
     return tested_functions if tested_functions else failing_test_code
+
+def get_called_functions_from_test(test_path: str) -> list[str]:
+    """Get the functions called in a test from the test path."""
+    # Extract the module name and function name from test_path
+    module_name, func_name = test_path.split("::")
+    # Import the test module
+    test_module = importlib.import_module(module_name.replace("/", ".").replace(".py", ""))
+    # Get the function object
+    test_function = getattr(test_module, func_name)
+    # Get the source code of the function
+    source_code = inspect.getsource(test_function)
+    # Use regex to find called functions in the source code
+    called_functions = re.findall(r'\b(\w+)\s*\(', source_code)
+    print(f'called functions: {called_functions}')
+    return called_functions
 
 def function_exists_in_file(file_path: str, function_name: str) -> bool:
     """Check if a function with the given name is defined in the source file."""
@@ -240,20 +256,6 @@ def find_source_file(test_path: str, function: str) -> str:
     except Exception as e:
         print(f"Error reading file {test_file}: {e}")
     return ""
-
-def get_called_functions_from_test(test_path: str) -> list[str]:
-    """Get the functions called in a test from the test path."""
-    # Extract the module name and function name from test_path
-    module_name, func_name = test_path.split("::")
-    # Import the test module
-    test_module = importlib.import_module(module_name.replace("/", ".").replace(".py", ""))
-    # Get the function object
-    test_function = getattr(test_module, func_name)
-    # Get the source code of the function
-    source_code = inspect.getsource(test_function)
-    # Use regex to find called functions in the source code
-    called_functions = re.findall(r'\b(\w+)\s*\(', source_code)
-    return called_functions
 
 def extract_tracebacks(json_report: dict, failing_code: str) -> list:
     """Extract comprehensive test failure information from pytest JSON report including test details, assertions, variables, and complete stack traces. Handles if JSON report returns string or dictionary"""
@@ -327,19 +329,16 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 tested_funcs = extract_tested_functions(failing_code)
                 called_functions = get_called_functions_from_test(test_path)
                 print(tested_funcs)
+                func = ""
                 for func in tested_funcs:
                 # Check for any mention of the function's expected behavior in the error message
                     if func in called_functions:
                         traceback_info["tested_function"] = func
                         break
                 # First try to find source file from traceback entries
-                source_file, line_num = find_source_file(test_path, 
-                    [f"File {e.get('reprfileloc', {}).get('path', '')}, line {e.get('reprfileloc', {}).get('lineno', '')}"
-                    for e in entries if isinstance(e, dict)])
+                source_file, = find_source_file(test_path, func)
                 if source_file:
                     traceback_info["source_file"] = source_file
-                    if line_num:
-                        traceback_info["error_location"] = f"File {source_file}, line {line_num}"
                 # Get the error location
                 line = crash.get("lineno", "")
                 
