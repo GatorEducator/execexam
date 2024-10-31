@@ -1,7 +1,9 @@
 """Test Suite for Exceptions Module."""
 
-from rich.console import Console
 from unittest.mock import patch
+
+from rich.console import Console
+
 from execexam.exceptions import get_litellm_traceback
 
 # Create a console object for testing
