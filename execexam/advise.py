@@ -118,7 +118,7 @@ def check_advice_server(
     ):
         console.print()
         console.print(
-            "[red]The --advice-server option did not specify a valid URL"
+            "[bold red]Before sending to LLM:\nThe --advice-server option did not specify a valid URL"
         )
 
 
