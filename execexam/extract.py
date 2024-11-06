@@ -292,6 +292,7 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 for func in tested_funcs:
                     if func in called_functions:
                         traceback_info["tested_function"] = func
+                        print(f"this is the func {func}")
                         break
                 # Find source file from imports
                 source_file = find_source_file(test_path, func)
