@@ -21,7 +21,6 @@ def cwd():
 
 def test_run_with_missing_test(cwd):
     """Test the run command with default options."""
-    # Create a temporary directory
     with tempfile.TemporaryDirectory() as temp_dir:
         test_one = Path(temp_dir) / "test_one"
         test_one.mkdir()
@@ -33,7 +32,7 @@ def test_run_with_missing_test(cwd):
                 "run",
                 "execexam",
                 ".",
-                "./tests/test_question_one.py",
+                os.path.join(".", "tests", "test_question_one.py"),
                 "--report",
                 "trace",
                 "--report",
@@ -44,19 +43,12 @@ def test_run_with_missing_test(cwd):
                 "code",
                 "--report",
                 "setup",
-                # "--advice-method", "apiserver",
-                # "--advice-model", "anthropic/claude-3-haiku-20240307",
-                # "--advice-server", "https://execexamadviser.fly.dev/",
-                # "--report", "advice",
-                "--fancy",
-                "--debug",
             ],
-            cwd=cwd,  # Change working directory to the root of the project
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",  # Ensure correct handling of Unicode characters
             check=False,
         )
 
-        assert (
-            result.returncode == EXPECTED_EXIT_CODE_FILE_NOT_FOUND
-        )  # confirms that the file was not found
+        # Check the return code
+        assert result.returncode == EXPECTED_EXIT_CODE_FILE_NOT_FOUND

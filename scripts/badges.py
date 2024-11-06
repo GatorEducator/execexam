@@ -1,6 +1,7 @@
 import json
-import toml
 import os
+
+import toml
 
 # Dynamically get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
