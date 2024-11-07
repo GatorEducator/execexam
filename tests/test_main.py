@@ -14,6 +14,7 @@ runner = CliRunner()
 
 EXPECTED_EXIT_CODE_FILE_NOT_FOUND = 4
 
+
 @pytest.fixture
 def poetry_env():
     """Create a temporary virtual environment with poetry installed."""
@@ -33,14 +34,16 @@ def poetry_env():
             [str(pip_path), "install", "poetry"],
             check=True,
             capture_output=True,
-            text=True
+            text=True,
         )
         yield str(python_path)
+
 
 @pytest.fixture
 def cwd():
     """Define a test fixture for the current working directory."""
     return os.getcwd()
+
 
 @pytest.mark.no_print
 def test_run_with_missing_test(cwd, poetry_env, capfd):
@@ -83,15 +86,20 @@ def test_run_with_missing_test(cwd, poetry_env, capfd):
                     errors="replace",
                     check=False,
                     env=env,
-                    cwd=cwd
+                    cwd=cwd,
                 )
-            assert result.returncode in [EXPECTED_EXIT_CODE_FILE_NOT_FOUND], \
-                f"Expected return code {EXPECTED_EXIT_CODE_FILE_NOT_FOUND}, got {result.returncode}"
-            assert "file or directory not found" in result.stdout.lower() or \
-                   "no such file or directory" in result.stderr.lower(), \
-                   "Expected error message about missing file not found in output"
+            assert (
+                result.returncode in [EXPECTED_EXIT_CODE_FILE_NOT_FOUND]
+            ), f"Expected return code {EXPECTED_EXIT_CODE_FILE_NOT_FOUND}, got {result.returncode}"
+            assert (
+                "file or directory not found" in result.stdout.lower()
+                or "no such file or directory" in result.stderr.lower()
+            ), "Expected error message about missing file not found in output"
         except UnicodeDecodeError as e:
             pytest.fail(f"Unicode decode error: {str(e)}")
+        except Exception as e:
+            pytest.fail(f"Unexpected error: {str(e)}")
+
         except Exception as e:
             pytest.fail(f"Unexpected error: {str(e)}")
             
