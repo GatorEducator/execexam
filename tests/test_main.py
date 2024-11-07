@@ -2,8 +2,8 @@
 
 import os
 import subprocess
-import tempfile
 import sys
+import tempfile
 import venv
 from pathlib import Path
 
@@ -96,6 +96,6 @@ def test_run_with_missing_test(cwd, poetry_env, capfd):
                 or "no such file or directory" in result.stderr.lower()
             ), "Expected error message about missing file not found in output"
         except UnicodeDecodeError as e:
-            pytest.fail(f"Unicode decode error: {str(e)}")
+            pytest.fail(f"Unicode decode error: {e!s}")
         except Exception as e:
-            pytest.fail(f"Unexpected error: {str(e)}")
+            pytest.fail(f"Unexpected error: {e!s}")
