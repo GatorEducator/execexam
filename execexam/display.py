@@ -32,57 +32,43 @@ def get_display_return_code(return_code: int, fancy: bool) -> str:
 
 def display_tldr(console: Console) -> None:
     """Display a list of example commands and their descriptions."""
-    console.print(
-        "[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n"
-    )
-    console.print(
-        "[bold red]Please ensure you are in the directory with the pyproject.toml file to run these commands.[/bold red]\n"
-    )
+    console.print("[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n")
+    console.print("[bold red]Please ensure you are in the directory with the pyproject.toml file to run these commands.[/bold red]\n")
 
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests>[/bold cyan]"
-    )
-    console.print(
-        "    Run executable exam for a project with the specified test files."
-    )
+    commands = {
+        "mark": {
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --mark <mark number>",
+            "description": "Run tests that match the specified mark type. Useful for targeted testing of specific groups."
+        },
+        "report": {
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --report <report_type>/<all>",
+            "description": "Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types."
+        },
+        "advice-model": {
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>",
+            "description": "Specify the LLM model and advice method to use. Consult documentation for available models and methods."
+        },
+        "debug": {
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --debug/--no-debug",
+            "description": "Enable or disable debug mode to collect additional debugging information during execution."
+        },
+        "fancy": {
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --fancy/--no-fancy",
+            "description": "Toggle fancy output formatting. Disable for simpler output in plain-text environments."
+        },
+        "verbose": {
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --verbose/--no-verbose",
+            "description": "Enable or disable verbose output to see more detailed logs of the program's execution."
+        }
+    }
 
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --mark <mark>[/bold cyan]"
-    )
-    console.print("    Run the tests with the specified mark(s).")
+    for command_name, command_info in commands.items():
+        console.print(f"[bold green]{command_name}[/bold green]")
+        console.print(f"[bold white]Command:[/bold white] [bold cyan]{command_info['command']}[/bold cyan]")
+        console.print(f"[bold white]Description:[/bold white] {command_info['description']}")
+        console.print()
 
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --maxfail[/bold cyan]"
-    )
-    console.print("    Limit the number of test failures before stopping.")
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --report <report_type>/<all>[/bold cyan]"
-    )
-    console.print(
-        "    Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types."
-    )
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>[/bold cyan]"
-    )
-    console.print(
-        "    Use specified LLM model and method for providing advice on test failures."
-    )
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> <--debug>/<--no-debug>[/bold cyan]"
-    )
-    console.print("    Display or disable debugging information.")
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> <--fancy>/<--no-fancy>[/bold cyan]"
-    )
-    console.print("    Display or disable fancy output formatting.")
-
-    console.print(
-        "\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options."
-    )
+    console.print("\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options.")
 
 
 def display_advice(return_code: int) -> str:
