@@ -62,7 +62,7 @@ def run(  # noqa: PLR0913, PLR0915
             callback=tldr_callback,
             help="Display summary of commands",
         ),
-    ] = None,
+    ] = False,
     report: Optional[List[enumerations.ReportType]] = typer.Option(
         None,
         help="Types of reports to generate",
@@ -103,8 +103,9 @@ def run(  # noqa: PLR0913, PLR0915
     litellm_thread = threading.Thread(target=advise.load_litellm)
     # if --tldr was specified, then display the TLDR summary
     # of the commands and then exit the program
-    if tldr is not None:
-        return
+    if tldr:
+        display.display_tldr(console)
+        raise typer.Exit()
     # if execexam was configured to produce the report for advice
     # or if it was configured to produce all of the possible reports,
     # then start the litellm thread that provides the advice
