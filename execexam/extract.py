@@ -342,7 +342,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                     traceback_info["source_file"] = source_file
                 # Get the error location
                 line = crash.get("lineno", "")
-                
                 # Get error type and message
                 message = crash.get("message", "")
                 if ': ' in message:
@@ -351,7 +350,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                     traceback_info["error_message"] = error_msg
                 else:
                     traceback_info["error_message"] = message
-                
                 # Build stack trace
                 for entry in entries:
                     if isinstance(entry, dict):
@@ -361,7 +359,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                             line_no = loc.get("lineno", "")
                             stack_entry = f"File {file_path}, line {line_no}"
                             traceback_info["stack_trace"].append(stack_entry)
-            #MAYBE ADD BACK IT IS FOR MORE COMPLEX TRACEBACKS
             # Ensure we have a full traceback
             if not traceback_info["full_traceback"] and "log" in call:
                 traceback_info["full_traceback"] = call["log"]
@@ -370,7 +367,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 traceback_info["error_message"] or 
                 traceback_info["stack_trace"]):
                 traceback_info_list.append(traceback_info)
-    
     return traceback_info_list
 
 def extract_function_code_from_traceback(traceback_info_list):
