@@ -37,16 +37,20 @@ def display_tldr(console: Console) -> None:
 
     commands = {
         "mark": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --mark <mark number>",
-            "description": "Run tests that match the specified mark type. Useful for targeted testing of specific groups."
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --mark mark_type",
+            "description": "Run tests with specific markers (e.g., unit, integration, functional)"
+        },
+        "maxfail": {
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --maxfail number",
+            "description": "Set maximum number of test failures before stopping test execution (default: 10)"
         },
         "report": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --report <report_type>/<all>",
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --report report_type/all",
             "description": "Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types."
         },
         "advice-model": {
             "command": "poetry run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>",
-            "description": "Specify the LLM model and advice method to use. Consult documentation for available models and methods."
+            "description": "Specify the LLM model and advice method to use Coding Mentor. Consult documentation for available models and methods."
         },
         "debug": {
             "command": "poetry run execexam <path-to-project> <path-to-tests> --debug/--no-debug",
@@ -59,6 +63,10 @@ def display_tldr(console: Console) -> None:
         "verbose": {
             "command": "poetry run execexam <path-to-project> <path-to-tests> --verbose/--no-verbose",
             "description": "Enable or disable verbose output to see more detailed logs of the program's execution."
+        },
+        "syntax-theme": {
+            "command": "poetry run execexam <path-to-project> <path-to-tests> --syntax-theme theme_name",
+            "description": "Choose syntax highlighting theme for code output (options: ansi_dark, ansi_light)"
         }
     }
 
