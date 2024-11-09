@@ -49,7 +49,7 @@ def display_tldr(console: Console) -> None:
             "description": "Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types."
         },
         "advice-model": {
-            "command": "run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>",
+            "command": "run execexam <path-to-project> <path-to-tests> --advice-model model --advice-method method",
             "description": "Specify the LLM model and advice method to use Coding Mentor. Consult documentation for available models and methods."
         },
         "debug": {
