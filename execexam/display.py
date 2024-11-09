@@ -32,51 +32,61 @@ def get_display_return_code(return_code: int, fancy: bool) -> str:
 
 def display_tldr(console: Console) -> None:
     """Display a list of example commands and their descriptions."""
-    console.print("[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n")
-    console.print("[bold red]Please ensure you are in the directory with the pyproject.toml file to run these commands.[/bold red]\n")
+    console.print(
+        "[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n"
+    )
+    console.print(
+        "[bold red]Please ensure you are in the directory with the pyproject.toml file to run these commands.[/bold red]\n"
+    )
 
     commands = {
         "mark": {
             "command": "run execexam <path-to-project> <path-to-tests> --mark mark_type",
-            "description": "Run tests with specific markers (e.g., unit, integration, functional)"
+            "description": "Run tests with specific markers (e.g., unit, integration, functional)",
         },
         "maxfail": {
             "command": "run execexam <path-to-project> <path-to-tests> --maxfail number",
-            "description": "Set maximum number of test failures before stopping test execution (default: 10)"
+            "description": "Set maximum number of test failures before stopping test execution (default: 10)",
         },
         "report": {
             "command": "run execexam <path-to-project> <path-to-tests> --report report_type/all",
-            "description": "Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types."
+            "description": "Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types.",
         },
         "advice-model": {
             "command": "run execexam <path-to-project> <path-to-tests> --advice-model model --advice-method method",
-            "description": "Specify the LLM model and advice method to use Coding Mentor. Consult documentation for available models and methods."
+            "description": "Specify the LLM model and advice method to use Coding Mentor. Consult documentation for available models and methods.",
         },
         "debug": {
             "command": "run execexam <path-to-project> <path-to-tests> --debug/--no-debug",
-            "description": "Enable or disable debug mode to collect additional debugging information during execution."
+            "description": "Enable or disable debug mode to collect additional debugging information during execution.",
         },
         "fancy": {
             "command": "run execexam <path-to-project> <path-to-tests> --fancy/--no-fancy",
-            "description": "Toggle fancy output formatting. Disable for simpler output in plain-text environments."
+            "description": "Toggle fancy output formatting. Disable for simpler output in plain-text environments.",
         },
         "verbose": {
             "command": "run execexam <path-to-project> <path-to-tests> --verbose/--no-verbose",
-            "description": "Enable or disable verbose output to see more detailed logs of the program's execution."
+            "description": "Enable or disable verbose output to see more detailed logs of the program's execution.",
         },
         "syntax-theme": {
             "command": "run execexam <path-to-project> <path-to-tests> --syntax-theme theme_name",
-            "description": "Choose syntax highlighting theme for code output (options: ansi_dark, ansi_light)"
-        }
+            "description": "Choose syntax highlighting theme for code output (options: ansi_dark, ansi_light)",
+        },
     }
 
     for command_name, command_info in commands.items():
         console.print(f"[bold green]{command_name}[/bold green]")
-        console.print(f"[bold white]Command:[/bold white] [bold cyan]{command_info['command']}[/bold cyan]")
-        console.print(f"[bold white]Description:[/bold white] {command_info['description']}")
+        console.print(
+            f"[bold white]Command:[/bold white] [bold cyan]{command_info['command']}[/bold cyan]"
+        )
+        console.print(
+            f"[bold white]Description:[/bold white] {command_info['description']}"
+        )
         console.print()
 
-    console.print("\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options.")
+    console.print(
+        "\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options."
+    )
 
 
 def display_advice(return_code: int) -> str:
