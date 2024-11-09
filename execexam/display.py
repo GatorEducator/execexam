@@ -37,35 +37,35 @@ def display_tldr(console: Console) -> None:
 
     commands = {
         "mark": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --mark mark_type",
+            "command": "run execexam <path-to-project> <path-to-tests> --mark mark_type",
             "description": "Run tests with specific markers (e.g., unit, integration, functional)"
         },
         "maxfail": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --maxfail number",
+            "command": "run execexam <path-to-project> <path-to-tests> --maxfail number",
             "description": "Set maximum number of test failures before stopping test execution (default: 10)"
         },
         "report": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --report report_type/all",
+            "command": "run execexam <path-to-project> <path-to-tests> --report report_type/all",
             "description": "Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types."
         },
         "advice-model": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>",
+            "command": "run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>",
             "description": "Specify the LLM model and advice method to use Coding Mentor. Consult documentation for available models and methods."
         },
         "debug": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --debug/--no-debug",
+            "command": "run execexam <path-to-project> <path-to-tests> --debug/--no-debug",
             "description": "Enable or disable debug mode to collect additional debugging information during execution."
         },
         "fancy": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --fancy/--no-fancy",
+            "command": "run execexam <path-to-project> <path-to-tests> --fancy/--no-fancy",
             "description": "Toggle fancy output formatting. Disable for simpler output in plain-text environments."
         },
         "verbose": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --verbose/--no-verbose",
+            "command": "run execexam <path-to-project> <path-to-tests> --verbose/--no-verbose",
             "description": "Enable or disable verbose output to see more detailed logs of the program's execution."
         },
         "syntax-theme": {
-            "command": "poetry run execexam <path-to-project> <path-to-tests> --syntax-theme theme_name",
+            "command": "run execexam <path-to-project> <path-to-tests> --syntax-theme theme_name",
             "description": "Choose syntax highlighting theme for code output (options: ansi_dark, ansi_light)"
         }
     }
