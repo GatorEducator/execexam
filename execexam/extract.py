@@ -233,7 +233,7 @@ def function_exists_in_file(file_path: str, function_name: str) -> bool:
                 and node.name == function_name
             ):
                 return True
-    except Exception as e:
+    except:
         return False
     return False
 

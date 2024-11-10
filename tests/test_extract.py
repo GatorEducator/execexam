@@ -1,9 +1,9 @@
 """Test cases for the extract.py file."""
 
+import os
 from pathlib import Path
 
 import pytest
-import os
 from hypothesis import given, settings
 from hypothesis.strategies import dictionaries, text
 
