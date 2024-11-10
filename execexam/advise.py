@@ -174,11 +174,12 @@ def fix_failures(  # noqa: PLR0913
             + "Always be helpful, upbeat, friendly, encouraging, and concise when making a response."
             + "Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
             + "What follows is all of the information you need to complete the debugging task."
-            + f"Here is the traceback of the error use this to determine which functions to fix {traceback}"
-            + f"Here are all the functions that failed contents based on the traceback {functions}"
-            + f"Here is the test overview with test output and details about test assertions: {test_overview}"
-            + f"Here is a brief overview of the test failure information: {failing_test_details}"
-            + f"Here is the source code for the one or more failing test(s): {failing_test_code}"
+            + f"Here is the error traceback, which will guide you in identifying which functions to fix: {traceback}"
+            + f"Below is the source code for all functions that have failed; focus your suggestions on these functions:  {functions}"
+            + f"Here’s an overview of the test details and output, which will help you understand the issue: {test_overview}"
+            + f"A brief summary of the test failure information is provided here: {failing_test_details}"
+            + f"Finally, here is the source code for the failing test(s):: {failing_test_code}"
+            + "Based on this, suggest what changes need to be made to fix the failing functions."
         )
         # the API key approach expects that the person running the execexam
         # tool has specified an API key for a support cloud-based LLM system
