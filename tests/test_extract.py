@@ -2,10 +2,8 @@
 
 from pathlib import Path
 
-import importlib
 import pytest
 import os
-import sys
 from hypothesis import given, settings
 from hypothesis.strategies import dictionaries, text
 
