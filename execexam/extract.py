@@ -198,7 +198,6 @@ def extract_tested_functions(failing_test_code: str) -> Any:
         if not any(func_name.startswith(prefix) for prefix in ignore_prefixes):
             tested_functions.add(func_name)
     # If no matching functions are found, return the full failing_test_code
-    print(f'tested functions{tested_functions}')
     return tested_functions if tested_functions else failing_test_code
 
 def get_called_functions_from_test(test_path: str) -> list[str]:
@@ -213,7 +212,6 @@ def get_called_functions_from_test(test_path: str) -> list[str]:
     source_code = inspect.getsource(test_function)
     # Use regex to find called functions in the source code
     called_functions = re.findall(r'\b(\w+)\s*\(', source_code)
-    print(f'called functions: {called_functions}')
     return called_functions
 
 def function_exists_in_file(file_path: str, function_name: str) -> bool:
@@ -226,11 +224,11 @@ def function_exists_in_file(file_path: str, function_name: str) -> bool:
         # Search for the function definition
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name == function_name:
-                print("Checked that function exists in file and it does!")
                 return True
     except Exception as e:
-        print(f"Error reading file {file_path}: {e}")
+        return False
     return False
+
 
 def find_source_file(test_path: str, function: str) -> str:
     """ Find the source file being tested using imports"""
@@ -254,7 +252,7 @@ def find_source_file(test_path: str, function: str) -> str:
                         if function_exists_in_file(file_path, function):
                             return file_path
     except Exception as e:
-        print(f"Error reading file {test_file}: {e}")
+        return f"Error reading file {test_file}: {e}"
     return ""
 
 def extract_tracebacks(json_report: dict, failing_code: str) -> list:
@@ -287,12 +285,10 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 # Get the name of the actual function being tested
                 called_functions = get_called_functions_from_test(test_path)
                 tested_funcs = extract_tested_functions(failing_code)
-                print(tested_funcs)
                 func = ""
                 for func in tested_funcs:
                     if func in called_functions:
                         traceback_info["tested_function"] = func
-                        print(f"this is the func {func}")
                         break
                 # Find source file from imports
                 source_file = find_source_file(test_path, func)
@@ -329,7 +325,6 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
                 entries = longrepr.get("reprtraceback", {}).get("reprentries", [])
                 tested_funcs = extract_tested_functions(failing_code)
                 called_functions = get_called_functions_from_test(test_path)
-                print(tested_funcs)
                 func = ""
                 for func in tested_funcs:
                 # Check for any mention of the function's expected behavior in the error message
