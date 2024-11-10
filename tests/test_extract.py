@@ -279,15 +279,20 @@ def test_extract_tested_functions_with_calls():
 def test_get_called_functions_from_test_simple():
     """Test get_called_functions_from_test with a simple test function."""
     # Create a temporary test module to use for testing
-    with open("temp_test_module.py", "w") as f:
-        f.write("""
+    try:
+        with open("temp_test_module.py", "w") as f:
+            f.write("""
 def test_sample():
     func_a()
     func_b()
 """)
-    # Call your function and check the result
-    result = get_called_functions_from_test("temp_test_module.py::test_sample")
-    assert result == ['test_sample', 'func_a', 'func_b']
+        # Call your function and check the result
+        result = get_called_functions_from_test("temp_test_module.py::test_sample")
+        assert result == ['test_sample', 'func_a', 'func_b']
+    finally:
+        # Delete the temporary test module after the test
+        if os.path.exists("temp_test_module.py"):
+            os.remove("temp_test_module.py")
 
 def test_function_exists_in_file_exists():
     """Test function_exists_in_file when the function exists in the file."""
@@ -368,3 +373,4 @@ def sample_func():
     result = extract_function_code_from_traceback(traceback_info_list)
     assert result is not None
     assert any("sample_func" in line for sublist in result for line in sublist)
+    os.remove("source_file.py")
