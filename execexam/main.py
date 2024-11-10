@@ -335,11 +335,9 @@ def run(  # noqa: PLR0913, PLR0915
         litellm_thread.join()
         debugger.debug(debug, debugger.Debug.stopped_litellm_thread.value)
         tracebacks = extract.extract_tracebacks(
-                json_report_plugin.report, failing_test_code_overall
-            )
-        functions = extract.extract_function_code_from_traceback(
-                tracebacks
-            )
+            json_report_plugin.report, failing_test_code_overall
+        )
+        functions = extract.extract_function_code_from_traceback(tracebacks)
         # provide advice about how to fix the failing tests
         # because the non-zero return code indicates that
         # there was a test failure and that overall there

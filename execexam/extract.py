@@ -390,7 +390,9 @@ def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
     return traceback_info_list
 
 
-def extract_function_code_from_traceback(traceback_info_list: list) -> List[List[str]]:
+def extract_function_code_from_traceback(
+    traceback_info_list: list,
+) -> List[List[str]]:
     # List to store code of each function as a list of lines
     if not traceback_info_list:
         return [["No Functions Found"]]
