@@ -264,17 +264,25 @@ def test_is_failing_test_details_empty_with_empty_string():
     # check the result
     assert result is False
 
+
 def test_extract_tested_functions_no_calls():
-    """Test extract_tested_functions with no function calls.""" 
+    """Test extract_tested_functions with no function calls."""
     failing_code = "assert 1 == 1"
     result = extract_tested_functions(failing_code)
-    assert result == failing_code, "Should return the full code when no functions are called."
+    assert (
+        result == failing_code
+    ), "Should return the full code when no functions are called."
+
 
 def test_extract_tested_functions_with_calls():
     """Test extract_tested_functions with multiple function calls."""
     failing_code = "func1()\nfunc2()\nassert test_function()"
     result = extract_tested_functions(failing_code)
-    assert result == {"func1", "func2"}, "Should extract only the non-test/assert functions."
+    assert result == {
+        "func1",
+        "func2",
+    }, "Should extract only the non-test/assert functions."
+
 
 def test_get_called_functions_from_test_simple():
     """Test get_called_functions_from_test with a simple test function."""
@@ -287,12 +295,15 @@ def test_sample():
     func_b()
 """)
         # Call your function and check the result
-        result = get_called_functions_from_test("temp_test_module.py::test_sample")
-        assert result == ['test_sample', 'func_a', 'func_b']
+        result = get_called_functions_from_test(
+            "temp_test_module.py::test_sample"
+        )
+        assert result == ["test_sample", "func_a", "func_b"]
     finally:
         # Delete the temporary test module after the test
         if os.path.exists("temp_test_module.py"):
             os.remove("temp_test_module.py")
+
 
 def test_function_exists_in_file_exists():
     """Test function_exists_in_file when the function exists in the file."""
@@ -303,14 +314,18 @@ def test_function_exists_in_file_exists():
     assert result, "Should return True when function exists in the file."
     os.remove("temp_module.py")
 
+
 def test_function_exists_in_file_not_exists():
     """Test function_exists_in_file when the function does not exist in the file."""
     # Create a temporary Python file to use for testing
     with open("temp_module.py", "w") as f:
         f.write("def some_other_function(): pass")
     result = function_exists_in_file("temp_module.py", "non_existing_function")
-    assert not result, "Should return False when function does not exist in the file."
+    assert (
+        not result
+    ), "Should return False when function does not exist in the file."
     os.remove("temp_module.py")
+
 
 def test_find_source_file_simple_import():
     """Test find_source_file with a simple import."""
@@ -320,17 +335,27 @@ def test_find_source_file_simple_import():
     with open("module_a.py", "w") as f:
         f.write("def test_func(): pass")
     result = find_source_file("test_file.py::test_func", "test_func")
-    assert result == "module_a.py", "Should return the correct source file when found."
+    assert (
+        result == "module_a.py"
+    ), "Should return the correct source file when found."
     os.remove("test_file.py")
     os.remove("module_a.py")
+
 
 def test_extract_tracebacks_no_failures():
     """Test extract_tracebacks with no failures in the JSON report."""
     # Create a simple JSON report for testing that passes
-    json_report = {"tests": [{"outcome": "passed", "nodeid": "test_module.py::test_function"}]}
+    json_report = {
+        "tests": [
+            {"outcome": "passed", "nodeid": "test_module.py::test_function"}
+        ]
+    }
     # Check the results are empty when the report passed
     result = extract_tracebacks(json_report, "sample failing code")
-    assert result == [], "Should return an empty list when no failures are present."
+    assert (
+        result == []
+    ), "Should return an empty list when no failures are present."
+
 
 def test_extract_tracebacks_with_failures():
     """Test extract_tracebacks with a failure in the JSON report."""
@@ -346,16 +371,25 @@ def test_sample():
             {
                 "outcome": "failed",
                 "nodeid": "my_tests.py::test_sample",
-                "call": {"longrepr": "E   AssertionError: test failed\nFile 'my_tests.py', line 3"}
+                "call": {
+                    "longrepr": "E   AssertionError: test failed\nFile 'my_tests.py', line 3"
+                },
             }
         ]
     }
     result = extract_tracebacks(json_report, "def func_a(): pass")
-    assert isinstance(result, list), "The result should be a list of tracebacks"
+    assert isinstance(
+        result, list
+    ), "The result should be a list of tracebacks"
     assert len(result) == 1, "There should be one traceback in the result"
-    assert result[0]['error_type'] == "AssertionError", "The error_type should be 'AssertionError'"
-    assert "test failed" in result[0]['full_traceback'], "The traceback should contain the error message 'test failed'"
+    assert (
+        result[0]["error_type"] == "AssertionError"
+    ), "The error_type should be 'AssertionError'"
+    assert (
+        "test failed" in result[0]["full_traceback"]
+    ), "The traceback should contain the error message 'test failed'"
     os.remove("my_tests.py")
+
 
 def test_extract_function_code_from_traceback():
     """Test extract_function_code_from_traceback with a sample function."""
