@@ -1,8 +1,7 @@
 """Extract contents from data structures."""
 
 from pathlib import Path
-import trace
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import re
 import inspect
 import importlib
@@ -266,8 +265,11 @@ def find_source_file(test_path: str, function: str) -> str:
     return ""
 
 
-def extract_tracebacks(json_report: dict, failing_code: str) -> list:
+def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
     """Extract comprehensive test failure information from pytest JSON report including test details, assertions, variables, and complete stack traces. Handles if JSON report returns string or dictionary"""
+    # Handle the case where there is no json_report
+    if not json_report:
+        return ["No Traceback Found"]
     traceback_info_list = []
     tests = json_report.get("tests", [])
     # Go through all the tests and pull out which ones failed
@@ -388,8 +390,10 @@ def extract_tracebacks(json_report: dict, failing_code: str) -> list:
     return traceback_info_list
 
 
-def extract_function_code_from_traceback(traceback_info_list):
+def extract_function_code_from_traceback(traceback_info_list: list) -> List[List[str]]:
     # List to store code of each function as a list of lines
+    if not traceback_info_list:
+        return [["No Functions Found"]]
     functions = []
     for test in traceback_info_list:
         source_file = test["source_file"]
