@@ -257,70 +257,15 @@ def find_source_file(test_path: str, function: str) -> str:
                         continue
                     # Convert module name to potential file path
                     file_path = f"{imported.replace('.', '/')}.py"
-                    print(f'file path: {file_path}')
+                    print(f"file path: {file_path}")
                     if file_path != "pytest.py":
                         if function_exists_in_file(file_path, function):
-                            print(f'Function {function}')
-                            print(f'Function exists in file')
+                            print(f"Function {function}")
+                            print(f"Function exists in file")
                             return file_path
     except Exception as e:
         return f"Error reading file {test_file}: {e}"
     return ""
-
-def extract_tracebacks_str(longrepr: str, failing_code: str, traceback_info_list: list, traceback_info: dict, test_path: str ) -> list:
-    traceback_info["full_traceback"] = longrepr
-    lines = longrepr.split("\n")
-    # Get the name of the actual function being tested
-    called_functions = get_called_functions_from_test(test_path)
-    tested_funcs = extract_tested_functions(failing_code)
-    func = ""
-    for func in tested_funcs:
-        if func in called_functions:
-            traceback_info["tested_function"] = func
-            break
-        # Find source file from imports
-        source_file = find_source_file(test_path, func)
-        print(f'source file: {source_file}')
-        if source_file:
-            traceback_info["source_file"] = source_file
-            for i, line in enumerate(lines):
-            # Look for file locations in traceback
-                if "File " in line and ", line " in line:
-                    loc = line.strip()
-                    traceback_info["stack_trace"].append(loc)
-            # Extract error type and message
-                elif line.startswith("E   "):
-                    if not traceback_info["error_message"]:
-                        error_parts = line[4:].split(": ", 1)
-                        if len(error_parts) > 1:
-                            traceback_info["error_type"] = error_parts[0]
-                            traceback_info["error_message"] = error_parts[
-                            1
-                            ]
-                        else:
-                            traceback_info["error_message"] = error_parts[
-                            0
-                            ]
-                    # Look for assertion details
-                if "assert" in line:
-                    traceback_info["assertion_detail"] = line.strip()
-                    try:
-                        if "==" in line:
-                            expr = line.split("assert")[-1].strip()
-                            actual, expected = expr.split("==", 1)
-                            traceback_info["actual_value"] = eval(
-                                actual.strip("() ")
-                            )
-                            traceback_info["expected_value"] = eval(
-                                expected.strip("() ")
-                            )
-                    except Exception:
-                        pass
-        traceback_info_list.append(traceback_info)
-    return traceback_info_list
-
-
-#def extract_tracebacks_dict(longrepr: Optional[dict], failing_code: str) -> list:
 
 
 def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
@@ -351,44 +296,14 @@ def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
             longrepr = call.get("longrepr", {})
             # Handle string longrepr
             if isinstance(longrepr, str):
-                traceback_info_list = extract_tracebacks_str(longrepr, failing_code, traceback_info_list, traceback_info, test_path)
+                process_string_longrepr(
+                    longrepr, traceback_info, test_path, failing_code
+                )
             # Handle dictionary of longrepr
             elif isinstance(longrepr, dict):
-                crash = longrepr.get("reprcrash", {})
-                entries = longrepr.get("reprtraceback", {}).get(
-                    "reprentries", []
+                process_dict_longrepr(
+                    longrepr, traceback_info, test_path, failing_code
                 )
-                tested_funcs = extract_tested_functions(failing_code)
-                called_functions = get_called_functions_from_test(test_path)
-                func = ""
-                for func in tested_funcs:
-                    # Check for any mention of the function's expected behavior in the error message
-                    if func in called_functions:
-                        traceback_info["tested_function"] = func
-                        break
-                # First try to find source file from traceback entries
-                (source_file) = find_source_file(test_path, func)
-                if source_file:
-                    traceback_info["source_file"] = source_file
-                # Get the error location
-                line = crash.get("lineno", "")
-                # Get error type and message
-                message = crash.get("message", "")
-                if ": " in message:
-                    error_type, error_msg = message.split(": ", 1)
-                    traceback_info["error_type"] = error_type
-                    traceback_info["error_message"] = error_msg
-                else:
-                    traceback_info["error_message"] = message
-                # Build stack trace
-                for entry in entries:
-                    if isinstance(entry, dict):
-                        loc = entry.get("reprfileloc", {})
-                        if loc:
-                            file_path = loc.get("path", "")
-                            line_no = loc.get("lineno", "")
-                            stack_entry = f"File {file_path}, line {line_no}"
-                            traceback_info["stack_trace"].append(stack_entry)
             # Ensure we have a full traceback
             if not traceback_info["full_traceback"] and "log" in call:
                 traceback_info["full_traceback"] = call["log"]
@@ -399,8 +314,104 @@ def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
                 or traceback_info["stack_trace"]
             ):
                 traceback_info_list.append(traceback_info)
-    print(f'{traceback_info_list}')
     return traceback_info_list
+
+
+def process_string_longrepr(
+    longrepr: str, traceback_info: dict, test_path: str, failing_code: str
+) -> None:
+    """Process traceback when longrepr is a string."""
+    traceback_info["full_traceback"] = longrepr
+    lines = longrepr.split("\n")
+    # Get the name of the actual function being tested
+    called_functions = get_called_functions_from_test(test_path)
+    tested_funcs = extract_tested_functions(failing_code)
+    func = ""
+    for func in tested_funcs:
+        if func in called_functions:
+            traceback_info["tested_function"] = func
+            break
+    # Find source file from imports
+    source_file = find_source_file(test_path, func)
+    if source_file:
+        traceback_info["source_file"] = source_file
+    else:
+        traceback_info["source_file"] = "File not found"
+    for i, line in enumerate(lines):
+        # Look for file locations in traceback
+        if "File " in line and ", line " in line:
+            loc = line.strip()
+            traceback_info["stack_trace"].append(loc)
+        # Extract error type and message
+        elif line.startswith("E   "):
+            if not traceback_info["error_message"]:
+                error_parts = line[4:].split(": ", 1)
+                if len(error_parts) > 1:
+                    traceback_info["error_type"] = error_parts[0]
+                    traceback_info["error_message"] = error_parts[1]
+                else:
+                    traceback_info["error_message"] = error_parts[0]
+        # Look for assertion details
+        if "assert" in line:
+            traceback_info["assertion_detail"] = line.strip()
+            try:
+                if "==" in line:
+                    expr = line.split("assert")[-1].strip()
+                    actual, expected = expr.split("==", 1)
+                    traceback_info["actual_value"] = eval(actual.strip("() "))
+                    traceback_info["expected_value"] = eval(
+                        expected.strip("() ")
+                    )
+            except:
+                pass
+
+
+def process_dict_longrepr(
+    longrepr: dict, traceback_info: dict, test_path: str, failing_code: str
+) -> None:
+    """Process traceback when longrepr is a dictionary."""
+    crash = longrepr.get("reprcrash", {})
+    entries = longrepr.get("reprtraceback", {}).get("reprentries", [])
+    # Initialize stack_trace if it doesn't exist
+    if "stack_trace" not in traceback_info:
+        traceback_info["stack_trace"] = []
+    # Get the name of the actual function being tested
+    tested_funcs = extract_tested_functions(failing_code)
+    called_functions = get_called_functions_from_test(test_path)
+    func = ""
+    # Find the function name from the tested and called functions
+    for func in tested_funcs:
+        if func in called_functions:
+            traceback_info["tested_function"] = func
+            break
+    # First try to find source file from traceback entries
+    source_file = ""
+    try:
+        source_file, _ = find_source_file(test_path, func)
+    except Exception as e:
+        print(f"Error finding source file: {e}")
+    # If no source file is found, set the default value
+    if not source_file:
+        source_file = "File not found"
+    traceback_info["source_file"] = source_file
+    # Get error type and message (split based on the first occurrence of ": ")
+    message = crash.get("message", "")
+    if ": " in message:
+        error_type, error_msg = message.split(": ", 1)
+        traceback_info["error_type"] = error_type
+        traceback_info["error_message"] = error_msg
+    else:
+        traceback_info["error_message"] = message
+    # Build stack trace
+    for entry in entries:
+        if isinstance(entry, dict):
+            loc = entry.get("reprfileloc", {})
+            if loc:
+                file_path = loc.get("path", "")
+                line_no = loc.get("lineno", "")
+                if file_path and line_no:
+                    stack_entry = f"File {file_path}, line {line_no}"
+                    traceback_info["stack_trace"].append(stack_entry)
 
 
 def extract_function_code_from_traceback(
@@ -411,7 +422,7 @@ def extract_function_code_from_traceback(
         return [["No Functions Found"]]
     functions = []
     for test in traceback_info_list:
-        if test["source_file"] is not "":
+        if test["source_file"] != "":
             source_file = test["source_file"]
             tested_function = test["tested_function"]
             # Read the file contents
