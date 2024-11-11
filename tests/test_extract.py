@@ -10,19 +10,19 @@ from hypothesis.strategies import dictionaries, text
 from execexam.extract import (
     extract_details,
     extract_failing_test_details,
+    extract_function_code_from_traceback,
     extract_test_assertion_details,
     extract_test_assertion_details_list,
     extract_test_assertions_details,
     extract_test_output,
     extract_test_output_multiple_labels,
     extract_test_run_details,
-    is_failing_test_details_empty,
     extract_tested_functions,
-    get_called_functions_from_test,
-    function_exists_in_file,
-    find_source_file,
     extract_tracebacks,
-    extract_function_code_from_traceback,
+    find_source_file,
+    function_exists_in_file,
+    get_called_functions_from_test,
+    is_failing_test_details_empty,
 )
 
 
