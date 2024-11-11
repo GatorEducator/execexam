@@ -332,8 +332,6 @@ def process_string_longrepr(
     source_file = find_source_file(test_path, func)
     if source_file:
         traceback_info["source_file"] = source_file
-    else:
-        traceback_info["source_file"] = "File not found"
     for i, line in enumerate(lines):
         # Look for file locations in traceback
         if "File " in line and ", line " in line:
@@ -359,7 +357,7 @@ def process_string_longrepr(
                     traceback_info["expected_value"] = eval(
                         expected.strip("() ")
                     )
-            except:
+            except Exception:
                 pass
 
 
@@ -385,8 +383,8 @@ def process_dict_longrepr(
     source_file = ""
     try:
         source_file, _ = find_source_file(test_path, func)
-    except Exception as e:
-        print(f"Error finding source file: {e}")
+    except Exception:
+        pass
     # If no source file is found, set the default value
     if not source_file:
         source_file = "File not found"

@@ -176,7 +176,7 @@ def fix_failures(  # noqa: PLR0913
             + "What follows is all of the information you need to complete the debugging task."
             + f"Here is the error traceback, which will guide you in identifying which functions to fix: {traceback}"
             + f"Below is the source code for all functions that have failed; focus your suggestions on these functions:  {functions}"
-            + f"Here’s an overview of the test details and output, which will help you understand the issue: {test_overview}"
+            + f"Here is an overview of the test details and output, which will help you understand the issue: {test_overview}"
             + f"A brief summary of the test failure information is provided here: {failing_test_details}"
             + f"Finally, here is the source code for the failing test(s):: {failing_test_code}"
             + "Based on this, suggest what changes need to be made to fix the failing functions."
