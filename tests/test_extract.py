@@ -388,6 +388,7 @@ def test_sample():
     ), "The traceback should contain the error message 'test failed'"
     os.remove("my_tests.py")
 
+
 def test_extract_function_code_from_traceback():
     """Test extract_function_code_from_traceback with a sample function."""
     # Create a source file with a sample function
