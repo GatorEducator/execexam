@@ -1,11 +1,11 @@
 """Extract contents from data structures."""
 
+import ast
+import importlib
+import inspect
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-import re
-import inspect
-import importlib
-import ast
 
 from . import convert
 
@@ -232,7 +232,7 @@ def function_exists_in_file(file_path: str, function_name: str) -> bool:
                 and node.name == function_name
             ):
                 return True
-    except:
+    except Exception:
         return False
     return False
 
@@ -257,12 +257,70 @@ def find_source_file(test_path: str, function: str) -> str:
                         continue
                     # Convert module name to potential file path
                     file_path = f"{imported.replace('.', '/')}.py"
+                    print(f'file path: {file_path}')
                     if file_path != "pytest.py":
                         if function_exists_in_file(file_path, function):
+                            print(f'Function {function}')
+                            print(f'Function exists in file')
                             return file_path
     except Exception as e:
         return f"Error reading file {test_file}: {e}"
     return ""
+
+def extract_tracebacks_str(longrepr: str, failing_code: str, traceback_info_list: list, traceback_info: dict, test_path: str ) -> list:
+    traceback_info["full_traceback"] = longrepr
+    lines = longrepr.split("\n")
+    # Get the name of the actual function being tested
+    called_functions = get_called_functions_from_test(test_path)
+    tested_funcs = extract_tested_functions(failing_code)
+    func = ""
+    for func in tested_funcs:
+        if func in called_functions:
+            traceback_info["tested_function"] = func
+            break
+        # Find source file from imports
+        source_file = find_source_file(test_path, func)
+        print(f'source file: {source_file}')
+        if source_file:
+            traceback_info["source_file"] = source_file
+            for i, line in enumerate(lines):
+            # Look for file locations in traceback
+                if "File " in line and ", line " in line:
+                    loc = line.strip()
+                    traceback_info["stack_trace"].append(loc)
+            # Extract error type and message
+                elif line.startswith("E   "):
+                    if not traceback_info["error_message"]:
+                        error_parts = line[4:].split(": ", 1)
+                        if len(error_parts) > 1:
+                            traceback_info["error_type"] = error_parts[0]
+                            traceback_info["error_message"] = error_parts[
+                            1
+                            ]
+                        else:
+                            traceback_info["error_message"] = error_parts[
+                            0
+                            ]
+                    # Look for assertion details
+                if "assert" in line:
+                    traceback_info["assertion_detail"] = line.strip()
+                    try:
+                        if "==" in line:
+                            expr = line.split("assert")[-1].strip()
+                            actual, expected = expr.split("==", 1)
+                            traceback_info["actual_value"] = eval(
+                                actual.strip("() ")
+                            )
+                            traceback_info["expected_value"] = eval(
+                                expected.strip("() ")
+                            )
+                    except Exception:
+                        pass
+        traceback_info_list.append(traceback_info)
+    return traceback_info_list
+
+
+#def extract_tracebacks_dict(longrepr: Optional[dict], failing_code: str) -> list:
 
 
 def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
@@ -293,53 +351,7 @@ def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
             longrepr = call.get("longrepr", {})
             # Handle string longrepr
             if isinstance(longrepr, str):
-                traceback_info["full_traceback"] = longrepr
-                lines = longrepr.split("\n")
-                # Get the name of the actual function being tested
-                called_functions = get_called_functions_from_test(test_path)
-                tested_funcs = extract_tested_functions(failing_code)
-                func = ""
-                for func in tested_funcs:
-                    if func in called_functions:
-                        traceback_info["tested_function"] = func
-                        break
-                # Find source file from imports
-                source_file = find_source_file(test_path, func)
-                if source_file:
-                    traceback_info["source_file"] = source_file
-                for i, line in enumerate(lines):
-                    # Look for file locations in traceback
-                    if "File " in line and ", line " in line:
-                        loc = line.strip()
-                        traceback_info["stack_trace"].append(loc)
-                    # Extract error type and message
-                    elif line.startswith("E   "):
-                        if not traceback_info["error_message"]:
-                            error_parts = line[4:].split(": ", 1)
-                            if len(error_parts) > 1:
-                                traceback_info["error_type"] = error_parts[0]
-                                traceback_info["error_message"] = error_parts[
-                                    1
-                                ]
-                            else:
-                                traceback_info["error_message"] = error_parts[
-                                    0
-                                ]
-                    # Look for assertion details
-                    if "assert" in line:
-                        traceback_info["assertion_detail"] = line.strip()
-                        try:
-                            if "==" in line:
-                                expr = line.split("assert")[-1].strip()
-                                actual, expected = expr.split("==", 1)
-                                traceback_info["actual_value"] = eval(
-                                    actual.strip("() ")
-                                )
-                                traceback_info["expected_value"] = eval(
-                                    expected.strip("() ")
-                                )
-                        except:
-                            pass
+                traceback_info_list = extract_tracebacks_str(longrepr, failing_code, traceback_info_list, traceback_info, test_path)
             # Handle dictionary of longrepr
             elif isinstance(longrepr, dict):
                 crash = longrepr.get("reprcrash", {})
@@ -355,7 +367,7 @@ def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
                         traceback_info["tested_function"] = func
                         break
                 # First try to find source file from traceback entries
-                (source_file,) = find_source_file(test_path, func)
+                (source_file) = find_source_file(test_path, func)
                 if source_file:
                     traceback_info["source_file"] = source_file
                 # Get the error location
@@ -387,6 +399,7 @@ def extract_tracebacks(json_report: Optional[dict], failing_code: str) -> list:
                 or traceback_info["stack_trace"]
             ):
                 traceback_info_list.append(traceback_info)
+    print(f'{traceback_info_list}')
     return traceback_info_list
 
 
@@ -398,25 +411,27 @@ def extract_function_code_from_traceback(
         return [["No Functions Found"]]
     functions = []
     for test in traceback_info_list:
-        source_file = test["source_file"]
-        tested_function = test["tested_function"]
-        # Read the file contents
-        with open(source_file, "r") as file:
-            file_contents = file.read()
-        # Parse the file contents to find the function definition
-        tree = ast.parse(file_contents)
-        for node in ast.walk(tree):
-            if (
-                isinstance(node, ast.FunctionDef)
-                and node.name == tested_function
-            ):
-                # Get lines of the function's code
-                function_lines = [
-                    line.strip()
-                    for line in file_contents.splitlines()[
-                        node.lineno - 1 : node.end_lineno
+        if test["source_file"] is not "":
+            source_file = test["source_file"]
+            tested_function = test["tested_function"]
+            # Read the file contents
+            with open(source_file, "r") as file:
+                file_contents = file.read()
+            # Parse the file contents to find the function definition
+            tree = ast.parse(file_contents)
+            for node in ast.walk(tree):
+                if (
+                    isinstance(node, ast.FunctionDef)
+                    and node.name == tested_function
+                ):
+                    # Get lines of the function's code
+                    function_lines = [
+                        line.strip()
+                        for line in file_contents.splitlines()[
+                            node.lineno - 1 : node.end_lineno
+                        ]
                     ]
-                ]
-                functions.append(function_lines)
-                break
+                    print(f"{function_lines}")
+                    functions.append(function_lines)
+                    break
     return functions
