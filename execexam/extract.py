@@ -382,7 +382,7 @@ def process_dict_longrepr(
     # First try to find source file from traceback entries
     source_file = ""
     try:
-        source_file, _ = find_source_file(test_path, func)
+        source_file = find_source_file(test_path, func)
     except Exception:
         pass
     # If no source file is found, set the default value
