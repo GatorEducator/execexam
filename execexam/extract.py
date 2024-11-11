@@ -257,11 +257,8 @@ def find_source_file(test_path: str, function: str) -> str:
                         continue
                     # Convert module name to potential file path
                     file_path = f"{imported.replace('.', '/')}.py"
-                    print(f"file path: {file_path}")
                     if file_path != "pytest.py":
                         if function_exists_in_file(file_path, function):
-                            print(f"Function {function}")
-                            print(f"Function exists in file")
                             return file_path
     except Exception as e:
         return f"Error reading file {test_file}: {e}"
@@ -442,7 +439,6 @@ def extract_function_code_from_traceback(
                             node.lineno - 1 : node.end_lineno
                         ]
                     ]
-                    print(f"{function_lines}")
                     functions.append(function_lines)
                     break
     return functions
