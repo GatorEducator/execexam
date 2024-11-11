@@ -35,9 +35,6 @@ def display_tldr(console: Console) -> None:
     console.print(
         "[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n"
     )
-    console.print(
-        "[bold red]Please ensure you are in the directory with the pyproject.toml file to run these commands.[/bold red]\n"
-    )
 
     commands = {
         "mark": {
