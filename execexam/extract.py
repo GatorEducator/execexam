@@ -412,13 +412,14 @@ def process_dict_longrepr(
 def extract_function_code_from_traceback(
     traceback_info_list: list,
 ) -> List[List[str]]:
+    """Extracts function code from a traceback information list."""
     # Check if the list is empty
     if not traceback_info_list:
         return [["No Functions Found"]]
     functions = []
-    for test in traceback_info_list:
-        source_file = test.get("source_file", "")
-        tested_function = test.get("tested_function", "")
+    for test_info in traceback_info_list:
+        source_file = test_info.get("source_file", "")
+        tested_function = test_info.get("tested_function", "")
         # Proceed if the source file and function name are provided
         if source_file and tested_function:
             try:
