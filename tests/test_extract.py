@@ -1,5 +1,6 @@
 """Test cases for the extract.py file."""
 
+import importlib
 import os
 import sys
 from pathlib import Path
@@ -363,36 +364,48 @@ def test_extract_tracebacks_no_failures():
 
 def test_extract_tracebacks_with_failures():
     """Test extract_tracebacks with a failure in the JSON report."""
-    # Create a test file `my_tests.py` with a failing test
-    with open("my_tests.py", "w") as f:
-        f.write("""
+    module_name = "my_tests"
+    try:
+        # Create a test file `my_tests.py` with a failing test
+        with open(f"{module_name}.py", "w") as f:
+            f.write("""
 def test_sample():
     assert False, "test failed"
 """)
-    # Create a test JSON report with a failure
-    json_report = {
-        "tests": [
-            {
-                "outcome": "failed",
-                "nodeid": "my_tests.py::test_sample",
-                "call": {
-                    "longrepr": "E   AssertionError: test failed\nFile 'my_tests.py', line 3"
-                },
-            }
-        ]
-    }
-    result = extract_tracebacks(json_report, "def func_a(): pass")
-    assert isinstance(
-        result, list
-    ), "The result should be a list of tracebacks"
-    assert len(result) == 1, "There should be one traceback in the result"
-    assert (
-        result[0]["error_type"] == "AssertionError"
-    ), "The error_type should be 'AssertionError'"
-    assert (
-        "test failed" in result[0]["full_traceback"]
-    ), "The traceback should contain the error message 'test failed'"
-    os.remove("my_tests.py")
+        # Add the current directory to sys.path temporarily
+        sys.path.insert(0, os.getcwd())
+        importlib.invalidate_caches()  # Ensure the new module can be found
+        # Create a test JSON report with a failure
+        json_report = {
+            "tests": [
+                {
+                    "outcome": "failed",
+                    "nodeid": f"{module_name}.py::test_sample",
+                    "call": {
+                        "longrepr": "E   AssertionError: test failed\nFile 'my_tests.py', line 3"
+                    },
+                }
+            ]
+        }
+        # Run the function and check the result
+        result = extract_tracebacks(json_report, "def func_a(): pass")
+        assert isinstance(
+            result, list
+        ), "The result should be a list of tracebacks"
+        assert len(result) == 1, "There should be one traceback in the result"
+        assert (
+            result[0]["error_type"] == "AssertionError"
+        ), "The error_type should be 'AssertionError'"
+        assert (
+            "test failed" in result[0]["full_traceback"]
+        ), "The traceback should contain 'test failed'"
+    finally:
+        # Clean up the temporary module and reset sys.path
+        if os.path.exists(f"{module_name}.py"):
+            os.remove(f"{module_name}.py")
+        sys.path.pop(0)
+        if module_name in sys.modules:
+            del sys.modules[module_name]
 
 
 def test_extract_function_code_from_traceback():
