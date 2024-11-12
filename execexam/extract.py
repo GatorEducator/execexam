@@ -410,7 +410,7 @@ def process_dict_longrepr(
 
 
 def extract_function_code_from_traceback(
-    traceback_info_list: list
+    traceback_info_list: list,
 ) -> List[List[str]]:
     # Check if the list is empty
     if not traceback_info_list:
@@ -428,7 +428,10 @@ def extract_function_code_from_traceback(
                 # Parse the file contents to find the function definition
                 tree = ast.parse(file_contents)
                 for node in ast.walk(tree):
-                    if isinstance(node, ast.FunctionDef) and node.name == tested_function:
+                    if (
+                        isinstance(node, ast.FunctionDef)
+                        and node.name == tested_function
+                    ):
                         # Ensure end_lineno is accessible
                         if hasattr(node, "end_lineno"):
                             function_lines = [
