@@ -410,33 +410,37 @@ def process_dict_longrepr(
 
 
 def extract_function_code_from_traceback(
-    traceback_info_list: list,
+    traceback_info_list: list
 ) -> List[List[str]]:
-    # List to store code of each function as a list of lines
+    # Check if the list is empty
     if not traceback_info_list:
         return [["No Functions Found"]]
     functions = []
     for test in traceback_info_list:
-        if test["source_file"] != "":
-            source_file = test["source_file"]
-            tested_function = test["tested_function"]
-            # Read the file contents
-            with open(source_file, "r") as file:
-                file_contents = file.read()
-            # Parse the file contents to find the function definition
-            tree = ast.parse(file_contents)
-            for node in ast.walk(tree):
-                if (
-                    isinstance(node, ast.FunctionDef)
-                    and node.name == tested_function
-                ):
-                    # Get lines of the function's code
-                    function_lines = [
-                        line.strip()
-                        for line in file_contents.splitlines()[
-                            node.lineno - 1 : node.end_lineno
-                        ]
-                    ]
-                    functions.append(function_lines)
-                    break
+        source_file = test.get("source_file", "")
+        tested_function = test.get("tested_function", "")
+        # Proceed if the source file and function name are provided
+        if source_file and tested_function:
+            try:
+                # Read the file contents
+                with open(source_file, "r") as file:
+                    file_contents = file.read()
+                # Parse the file contents to find the function definition
+                tree = ast.parse(file_contents)
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.FunctionDef) and node.name == tested_function:
+                        # Ensure end_lineno is accessible
+                        if hasattr(node, "end_lineno"):
+                            function_lines = [
+                                line.strip()
+                                for line in file_contents.splitlines()[
+                                    node.lineno - 1 : node.end_lineno
+                                ]
+                            ]
+                            functions.append(function_lines)
+                        break
+            except FileNotFoundError:
+                functions.append([f"File not found: {source_file}"])
+            except Exception as e:
+                functions.append([f"Error: {e}"])
     return functions
