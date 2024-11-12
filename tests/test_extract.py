@@ -1,6 +1,7 @@
 """Test cases for the extract.py file."""
 
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -284,23 +285,28 @@ def test_extract_tested_functions_with_calls():
 
 def test_get_called_functions_from_test_simple():
     """Test get_called_functions_from_test with a simple test function."""
-    # Create a temporary test module to use for testing
+    module_name = "temp_test_module"
     try:
-        with open("temp_test_module.py", "w") as f:
+        # Write the temporary module file
+        with open(f"{module_name}.py", "w") as f:
             f.write("""
 def test_sample():
     func_a()
     func_b()
 """)
-        # Call your function and check the result
-        result = get_called_functions_from_test(
-            "temp_test_module.py::test_sample"
-        )
+        # Add the current directory to sys.path temporarily
+        sys.path.insert(0, os.getcwd())
+        # Call function and check the result
+        result = get_called_functions_from_test(f"{module_name}::test_sample")
         assert result == ["test_sample", "func_a", "func_b"]
     finally:
-        # Delete the temporary test module after the test
-        if os.path.exists("temp_test_module.py"):
-            os.remove("temp_test_module.py")
+        # Remove the temporary module and reset sys.path
+        if os.path.exists(f"{module_name}.py"):
+            os.remove(f"{module_name}.py")
+        sys.path.pop(0)
+        # Clear the module from import cache to avoid stale imports in future tests
+        if module_name in sys.modules:
+            del sys.modules[module_name]
 
 
 def test_function_exists_in_file_exists():
