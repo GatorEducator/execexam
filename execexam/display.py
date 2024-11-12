@@ -39,7 +39,7 @@ def display_tldr(console: Console) -> None:
     commands = {
         "mark": {
             "command": "run execexam <path-to-project> <path-to-tests> --mark mark_type",
-            "description": "Run tests with specific markers (e.g., unit, integration, functional)",
+            "description": "Run tests with specific markers.",
         },
         "maxfail": {
             "command": "run execexam <path-to-project> <path-to-tests> --maxfail number",
