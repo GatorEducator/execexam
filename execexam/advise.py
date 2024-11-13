@@ -159,21 +159,21 @@ def fix_failures(  # noqa: PLR0913
             # of the functions that are implemented; note also that
             # ExecExam has a Pytest plugin that collects additional details
             llm_debugging_request = (
-            "I am an undergraduate student completing a programming examination."
-            + "You may never make suggestions to change the source code of the test cases."
-            + "Always make suggestions about how to improve the Python source code of the program under test."
-            + "Always give Python code in a Markdown fenced code block with your suggested program."
-            + "Always start your response with a friendly greeting and overview of what you will provide."
-            + "Always conclude by saying that you are making a helpful suggestion but could be wrong."
-            + "Always be helpful, upbeat, friendly, encouraging, and concise when making a response."
-            + "Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
-            + "What follows is all of the information you need to complete the debugging task."
-            + f"Here is the error traceback, which will guide you in identifying which functions to fix: {traceback}"
-            + f"Below is the source code for all functions that have failed; focus your suggestions on these functions:  {functions}"
-            + f"Here is an overview of the test details and output, which will help you understand the issue: {test_overview}"
-            + f"A brief summary of the test failure information is provided here: {failing_test_details}"
-            + f"Finally, here is the source code for the failing test(s):: {failing_test_code}"
-            + "Based on this, suggest what changes need to be made to fix the failing functions."
+                "I am an undergraduate student completing a programming examination."
+                + "You may never make suggestions to change the source code of the test cases."
+                + "Always make suggestions about how to improve the Python source code of the program under test."
+                + "Always give Python code in a Markdown fenced code block with your suggested program."
+                + "Always start your response with a friendly greeting and overview of what you will provide."
+                + "Always conclude by saying that you are making a helpful suggestion but could be wrong."
+                + "Always be helpful, upbeat, friendly, encouraging, and concise when making a response."
+                + "Your task is to suggest, in a step-by-step fashion, how to fix the bug(s) in the program?"
+                + "What follows is all of the information you need to complete the debugging task."
+                + f"Here is the error traceback, which will guide you in identifying which functions to fix: {traceback}"
+                + f"Below is the source code for all functions that have failed; focus your suggestions on these functions:  {functions}"
+                + f"Here is an overview of the test details and output, which will help you understand the issue: {test_overview}"
+                + f"A brief summary of the test failure information is provided here: {failing_test_details}"
+                + f"Finally, here is the source code for the failing test(s):: {failing_test_code}"
+                + "Based on this, suggest what changes need to be made to fix the failing functions."
             )
 
             if advice_method == enumerations.AdviceMethod.api_key:
