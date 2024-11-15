@@ -35,7 +35,6 @@ def display_tldr(console: Console) -> None:
     console.print(
         "[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n"
     )
-
     commands = {
         "mark": {
             "command": "execexam <path-to-project> <path-to-tests> --mark mark_type",
@@ -70,8 +69,10 @@ def display_tldr(console: Console) -> None:
             "description": "Choose syntax highlighting theme for code output (options: ansi_dark, ansi_light)",
         },
     }
-
-    for command_name, command_info in commands.items():
+    # display the TLDR information for each of the commands, ensuring
+    # that the final display of the TLDR summary does not display a newline
+    command_items = list(commands.items())
+    for i, (command_name, command_info) in enumerate(command_items):
         console.print(f"[bold green]{command_name}[/bold green]")
         console.print(
             f"[bold white]Command:[/bold white] [bold cyan]{command_info['command']}[/bold cyan]"
@@ -79,8 +80,10 @@ def display_tldr(console: Console) -> None:
         console.print(
             f"[bold white]Description:[/bold white] {command_info['description']}"
         )
-        console.print()
-
+        if i < len(command_items) - 1:
+            console.print()
+    # display a helpful message to the user about how they can
+    # use the --help option to see more options
     console.print(
         "\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options."
     )
