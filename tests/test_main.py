@@ -15,6 +15,15 @@ def test_run_use_help():
     assert "Options" in result.output
 
 
+def test_run_use_tldr():
+    """Test the run command with the --tldr."""
+    result = runner.invoke(main.cli, ["run", "--tldr"])
+    assert result.exit_code == 0
+    assert "Too" in result.output
+    assert "Lazy" in result.output
+    assert "--help" in result.output
+
+
 def test_run_valid_argument_no_action():
     """Test the run command with valid required arguments."""
     result = runner.invoke(main.cli, ["run", ". tests/"])
