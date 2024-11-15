@@ -123,7 +123,7 @@ def run(  # noqa: PLR0913, PLR0915
     # a custom pytest plugin for the executable examination
     json_report_plugin = JSONReport()
     # display basic diagnostic information about command-line's arguments;
-    # extract the local parmeters and then make a displayable string of them
+    # extract the local parameters and then make a displayable string of them
     args = locals()
     colon_separated_diagnostics = display.make_colon_separated_string(args)
     # --> SETUP
