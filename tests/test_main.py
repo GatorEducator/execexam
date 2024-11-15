@@ -4,6 +4,10 @@ from typer.testing import CliRunner
 
 from execexam import main
 
+# NOTE: Unless there is a clear reason to do so, only
+# write tests for the command-line interface using the
+# CliRunner provided by typer.
+
 runner = CliRunner()
 
 # NOTE: tests that run execexam through the its CLI
