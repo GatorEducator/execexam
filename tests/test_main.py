@@ -32,6 +32,18 @@ def test_run_use_tldr():
     assert "--help" in result.output
 
 
+def test_run_use_tldr_and_help_defaults_to_help():
+    """Test the run command with the --tldr and --help."""
+    result = runner.invoke(main.cli, ["run", "--tldr", "--help"])
+    assert result.exit_code == 0
+    assert "Arguments" in result.output
+    assert "Options" in result.output
+    result = runner.invoke(main.cli, ["run", "--help", "--tldr"])
+    assert result.exit_code == 0
+    assert "Arguments" in result.output
+    assert "Options" in result.output
+
+
 # }}}
 
 
