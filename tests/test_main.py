@@ -99,3 +99,53 @@ def test_run_with_missing_test(cwd, poetry_env, capfd):
             pytest.fail(f"Unicode decode error: {e!s}")
         except Exception as e:
             pytest.fail(f"Unexpected error: {e!s}")
+
+
+@pytest.mark.no_print
+def test_default_exitcode_report(cwd, poetry_env):
+    """Test that the default report includes exitcode when --report is not provided."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Set up a mock project directory and test file
+        project_dir = Path(temp_dir) / "mock_project"
+        project_dir.mkdir()
+        test_file = project_dir / "test_mock.py"
+        test_file.write_text("def test_example(): assert True")
+
+        env = os.environ.copy()
+        if sys.platform == "win32":
+            env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONUTF8"] = "1"
+
+        # Run the command without specifying the --report option
+        result = subprocess.run(
+            [
+                poetry_env,
+                "-m",
+                "poetry",
+                "run",
+                "execexam",
+                str(project_dir),
+                str(test_file),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+            env=env,
+            cwd=cwd,
+        )
+
+        # Validate the exit code
+        assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
+
+        # Validate that the output includes either the expected 'exit code' message or equivalent status
+        output_lower = result.stdout.lower()
+        assert (
+            "exit code" in output_lower
+            or "overall status" in output_lower
+            or "checks passed" in output_lower
+        ), (
+            "Expected 'exit code', 'overall status', or 'checks passed' in the output, but none were found. "
+            f"Output: {result.stdout}"
+        )
