@@ -121,9 +121,12 @@ def test_default_exitcode_report(cwd, poetry_env):
         if sys.platform == "win32":
             env["PYTHONIOENCODING"] = "utf-8"
             env["PYTHONUTF8"] = "1"
-            # Use relative paths from the cwd
-            project_dir_str = os.path.relpath(project_dir, cwd)
-            test_file_str = os.path.relpath(test_file, cwd)
+            # Use absolute paths with normalized separators
+            project_dir_str = str(Path(temp_dir).resolve() / "mock_project")
+            test_file_str = str(test_file.resolve())
+            # Normalize path separators
+            project_dir_str = project_dir_str.replace(os.sep, "/")
+            test_file_str = test_file_str.replace(os.sep, "/")
         else:
             project_dir_str = str(project_dir)
             test_file_str = str(test_file)
@@ -149,9 +152,7 @@ def test_default_exitcode_report(cwd, poetry_env):
         )
 
         # Validate the exit code
-        assert (
-            result.returncode == 0
-        ), f"Expected exit code 0, got {result.returncode}"
+        assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
 
         # Validate that the output includes either the expected 'exit code' message or equivalent status
         output_lower = result.stdout.lower()
