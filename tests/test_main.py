@@ -105,16 +105,28 @@ def test_run_with_missing_test(cwd, poetry_env, capfd):
 def test_default_exitcode_report(cwd, poetry_env):
     """Test that the default report includes exitcode when --report is not provided."""
     with tempfile.TemporaryDirectory() as temp_dir:
-        # Set up a mock project directory and test file
+        # Set up a mock project directory with proper test directory
         project_dir = Path(temp_dir) / "mock_project"
         project_dir.mkdir()
-        test_file = project_dir / "test_mock.py"
+
+        # Create tests directory
+        tests_dir = project_dir / "tests"
+        tests_dir.mkdir()
+
+        # Create test file in the tests directory
+        test_file = tests_dir / "test_mock.py"
         test_file.write_text("def test_example(): assert True")
 
         env = os.environ.copy()
         if sys.platform == "win32":
             env["PYTHONIOENCODING"] = "utf-8"
             env["PYTHONUTF8"] = "1"
+            # Convert paths to Windows format with forward slashes
+            project_dir_str = str(project_dir.resolve()).replace("\\", "/")
+            test_file_str = str(test_file.resolve()).replace("\\", "/")
+        else:
+            project_dir_str = str(project_dir)
+            test_file_str = str(test_file)
 
         # Run the command without specifying the --report option
         result = subprocess.run(
@@ -124,8 +136,8 @@ def test_default_exitcode_report(cwd, poetry_env):
                 "poetry",
                 "run",
                 "execexam",
-                str(project_dir),
-                str(test_file),
+                project_dir_str,
+                test_file_str,
             ],
             capture_output=True,
             text=True,
