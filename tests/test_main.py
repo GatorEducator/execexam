@@ -149,7 +149,9 @@ def test_default_exitcode_report(cwd, poetry_env):
         )
 
         # Validate the exit code
-        assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
+        assert (
+            result.returncode == 0
+        ), f"Expected exit code 0, got {result.returncode}"
 
         # Validate that the output includes either the expected 'exit code' message or equivalent status
         output_lower = result.stdout.lower()
