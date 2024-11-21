@@ -2,7 +2,7 @@
 name = "execexam"
 version = "0.3.3"
 description = "ExecExam runs executable examinations, providing feedback and assistance!"
-authors = ["Pallas-Athena Cain <cain01@allegheny.edu>", "Hemani Alaparthi <alaparthi01@allegheny.edu>","Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
+authors = ["Hemani Alaparthi <alaparthi01@allegheny.edu>","Pallas-Athena Cain <cain01@allegheny.edu>","Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
