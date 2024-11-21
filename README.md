@@ -39,10 +39,10 @@ of [LiteLLM](https://docs.litellm.ai/docs/providers):
 ## 🔧 Requirements
 
 - Python 3.12
-- Execexam leverages numerous Python packages, including notable ones such as:
+- ExecExam leverages numerous Python packages, including notable ones such as:
     - [Rich](https://github.com/Textualize/rich): Full-featured formatting and display of text in the terminal
     - [Typer](https://github.com/tiangolo/typer): Easy-to-implement and fun-to-use command-line interfaces
-- The developers of Execexam use [Poetry](https://github.com/python-poetry/poetry) for packaging and dependency management
+- The developers of ExecExam use [Poetry](https://github.com/python-poetry/poetry) for packaging and dependency management
 
 ## 🔽 Installation
 
