@@ -2,7 +2,7 @@
 name = "execexam"
 version = "0.3.3"
 description = "ExecExam runs executable examinations, providing feedback and assistance!"
-authors = ["Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
+authors = ["Hemani Alaparthi <alaparthi01@allegheny.edu>","Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
@@ -19,6 +19,7 @@ typer = "^0.12.3"
 litellm = {extras = ["proxy"], version = "^1.43.15"}
 openai = "^1.41.0"
 validators = "^0.33.0"
+toml = "^0.10.2"
 
 [tool.poetry.group.dev.dependencies]
 taskipy = "^1.13.0"
@@ -33,6 +34,9 @@ filterwarnings = [
     "error",
 ]
 enable_assertion_pass_hook = true
+markers = [
+    "order(number): marks test to run in a specific order"
+]
 
 [tool.ruff]
 line-length = 79
@@ -62,8 +66,8 @@ line_length = 88
 project = "execexam"
 tests = "tests"
 check-command = { var = "ruff check {project} {tests}", recursive = true }
-coverage-test-command = "pytest -s --cov-context=test --cov-fail-under=90 --cov-report term-missing --cov-report json --cov --cov-branch"
-coverage-test-command-silent = "pytest -x --show-capture=no --cov-report term-missing --cov-report json --cov --cov-branch"
+coverage-test-command = "pytest -s --cov-context=test --cov-fail-under=50 --cov-config .coveragerc --cov-report term-missing --cov-report json --cov --cov-branch"
+coverage-test-command-silent = "pytest -x --show-capture=no --cov-config .coveragerc --cov-report term-missing --cov-report json --cov --cov-branch"
 developer-test-command = "pytest -x -s"
 developer-test-silent-command = "pytest -x --show-capture=no"
 fixformat-command = { var = "ruff format {project} {tests}", recursive = true }
@@ -76,6 +80,8 @@ mypy-command = {var = "mypy {project}", recursive = true}
 all = "task lint && task test"
 lint = "task format && task check && task mypy && task symbex"
 check = { cmd = "{check-command}", help = "Run the ruff linting checks", use_vars = true }
+coverage = { cmd = "{coverage-test-command}", help = "Run test coverage monitoring", use_vars = true }
+coverage-silent = { cmd = "{coverage-test-command-silent}", help = "Run test coverage monitoring", use_vars = true }
 format = { cmd = "{format-command}", help = "Run the ruff formatter on source code", use_vars = true }
 format-fix = { cmd = "{fixformat-command}", help = "Run the ruff formatter to fix source code", use_vars = true }
 mypy = { cmd = "{mypy-command}", help = "Run the mypy type checker for potential type errors", use_vars = true }

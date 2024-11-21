@@ -207,6 +207,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+coverage.json
 *,cover
 .hypothesis/
 *.mo
@@ -355,18 +356,6 @@ Temporary Items
 # .txt files
 *.txt
 
-# pytest-cov htmlcov
-htmlcov
-
-# coverage report
-.coveragereport.json
-
-# coverage report
-coverage.txt
-
-# coverage report
-coverage.json
-
 # bash command history
 .bash_history
 
@@ -375,3 +364,4 @@ credentials.json
 
 # poetry.toml file
 poetry.toml
+
