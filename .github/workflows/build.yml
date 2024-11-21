@@ -75,7 +75,7 @@ jobs:
           poetry run task test-not-fuzz
       # Run coverage
       - name: Run Coverage
-        run: pytest --cov=. --cov-report=term
+        run: poetry run pytest --cov=. --cov-report=term
       # Run the tests and update badges
       - name: Run Tests and Update Badges
         run: poetry run python scripts/badges.py
