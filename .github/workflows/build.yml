@@ -87,8 +87,8 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git checkout main # Ensure you're on the main branch
           git add README.md
           git commit -m "Update badges in README.md" || echo "No changes to commit"
+          git checkout main || echo "Already on main branch"
           git push origin main
   
