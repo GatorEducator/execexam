@@ -1,9 +1,38 @@
+"""Testing for the advise module"""
+
 from socket import timeout as SocketTimeout
 from unittest.mock import Mock, patch
 
 import pytest
 
-from execexam.advise import check_internet_connection
+from execexam.advise import (
+    check_internet_connection,
+    validate_url,
+)
+
+
+# Test for validate_url function
+def test_validate_url():
+    """Validates proper URL invalidates improper URL."""
+    # Test with an invalid URL
+    result = validate_url("invalid-url")
+    assert not result
+
+    # Test with an empty string
+    result = validate_url("")
+    assert not result
+
+    # Test with a URL that includes spaces
+    result = validate_url("https://example .com")
+    assert not result
+
+    # Test with valid URL
+    result = validate_url("https://developerdevelopment.com/")
+    assert result
+
+    # Test with another valid URL
+    result = validate_url("https://developerdevelopment.com/schedule/")
+    assert result
 
 
 def test_check_internet_connection_success():

@@ -1,4 +1,4 @@
-"""Test suite for the util module."""
+"""Test cases for the util.py file."""
 
 import pytest
 

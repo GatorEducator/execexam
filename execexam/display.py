@@ -35,51 +35,55 @@ def display_tldr(console: Console) -> None:
     console.print(
         "[bold yellow]Too Lazy; Didn't Read: Example Commands[/bold yellow]\n"
     )
-    console.print(
-        "[bold red]Please ensure you are in the directory with the pyproject.toml file to run these commands.[/bold red]\n"
-    )
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests>[/bold cyan]"
-    )
-    console.print(
-        "    Run executable exam for a project with the specified test files."
-    )
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --mark <mark>[/bold cyan]"
-    )
-    console.print("    Run the tests with the specified mark(s).")
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --maxfail[/bold cyan]"
-    )
-    console.print("    Limit the number of test failures before stopping.")
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --report <report_type>/<all>[/bold cyan]"
-    )
-    console.print(
-        "    Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types."
-    )
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> --advice-model <model> --advice-method <method>[/bold cyan]"
-    )
-    console.print(
-        "    Use specified LLM model and method for providing advice on test failures."
-    )
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> <--debug>/<--no-debug>[/bold cyan]"
-    )
-    console.print("    Display or disable debugging information.")
-
-    console.print(
-        "[bold cyan]poetry run execexam <path-to-project> <path-to-tests> <--fancy>/<--no-fancy>[/bold cyan]"
-    )
-    console.print("    Display or disable fancy output formatting.")
-
+    commands = {
+        "mark": {
+            "command": "execexam <path-to-project> <path-to-tests> --mark mark_type",
+            "description": "Run tests with specific markers.",
+        },
+        "maxfail": {
+            "command": "execexam <path-to-project> <path-to-tests> --maxfail number",
+            "description": "Set maximum number of test failures before stopping test execution (default: 10)",
+        },
+        "report": {
+            "command": "execexam <path-to-project> <path-to-tests> --report report_type/all",
+            "description": "Generate the specified type(s) of reports after the exam. Use 'all' to generate all available report types.",
+        },
+        "advice-method": {
+            "command": "execexam --advice-method <method> --advice-model <model> --advice-server <server>",
+            "description": "Specify the LLM model and advice method to use Coding Mentor. Consult documentation for available models and methods.",
+        },
+        "debug": {
+            "command": "execexam <path-to-project> <path-to-tests> --debug/--no-debug",
+            "description": "Enable or disable debug mode to collect additional debugging information during execution.",
+        },
+        "fancy": {
+            "command": "execexam <path-to-project> <path-to-tests> --fancy/--no-fancy",
+            "description": "Toggle fancy output formatting. Disable for simpler output in plain-text environments.",
+        },
+        "verbose": {
+            "command": "execexam <path-to-project> <path-to-tests> --verbose/--no-verbose",
+            "description": "Enable or disable verbose output to see more detailed logs of the program's execution.",
+        },
+        "syntax-theme": {
+            "command": "execexam <path-to-project> <path-to-tests> --syntax-theme theme_name",
+            "description": "Choose syntax highlighting theme for code output (options: ansi_dark, ansi_light)",
+        },
+    }
+    # display the TLDR information for each of the commands, ensuring
+    # that the final display of the TLDR summary does not display a newline
+    command_items = list(commands.items())
+    for i, (command_name, command_info) in enumerate(command_items):
+        console.print(f"[bold green]{command_name}[/bold green]")
+        console.print(
+            f"[bold white]Command:[/bold white] [bold cyan]{command_info['command']}[/bold cyan]"
+        )
+        console.print(
+            f"[bold white]Description:[/bold white] {command_info['description']}"
+        )
+        if i < len(command_items) - 1:
+            console.print()
+    # display a helpful message to the user about how they can
+    # use the --help option to see more options
     console.print(
         "\n[bold yellow]help:[/bold yellow] Use [bold yellow]--help[/bold yellow] to see more options."
     )

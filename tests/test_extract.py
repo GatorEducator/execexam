@@ -1,4 +1,4 @@
-"""Test suite for the extract module."""
+"""Test cases for the extract.py file."""
 
 from pathlib import Path
 
@@ -35,6 +35,7 @@ def test_extract_details():
 )
 @pytest.mark.fuzz
 def test_extract_details_hypothesis(details):
+    """Test extracting details from a dictionary using hypothesis."""
     result = extract_details(details)
     # If the dictionary is empty, the expected result is an empty string
     if not details:
@@ -47,6 +48,7 @@ def test_extract_details_hypothesis(details):
 
 
 def test_extract_test_run_details():
+    """Test extracting details from a test run summary."""
     # check a simple example
     details = {"summary": {"passed": 2, "total": 2, "collected": 2}}
     result = extract_test_run_details(details)

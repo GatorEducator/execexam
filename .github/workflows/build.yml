@@ -1,4 +1,3 @@
-# Basic workflow
 name: build
 
 # Use more columns for terminal output
@@ -39,50 +38,46 @@ jobs:
             python-version: "3.12"
           - os: windows-latest
             python-version: "3.12"
+
     # Define the workflow steps
     steps:
     # Checkout the code of the repository
-        - name: Check out Repository Code
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 0
-        # Setup Python for the current language version
-        - name: Setup Python ${{ matrix.python-version }}
-          if: always()
-          uses: actions/setup-python@v4
-          with:
-            python-version: ${{ matrix.python-version }}
-        # Install pip
-        - name: Install Pip
-          if: always()
-          run: |
-            python -m pip install --upgrade pip
-        # Install poetry
-        - name: Install Poetry
-          if: always()
-          uses: abatilo/actions-poetry@v2.0.0
-          with:
-            poetry-version: 1.8.3
-        # Install dependencies
-        - name: Install dependencies
-          if: always()
-          run: |
-            poetry install
-        # Run the linters
-        - name: Run Linters
-          if: always()
-          run: |
-            # install ruff directly instead of managing
-            # it as a dependency with Poetry since ruff
-            # does not (always) install correctly
-            # through Poetry on NixOS
-            pipx install ruff
-            poetry run task lint
-        # Run the tests
-        - name: Run Tests
-          if: always()
-          run: |
-            # do not run the Hypothesis-based fuzz tests
-            # because they sometimes take longer to run
-            # on Windows and MacOS and this creates errors
-            poetry run task test-not-fuzz
+      - name: Check out Repository Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      # Setup Python for the current language version
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Install pip
+      - name: Install Pip
+        run: |
+          python -m pip install --upgrade pip
+      # Install poetry
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.8.3
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          poetry install
+      # Run the linters
+      - name: Run Linters
+        run: |
+          pipx install ruff
+          poetry run task lint
+      # Run the tests
+      - name: Run Tests
+        run: |
+          poetry run task test-not-fuzz
+      # Run the tests and coverage
+      - name: Run Tests and Generate Coverage
+        run: |
+          poetry run pytest -s --cov=my_package --cov-report json:coverage.json
+      # Generate badges
+      - name: Generate Coverage and Version Badges
+        run: |
+          poetry run python scripts/badges.py

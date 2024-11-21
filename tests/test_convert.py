@@ -1,4 +1,4 @@
-"""Test cases for the convert module."""
+"""Test cases for the convert.py file."""
 
 from pathlib import Path
 
@@ -6,6 +6,7 @@ from execexam.convert import path_to_string
 
 
 def test_path_to_string():
+    """Test the path_to_string function from the convert module."""
     # path that has more than 4 parts
     path = Path("/home/user/documents/work/project/file.txt")
     result = path_to_string(path)
