@@ -1,91 +1,122 @@
-import json
 import os
-
+import re
+import subprocess
+import time
 import toml
+
 
 # Dynamically get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Define the paths to the necessary files
-COVERAGE_FILE = os.path.join(current_dir, "../coverage.json")
 README_FILE = os.path.join(current_dir, "../README.md")
 PYPROJECT_FILE = os.path.join(current_dir, "../pyproject.toml")
 
 
 def get_coverage_percentage():
-    if not os.path.exists(COVERAGE_FILE):
-        raise FileNotFoundError(f"{COVERAGE_FILE} not found.")
-    with open(COVERAGE_FILE) as f:
-        coverage_data = json.load(f)
-        try:
-            total_coverage = coverage_data["totals"]["percent_covered"]
-        except KeyError as e:
-            raise KeyError(f"Expected key missing in coverage data: {e}")
-    return total_coverage
-
-
-def update_coverage_badge(coverage):
-    badge_url = (
-        f"https://img.shields.io/badge/coverage-{coverage:.2f}%25-brightgreen"
-    )
-
-    with open(README_FILE, "r") as file:
-        readme_content = file.read()
-
-    new_readme = readme_content
-    old_coverage_badge = "![coverage](https://img.shields.io/badge/coverage-"
-    if old_coverage_badge in readme_content:
-        start_index = readme_content.find(old_coverage_badge)
-        end_index = readme_content.find(")", start_index) + 1
-        full_coverage_badge = readme_content[start_index:end_index]
-
-        new_readme = readme_content.replace(
-            full_coverage_badge, f"![coverage]({badge_url})"
+    """Run pytest-cov and extract the coverage percentage from the output."""
+    try:
+        # Run pytest with coverage
+        result = subprocess.run(
+            ["pytest", "--cov=.", "--cov-report=term"],
+            capture_output=True,
+            text=True,
+            check=True,
         )
 
-    with open(README_FILE, "w") as file:
-        file.write(new_readme)
+        # Extract coverage percentage from output using regex
+        match = re.search(r"TOTAL\s+\d+\s+\d+\s+(\d+)%", result.stdout)
+        if match:
+            return float(match.group(1))
+        else:
+            print(
+                "[ERROR] Could not extract coverage percentage from pytest output."
+            )
+            return None
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] pytest failed: {e.stderr}")
+        return None
 
 
 def get_version():
+    """Fetch version from pyproject.toml."""
     if not os.path.exists(PYPROJECT_FILE):
-        raise FileNotFoundError(f"{PYPROJECT_FILE} not found.")
-    with open(PYPROJECT_FILE) as f:
-        pyproject_data = toml.load(f)
-        try:
-            version = pyproject_data["tool"]["poetry"]["version"]
-        except KeyError as e:
-            raise KeyError(f"Expected key missing in pyproject.toml: {e}")
-    return version
+        print(f"[ERROR] {PYPROJECT_FILE} not found.")
+        return None
+    try:
+        with open(PYPROJECT_FILE) as f:
+            pyproject_data = toml.load(f)
+            return pyproject_data["tool"]["poetry"]["version"]
+    except (KeyError, toml.TomlDecodeError) as e:
+        print(f"[ERROR] Invalid format in {PYPROJECT_FILE}: {e}")
+        return None
 
 
-def update_version_badge(version):
-    badge_url = f"https://img.shields.io/badge/version-{version}-blue"
+def update_badge(badge_type, new_value):
+    """
+    Update a badge in README.md.
 
-    with open(README_FILE, "r") as file:
-        readme_content = file.read()
+    :param badge_type: Type of badge ('coverage' or 'version')
+    :param new_value: Value to update the badge with
+    """
+    if not os.path.exists(README_FILE):
+        print(f"[ERROR] {README_FILE} not found.")
+        return False
 
-    new_readme = readme_content
-    old_version_badge = "![version](https://img.shields.io/badge/version-"
-    if old_version_badge in readme_content:
-        start_index = readme_content.find(old_version_badge)
-        end_index = readme_content.find(")", start_index) + 1
-        full_version_badge = readme_content[start_index:end_index]
+    try:
+        with open(README_FILE, "r") as file:
+            readme_content = file.read()
 
-        new_readme = readme_content.replace(
-            full_version_badge, f"![version]({badge_url})"
-        )
+        # Define badge URL
+        if badge_type == "coverage":
+            badge_url = f"https://img.shields.io/badge/coverage-{new_value:.2f}%25-brightgreen?cacheBust={time.time()}"
+            badge_prefix = "![coverage](https://img.shields.io/badge/coverage-"
+        elif badge_type == "version":
+            badge_url = f"https://img.shields.io/badge/version-{new_value}-blue?cacheBust={time.time()}"
+            badge_prefix = "![version](https://img.shields.io/badge/version-"
+        else:
+            print(f"[ERROR] Unknown badge type: {badge_type}")
+            return False
 
-    with open(README_FILE, "w") as file:
-        file.write(new_readme)
+        # Replace the old badge
+        if badge_prefix in readme_content:
+            start_index = readme_content.find(badge_prefix)
+            end_index = readme_content.find(")", start_index) + 1
+            full_badge = readme_content[start_index:end_index]
+            updated_content = readme_content.replace(
+                full_badge, f"![{badge_type}]({badge_url})"
+            )
+        else:
+            print(
+                f"[INFO] No existing {badge_type} badge found. Adding a new one."
+            )
+            updated_content = (
+                readme_content + f"\n![{badge_type}]({badge_url})"
+            )
+
+        # Write back to README.md
+        with open(README_FILE, "w") as file:
+            file.write(updated_content)
+
+        print(f"[SUCCESS] {badge_type.capitalize()} badge updated.")
+        return True
+
+    except Exception as e:
+        print(f"[ERROR] Failed to update {badge_type} badge: {e}")
+        return False
 
 
 if __name__ == "__main__":
-    try:
-        coverage_percentage = get_coverage_percentage()
-        update_coverage_badge(coverage_percentage)
+    # Get coverage percentage and version
+    coverage = get_coverage_percentage()
+    version = get_version()
 
-        version = get_version()
-        update_version_badge(version)
-    except (FileNotFoundError, KeyError) as e:
-        print(f"Error: {e}")
+    if coverage is not None:
+        update_badge("coverage", coverage)
+    else:
+        print("[ERROR] Coverage badge update skipped due to missing data.")
+
+    if version is not None:
+        update_badge("version", version)
+    else:
+        print("[ERROR] Version badge update skipped due to missing data.")
