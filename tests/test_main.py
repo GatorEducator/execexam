@@ -66,4 +66,16 @@ def test_run_invalid_report_argument():
     assert result.exit_code != 0
 
 
+def test_invalid_tldr_spelling():
+    """Test the run command with invalid tldr command-line argument spelling."""
+    result = runner.invoke(main.cli, ["run", ". tests/", "--tldear"])
+    assert result.exit_code != 0
+
+
+def test_invalid_help_spelling():
+    """Test the run command with invalid help command-line argument spelling."""
+    result = runner.invoke(main.cli, ["run", ". tests/", "--hlp"])
+    assert result.exit_code != 0
+
+
 # }}}
