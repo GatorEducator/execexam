@@ -89,4 +89,8 @@ def test_run_default_mark_exitcode():
     result = runner.invoke(main.cli, ["run", ".", "--mark"])
     assert result.exit_code != 0
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> b281ca4 (fix(test_main.py): fix linting issues)
 # }}}
