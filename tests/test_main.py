@@ -88,4 +88,5 @@ def test_run_default_mark_exitcode():
     """Test the run command to check the default mark has an output."""
     result = runner.invoke(main.cli, ["run", ".", "--mark"])
     assert result.exit_code != 0
+
 # }}}
