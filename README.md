@@ -2,9 +2,9 @@
 
 <img src="https://i.ibb.co/vzjX7p2/exe.png" alt="logo" height="500">
 
-[![coverage](https://img.shields.io/badge/coverage-20.86%25-brightgreen)](https://github.com/GatorEducator/execexam/actions)
+[![coverage](https://img.shields.io/badge/coverage-83.00%25-brightgreen?cacheBust=1732220727.141896)](https://github.com/GatorEducator/execexam/actions)
 [![Static Badge](https://img.shields.io/badge/Maintained%3F-yes-orange)](https://github.com/GatorEducator/execexam/commits/main/)
-![version](https://img.shields.io/badge/version-0.3.0-blue)
+![version](https://img.shields.io/badge/version-0.3.3-blue?cacheBust=1732220727.142039)
 
 
 ExecExam is a powerful tool that runs executable examinations in which a
