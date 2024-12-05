@@ -85,8 +85,8 @@ jobs:
           poetry run python scripts/badges.py
       - name: Commit updated README.md
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          git config --global user.name "git"
+          git config --global user.email "git@github.com"
           git add README.md
           git commit -m "Update badges in README.md" || echo "No changes to commit"
           git checkout main || echo "Already on main branch"
