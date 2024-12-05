@@ -1,5 +1,8 @@
 """Test cases for the extract.py file."""
 
+import importlib
+import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -9,12 +12,18 @@ from hypothesis.strategies import dictionaries, text
 from execexam.extract import (
     extract_details,
     extract_failing_test_details,
+    extract_function_code_from_traceback,
     extract_test_assertion_details,
     extract_test_assertion_details_list,
     extract_test_assertions_details,
     extract_test_output,
     extract_test_output_multiple_labels,
     extract_test_run_details,
+    extract_tested_functions,
+    extract_tracebacks,
+    find_source_file,
+    function_exists_in_file,
+    get_called_functions_from_test,
     is_failing_test_details_empty,
 )
 
@@ -254,3 +263,165 @@ def test_is_failing_test_details_empty_with_empty_string():
     result = is_failing_test_details_empty(details)
     # check the result
     assert result is False
+
+
+def test_extract_tested_functions_no_calls():
+    """Test extract_tested_functions with no function calls."""
+    failing_code = "assert 1 == 1"
+    result = extract_tested_functions(failing_code)
+    assert (
+        result == failing_code
+    ), "Should return the full code when no functions are called."
+
+
+def test_extract_tested_functions_with_calls():
+    """Test extract_tested_functions with multiple function calls."""
+    failing_code = "func1()\nfunc2()\nassert test_function()"
+    result = extract_tested_functions(failing_code)
+    assert result == {
+        "func1",
+        "func2",
+    }, "Should extract only the non-test/assert functions."
+
+
+def test_get_called_functions_from_test_simple():
+    """Test get_called_functions_from_test with a simple test function."""
+    module_name = "temp_test_module"
+    try:
+        # Write the temporary module file
+        with open(f"{module_name}.py", "w") as f:
+            f.write("""
+def test_sample():
+    func_a()
+    func_b()
+""")
+        # Add the current directory to sys.path temporarily
+        sys.path.insert(0, os.getcwd())
+        # Call function and check the result
+        result = get_called_functions_from_test(f"{module_name}::test_sample")
+        assert result == ["test_sample", "func_a", "func_b"]
+    finally:
+        # Remove the temporary module and reset sys.path
+        if os.path.exists(f"{module_name}.py"):
+            os.remove(f"{module_name}.py")
+        sys.path.pop(0)
+        # Clear the module from import cache to avoid stale imports in future tests
+        if module_name in sys.modules:
+            del sys.modules[module_name]
+
+
+def test_function_exists_in_file_exists():
+    """Test function_exists_in_file when the function exists in the file."""
+    # Create a temporary Python file to use for testing
+    with open("temp_module.py", "w") as f:
+        f.write("def existing_function(): pass")
+    result = function_exists_in_file("temp_module.py", "existing_function")
+    assert result, "Should return True when function exists in the file."
+    os.remove("temp_module.py")
+
+
+def test_function_exists_in_file_not_exists():
+    """Test function_exists_in_file when the function does not exist in the file."""
+    # Create a temporary Python file to use for testing
+    with open("temp_module.py", "w") as f:
+        f.write("def some_other_function(): pass")
+    result = function_exists_in_file("temp_module.py", "non_existing_function")
+    assert (
+        not result
+    ), "Should return False when function does not exist in the file."
+    os.remove("temp_module.py")
+
+
+def test_find_source_file_simple_import():
+    """Test find_source_file with a simple import."""
+    # Create a test file with an import statement
+    with open("test_file.py", "w") as f:
+        f.write("import module_a\n")
+    with open("module_a.py", "w") as f:
+        f.write("def test_func(): pass")
+    result = find_source_file("test_file.py::test_func", "test_func")
+    assert (
+        result == "module_a.py"
+    ), "Should return the correct source file when found."
+    os.remove("test_file.py")
+    os.remove("module_a.py")
+
+
+def test_extract_tracebacks_no_failures():
+    """Test extract_tracebacks with no failures in the JSON report."""
+    # Create a simple JSON report for testing that passes
+    json_report = {
+        "tests": [
+            {"outcome": "passed", "nodeid": "test_module.py::test_function"}
+        ]
+    }
+    # Check the results are empty when the report passed
+    result = extract_tracebacks(json_report, "sample failing code")
+    assert (
+        result == []
+    ), "Should return an empty list when no failures are present."
+
+
+def test_extract_tracebacks_with_failures():
+    """Test extract_tracebacks with a failure in the JSON report."""
+    module_name = "my_tests"
+    try:
+        # Create a test file `my_tests.py` with a failing test
+        with open(f"{module_name}.py", "w") as f:
+            f.write("""
+def test_sample():
+    assert False, "test failed"
+""")
+        # Add the current directory to sys.path temporarily
+        sys.path.insert(0, os.getcwd())
+        importlib.invalidate_caches()  # Ensure the new module can be found
+        # Create a test JSON report with a failure
+        json_report = {
+            "tests": [
+                {
+                    "outcome": "failed",
+                    "nodeid": f"{module_name}.py::test_sample",
+                    "call": {
+                        "longrepr": "E   AssertionError: test failed\nFile 'my_tests.py', line 3"
+                    },
+                }
+            ]
+        }
+        # Run the function and check the result
+        result = extract_tracebacks(json_report, "def func_a(): pass")
+        assert isinstance(
+            result, list
+        ), "The result should be a list of tracebacks"
+        assert len(result) == 1, "There should be one traceback in the result"
+        assert (
+            result[0]["error_type"] == "AssertionError"
+        ), "The error_type should be 'AssertionError'"
+        assert (
+            "test failed" in result[0]["full_traceback"]
+        ), "The traceback should contain 'test failed'"
+    finally:
+        # Clean up the temporary module and reset sys.path
+        if os.path.exists(f"{module_name}.py"):
+            os.remove(f"{module_name}.py")
+        sys.path.pop(0)
+        if module_name in sys.modules:
+            del sys.modules[module_name]
+
+
+def test_extract_function_code_from_traceback():
+    """Test extract_function_code_from_traceback with a sample function."""
+    # Create a source file with a sample function
+    with open("source_file.py", "w") as f:
+        f.write("""\
+def sample_func():
+    return True
+""")
+    # Prepare traceback info list for testing
+    traceback_info_list = [
+        {"source_file": "source_file.py", "tested_function": "sample_func"}
+    ]
+    # Extract the function code from the traceback
+    result = extract_function_code_from_traceback(traceback_info_list)
+    assert result is not None
+    assert any("sample_func" in line for sublist in result for line in sublist)
+    os.remove("source_file.py")

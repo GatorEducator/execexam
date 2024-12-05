@@ -286,7 +286,7 @@ def run(  # noqa: PLR0913, PLR0915
             # build the command for running symbex; this tool can
             # perform static analysis of Python source code and
             # extract the code of a function inside of a file
-            command = f"symbex {test_name} -f {failing_test_path}"
+            command = f'symbex "{test_name}" -f "{failing_test_path}"'
             # run the symbex command and collect its output
             process = subprocess.run(
                 command,
@@ -335,6 +335,10 @@ def run(  # noqa: PLR0913, PLR0915
         # litellm module has been loaded in a separate thread
         litellm_thread.join()
         debugger.debug(debug, debugger.Debug.stopped_litellm_thread.value)
+        tracebacks = extract.extract_tracebacks(
+            json_report_plugin.report, failing_test_code_overall
+        )
+        functions = extract.extract_function_code_from_traceback(tracebacks)
         # provide advice about how to fix the failing tests
         # because the non-zero return code indicates that
         # there was a test failure and that overall there
@@ -346,6 +350,8 @@ def run(  # noqa: PLR0913, PLR0915
                 filtered_test_output,
                 exec_exam_test_assertion_details,
                 filtered_test_output + exec_exam_test_assertion_details,
+                tracebacks,
+                functions,
                 failing_test_details,
                 failing_test_code_overall,
                 advice_method,
