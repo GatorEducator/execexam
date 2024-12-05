@@ -77,4 +77,15 @@ def test_invalid_help_spelling():
     result = runner.invoke(main.cli, ["run", ". tests/", "--hlp"])
     assert result.exit_code != 0
 
+
+def test_run_default_report_exitcode():
+    """Test the run command to check the default report is set to exitcode."""
+    result = runner.invoke(main.cli, ["run", ".", "--report", "--fancy"])
+    assert result.exit_code != 0
+
+
+def test_run_default_mark_exitcode():
+    """Test the run command to check the default mark has an output."""
+    result = runner.invoke(main.cli, ["run", ".", "--mark"])
+    assert result.exit_code != 0
 # }}}
