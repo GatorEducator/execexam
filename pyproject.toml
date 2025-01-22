@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "execexam"
-version = "0.3.2"
+version = "0.3.3"
 description = "ExecExam runs executable examinations, providing feedback and assistance!"
-authors = ["Hemani Alaparthi <alaparthi01@allegheny.edu>","Pallas-Athena Cain <cain01@allegheny.edu>","Gregory M. Kapfhammer <gkapfham@allegheny.edu>"]
+authors = ["Hemani Alaparthi <alaparthi01@allegheny.edu>", "Pallas-Athena Cain <cain01@allegheny.edu>", "Gregory M. Kapfhammer <gkapfham@allegheny.edu>", "Titus Smith <smith03@allegheny.edu>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
@@ -19,7 +19,6 @@ typer = "^0.12.3"
 litellm = {extras = ["proxy"], version = "^1.43.15"}
 openai = "^1.41.0"
 validators = "^0.33.0"
-toml = "^0.10.2"
 
 [tool.poetry.group.dev.dependencies]
 taskipy = "^1.13.0"
@@ -28,6 +27,7 @@ pytest-randomly = "^3.15.0"
 symbex = "^1.4"
 pytest-clarity = "^1.0.1"
 hypothesis = "^6.111.1"
+toml = "^0.10.2"
 
 [tool.pytest.ini_options]
 filterwarnings = [
