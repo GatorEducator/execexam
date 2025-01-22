@@ -64,8 +64,8 @@ def run(  # noqa: PLR0913, PLR0915
         ),
     ] = False,
     report: Optional[List[enumerations.ReportType]] = typer.Option(
-        None,
-        help="Types of reports to generate",
+        [enumerations.ReportType.exitcode],  # set the exitcode as default
+        help="Types of reports to generate.",
     ),
     mark: str = typer.Option(None, help="Run tests with specified mark(s)"),
     maxfail: int = typer.Option(
