@@ -285,7 +285,11 @@ def run(  # noqa: PLR0913, PLR0915
             failing_test_path = failing_test_path_dict["test_path"]
             # build the command for running symbex; this tool can
             # perform static analysis of Python source code and
-            # extract the code of a function inside of a file
+            # extract the code of a function inside of a file;
+            # note that the special use of quotation marks for
+            # this variable ensures that it creates a command
+            # that will run correctly on Windows, while still
+            # continuing to work on MacOS and Linux
             command = f'symbex "{test_name}" -f "{failing_test_path}"'
             # run the symbex command and collect its output
             process = subprocess.run(
